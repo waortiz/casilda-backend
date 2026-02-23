@@ -110,6 +110,33 @@ Con el token devuelto, autoriza en Swagger con:
 - `database/insert_usuarios_prueba.sql` (seed de usuarios)
 - `database/update_passwords_usuarios_prueba.sql` (actualización de hashes BCrypt)
 
+## Instalador para servidor Apache
+
+Se agregó un instalador listo para Linux con Apache HTTP Server en:
+
+- `deploy/apache/install-backend-apache.sh`
+- `deploy/apache/README_APACHE_INSTALLER.md`
+
+Este instalador:
+
+- Instala Java 21 + Apache (apt/dnf/yum)
+- Configura el backend como servicio `systemd`
+- Publica `/api/v1` detrás de Apache con `mod_proxy`
+
+Uso rápido:
+
+```bash
+mvn clean package -DskipTests
+sudo bash deploy/apache/install-backend-apache.sh
+```
+
+Opcional (dominio):
+
+```bash
+export SERVER_NAME=api.casilda.midominio.com
+sudo bash deploy/apache/install-backend-apache.sh
+```
+
 ## Notas importantes
 
 - El proyecto usa `context-path=/api/v1`; no dupliques prefijos (`/api/v1/api/v1/...`).

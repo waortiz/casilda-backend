@@ -5,16 +5,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entidad GrupoProfesional - Grupos de profesionales en el sistema.
+ */
 @Entity
-@Table(name = "dependencia")
+@Table(name = "grupoprofesional")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Dependencia {
+public class GrupoProfesional {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false)
+    @Column(name = "nombre", nullable = false, length = 200)
     private String nombre;
 }

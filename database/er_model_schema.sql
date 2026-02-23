@@ -78,11 +78,11 @@ CREATE TABLE persona (
     primerapellido character varying COLLATE pg_catalog."default" NOT NULL,
     segundoapellido character varying COLLATE pg_catalog."default",
     numerodocumento character varying COLLATE pg_catalog."default" NOT NULL,
-    fechanacimiento timestamp without time zone not null,
+    fechanacimiento timestamp without time zone,
     idtipoidentificacion INT not null,
-    idsexo INT not null,
-    idetnia INT not null,
-    idpaisnacimiento INT not null,
+    idsexo INT,
+    idetnia INT,
+    idpaisnacimiento INT,
     CONSTRAINT persona_pkey PRIMARY KEY (id),
     constraint persona_idtipoidentificacion_fkey FOREIGN KEY (idtipoidentificacion) REFERENCES tipoidentificacion(id) ON DELETE NO ACTION,
     constraint persona_idsexo_fkey FOREIGN KEY (idsexo) REFERENCES sexo(id) ON DELETE NO ACTION,
@@ -152,13 +152,14 @@ CREATE TABLE vinculoudea (
 CREATE TABLE caso (
     id bigserial NOT NULL,
     idpersona bigint not null,
-    idorientacionsexual INT not null,
-    ididentidadgenero INT not null,
-    iddependencia INT not null,
-    idfacultad INT not null,
-    idcampus INT not null,
-    idvinvuloagresorvictima INT not null,
-    idvinculoudea INT not null,
+    codigo character varying COLLATE pg_catalog."default" UNIQUE NOT NULL,
+    idorientacionsexual INT,
+    ididentidadgenero INT,
+    iddependencia INT,
+    idfacultad INT,
+    idcampus INT,
+    idvinvuloagresorvictima INT,
+    idvinculoudea INT,
     circunstancias character varying COLLATE pg_catalog."default",
     CONSTRAINT caso_pkey PRIMARY KEY (id),
     constraint caso_idorientacionsexual_fkey FOREIGN KEY (idorientacionsexual) REFERENCES orientacionsexual(id) ON DELETE NO ACTION,
@@ -204,6 +205,20 @@ CREATE TABLE tiposolicitud (
     CONSTRAINT tipo_solicitud_pkey PRIMARY KEY (id)
 );
 
+
+CREATE TABLE estadosolicitud
+(
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT estadosolicitud_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE estadocita
+(
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT estadocita_pkey PRIMARY KEY (id)
+);
 
 CREATE TABLE programa (
     id integer,
@@ -269,10 +284,12 @@ CREATE TABLE solicitudatencion (
     idremision bigint,
     fecha timestamp without time zone NOT NULL,
     idtiposolicitud INT not null,
+    idestadosolicitud INT not null,
     constraint solicitudatencion_pkey PRIMARY KEY (id),
     constraint solicitudatencion_idcaso_fkey FOREIGN KEY (idcaso) REFERENCES caso(id) ON DELETE NO ACTION,
     constraint solicitudatencion_idremision_fkey FOREIGN KEY (idremision) REFERENCES remision(id) ON DELETE NO ACTION,
-    constraint solicitudatencion_idtiposolicitud_fkey FOREIGN KEY (idtiposolicitud) REFERENCES tiposolicitud(id) ON DELETE NO ACTION
+    constraint solicitudatencion_idtiposolicitud_fkey FOREIGN KEY (idtiposolicitud) REFERENCES tiposolicitud(id) ON DELETE NO ACTION,
+    constraint solicitudatencion_idestadosolicitud_fkey FOREIGN KEY (idestadosolicitud) REFERENCES estadosolicitud(id) ON DELETE NO ACTION  
 );
 
 CREATE TABLE jornada (
@@ -308,6 +325,21 @@ CREATE TABLE asignacion (
     constraint asignacion_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION
 );
 
+CREATE TABLE grupoprofesional (
+    id int NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    constraint grupoprofesional_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE profesionalgrupoprofesional (
+    idgrupoprofesional int not null,
+    idprofesional bigint not null,
+    constraint profesionalgrupoprofesional_pkey PRIMARY KEY (idgrupoprofesional, idprofesional),
+    constraint profesionalgrupoprofesional_idgrupoprofesional_fkey FOREIGN KEY (idgrupoprofesional) REFERENCES grupoprofesional(id) ON DELETE NO ACTION,
+    constraint profesionalgrupoprofesional_idprofesional_fkey FOREIGN KEY (idprofesional) REFERENCES profesional(idpersona) ON DELETE NO ACTION
+);
+
+
 CREATE TABLE profesional (
     idpersona bigint not null,
     idcargo int  not null,
@@ -319,9 +351,9 @@ CREATE TABLE profesional (
 CREATE TABLE profesionalasignacion (
     idasignacion bigint not null,
     idprofesional bigint not null,
-    constraint detalleasignacion_pkey PRIMARY KEY (idasignacion, idprofesional),
-    constraint detalleasignacion_idasignacion_fkey FOREIGN KEY (idasignacion) REFERENCES asignacion(id) ON DELETE NO ACTION,
-    constraint detalleasignacion_idprofesional_fkey FOREIGN KEY (idprofesional) REFERENCES profesional(idpersona) ON DELETE NO ACTION
+    constraint profesionalasignacion_pkey PRIMARY KEY (idasignacion, idprofesional),
+    constraint profesionalasignacion_idasignacion_fkey FOREIGN KEY (idasignacion) REFERENCES asignacion(id) ON DELETE NO ACTION,
+    constraint profesionalasignacion_idprofesional_fkey FOREIGN KEY (idprofesional) REFERENCES profesional(idpersona) ON DELETE NO ACTION
 );
 
 CREATE TABLE regimen (
@@ -336,16 +368,23 @@ CREATE TABLE eps (
     constraint eps_pkey PRIMARY KEY (id)
 );
 
+CREATE TABLE cita (
+    id bigserial NOT NULL,
+    idsolicitudatencion bigint not null,
+    fecha timestamp without time zone NOT NULL,
+    idestadocita INT not null,
+    constraint cita_pkey PRIMARY KEY (id),
+    constraint cita_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION,
+    constraint cita_idestadocita_fkey FOREIGN KEY (idestadocita) REFERENCES estadocita(id) ON DELETE NO ACTION
+);
+
+
 CREATE TABLE atencion (
     id bigint NOT NULL,
     fecha timestamp without time zone NOT NULL,
-    idsolicitudatencion bigint not null,
-    idregimen INT not null,
-    ideps INT not null,
+    idcita bigint not null,
     constraint atencion_pkey PRIMARY KEY (id),
-    constraint atencion_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION,
-    constraint atencion_idregimen_fkey FOREIGN KEY (idregimen) REFERENCES regimen(id) ON DELETE NO ACTION,
-    constraint atencion_ideps_fkey FOREIGN KEY (ideps) REFERENCES eps(id) ON DELETE NO ACTION
+    constraint atencion_idcita_fkey FOREIGN KEY (idcita) REFERENCES cita(id) ON DELETE NO ACTION
 );
 
 CREATE TABLE archivoconsentimiento (

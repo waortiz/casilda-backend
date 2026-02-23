@@ -5,16 +5,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * Entidad maestro para estados de solicitud de atención
+ */
 @Entity
-@Table(name = "dependencia")
+@Table(name = "estadosolicitud")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Dependencia {
+public class EstadoSolicitud {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true, length = 100)
     private String nombre;
 }

@@ -27,32 +27,38 @@ public class Caso {
     @JoinColumn(name = "idpersona", nullable = false)
     private Persona persona;
 
+    @Column(name = "codigo", nullable = false, unique = true, length = 50)
+    private String codigo;
+
+    @Column(name = "fechacreacion")
+    private LocalDateTime fechaCreacion;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idorientacionsexual", nullable = false)
+    @JoinColumn(name = "idorientacionsexual")
     private OrientacionSexual orientacionSexual;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ididentidadgenero", nullable = false)
+    @JoinColumn(name = "ididentidadgenero")
     private IdentidadGenero identidadGenero;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "iddependencia", nullable = false)
+    @JoinColumn(name = "iddependencia")
     private Dependencia dependencia;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idfacultad", nullable = false)
+    @JoinColumn(name = "idfacultad")
     private FacultadEscuelaInstituto facultad;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idcampus", nullable = false)
+    @JoinColumn(name = "idcampus")
     private Campus campus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idvinvuloagresorvictima", nullable = false)
+    @JoinColumn(name = "idvinvuloagresorvictima")
     private VinculoAgresorVictima vinculoAgresorVictima;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idvinculoudea", nullable = false)
+    @JoinColumn(name = "idvinculoudea")
     private VinculoUdeA vinculoUdeA;
 
     @Column(name = "circunstancias", length = 1000)
@@ -66,4 +72,11 @@ public class Caso {
 
     @OneToMany(mappedBy = "caso", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ProgramaCaso> programas = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        if (fechaCreacion == null) {
+            fechaCreacion = LocalDateTime.now();
+        }
+    }
 }

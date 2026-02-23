@@ -38,7 +38,7 @@ public class Persona {
     @Column(name = "numerodocumento", nullable = false, length = 50, unique = true)
     private String numeroDocumento;
 
-    @Column(name = "fechanacimiento", nullable = false)
+    @Column(name = "fechanacimiento")
     private LocalDate fechaNacimiento;
 
     // Relaciones Many-to-One
@@ -47,15 +47,15 @@ public class Persona {
     private TipoIdentificacion tipoIdentificacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idsexo", nullable = false)
+    @JoinColumn(name = "idsexo")
     private Sexo sexo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idetnia", nullable = false)
+    @JoinColumn(name = "idetnia")
     private Etnia etnia;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idpaisnacimiento", nullable = false)
+    @JoinColumn(name = "idpaisnacimiento")
     private Pais paisNacimiento;
 
     // Relaciones Many-to-Many

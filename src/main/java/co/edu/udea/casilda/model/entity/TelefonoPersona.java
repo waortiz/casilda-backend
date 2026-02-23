@@ -6,24 +6,27 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(
-    name = "telefonopersona",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"idpersona", "idtipo"})
-)
+@Table(name = "telefonopersona")
+@IdClass(TelefonoPersonaId.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TelefonoPersona {
+    
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "idpersona", nullable = false)
+    private Long idpersona;
+
+    @Id
+    @Column(name = "idtipo", nullable = false)
+    private Integer idtipo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idpersona", nullable = false)
+    @JoinColumn(name = "idpersona", nullable = false, insertable = false, updatable = false)
     private Persona persona;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idtipo", nullable = false)
+    @JoinColumn(name = "idtipo", nullable = false, insertable = false, updatable = false)
     private TipoTelefono tipoTelefono;
 
     @Column(nullable = false, length = 20)

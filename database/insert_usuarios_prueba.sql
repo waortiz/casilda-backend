@@ -63,11 +63,11 @@ INSERT INTO usuario (email, password, nombre, idrol, activo) VALUES
 -- 4. Los usuarios están activos por defecto
 -- 
 -- ROLES:
--- 1 = ADMIN (Administración completa del sistema)
--- 2 = COORDINADOR (Gestión de casos, asignaciones y reportes)
--- 3 = PROFESIONAL (Atención de casos, registro de atenciones)
--- 4 = REVISOR (Revisión y aprobación de casos)
--- 5 = USUARIO (Usuario regular del sistema, puede crear solicitudes)
+-- 1 = Admin (Administración completa del sistema)
+-- 2 = Coordinador (Gestión de casos, asignaciones y reportes)
+-- 3 = Profesional (Atención de casos, registro de atenciones)
+-- 4 = Revisor (Revisión y aprobación de casos)
+-- 5 = Usuario (Usuario regular del sistema, puede crear solicitudes)
 -- ============================================================================
 
 -- ============================================================================

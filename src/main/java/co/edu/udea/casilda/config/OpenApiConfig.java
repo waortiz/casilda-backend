@@ -27,11 +27,17 @@ public class OpenApiConfig {
                                 OpenAPI JSON: `/api-docs`
                                 Swagger UI: `/swagger-ui.html`
 
+                                ## Módulos disponibles
+                                - **Autenticación**: Login y gestión de tokens JWT
+                                - **Usuarios**: Administración de usuarios del sistema (requiere rol ADMIN)
+                                - **Maestros**: Gestión de datos maestros (tipos de solicitud, campus, dependencias, etc.)
+                                - **Solicitudes**: Gestión de solicitudes de acompañamiento con generación automática de códigos únicos
+
                                 ## Pruebas rápidas en Swagger
                                 1. Consumir `POST /auth/login` con email y password válidos.
                                 2. Copiar el campo `token` de la respuesta.
                                 3. Click en `Authorize` y pegar: `Bearer <token>`.
-                                4. Probar endpoints de formularios, gestión y casos.
+                                4. Probar endpoints de usuarios, maestros y solicitudes.
                                 """)
                         .contact(new Contact()
                                 .name("Equipo CASILDA")

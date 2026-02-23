@@ -7,19 +7,25 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "programacaso")
+@IdClass(ProgramaCasoId.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProgramaCaso {
+    
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "idcaso", nullable = false)
+    private Long idcaso;
+
+    @Id
+    @Column(name = "idprograma", nullable = false)
+    private Integer idprograma;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idcaso", nullable = false)
+    @JoinColumn(name = "idcaso", nullable = false, insertable = false, updatable = false)
     private Caso caso;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idprograma", nullable = false)
+    @JoinColumn(name = "idprograma", nullable = false, insertable = false, updatable = false)
     private Programa programa;
 }

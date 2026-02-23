@@ -19,8 +19,7 @@ public class ArchivoConsentimiento {
     @JoinColumn(name = "idatencion", nullable = false)
     private Atencion atencion;
 
-    @Column(name = "contenido", nullable = false)
-    @Lob
+    @Column(name = "contenido", nullable = false, columnDefinition = "bytea")
     private byte[] contenido;
 
     @Column(name = "tipocontenido", nullable = false, length = 200)

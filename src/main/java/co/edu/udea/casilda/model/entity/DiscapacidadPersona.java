@@ -7,19 +7,25 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "discapacidadpersona")
+@IdClass(DiscapacidadPersonaId.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class DiscapacidadPersona {
+    
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "idpersona", nullable = false)
+    private Long idpersona;
+
+    @Id
+    @Column(name = "iddiscapacidad", nullable = false)
+    private Integer iddiscapacidad;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idpersona", nullable = false)
+    @JoinColumn(name = "idpersona", nullable = false, insertable = false, updatable = false)
     private Persona persona;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "iddiscapacidad", nullable = false)
+    @JoinColumn(name = "iddiscapacidad", nullable = false, insertable = false, updatable = false)
     private Discapacidad discapacidad;
 }

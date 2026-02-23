@@ -39,20 +39,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(
-                                "/api/auth/**",
-                        "/auth/**",
-                        "/maestros/**",
-                        "/usuarios/**",
-                        "/listas/**",
-                        "/quejas/**",
-                        "/acompanamientos/**",
-                        "/atenciones/**",
-                        "/casos/**",
-                        "/repartos/**",
-                        "/asignaciones/**",
-                        "/seguimiento/**",
-                        "/dashboard/**",
-                        "/api-docs/**",
+                                "/auth/**",
+                                "/api-docs/**",
                                 "/swagger-ui/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui.html"

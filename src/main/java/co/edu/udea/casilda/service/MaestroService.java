@@ -1,10 +1,13 @@
 package co.edu.udea.casilda.service;
 
+import co.edu.udea.casilda.dto.request.MaestroRequest;
 import co.edu.udea.casilda.dto.response.MaestroDTO;
+import co.edu.udea.casilda.model.entity.*;
 import co.edu.udea.casilda.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -303,5 +306,199 @@ public class MaestroService {
         return tipoTelefonoRepository.findAll().stream()
             .map(tt -> new MaestroDTO(tt.getId().longValue(), null, tt.getNombre()))
             .collect(Collectors.toList());
+    }
+
+    // ==================== MÉTODOS CRUD PARA MAESTROS ====================
+
+    /**
+     * Crear un nuevo tipo de solicitud
+     */
+    @Transactional
+    public MaestroDTO crearTipoSolicitud(MaestroRequest request) {
+        log.info("Creando tipo de solicitud: {}", request.getNombre());
+        TipoSolicitud tipoSolicitud = new TipoSolicitud();
+        tipoSolicitud.setId(request.getId());
+        tipoSolicitud.setNombre(request.getNombre());
+        TipoSolicitud saved = tipoSolicitudRepository.save(tipoSolicitud);
+        return new MaestroDTO(saved.getId().longValue(), null, saved.getNombre());
+    }
+
+    /**
+     * Actualizar un tipo de solicitud existente
+     */
+    @Transactional
+    public MaestroDTO actualizarTipoSolicitud(Integer id, MaestroRequest request) {
+        log.info("Actualizando tipo de solicitud con id: {}", id);
+        TipoSolicitud tipoSolicitud = tipoSolicitudRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Tipo de solicitud no encontrado con id: " + id));
+        tipoSolicitud.setNombre(request.getNombre());
+        TipoSolicitud updated = tipoSolicitudRepository.save(tipoSolicitud);
+        return new MaestroDTO(updated.getId().longValue(), null, updated.getNombre());
+    }
+
+    /**
+     * Eliminar un tipo de solicitud
+     */
+    @Transactional
+    public void eliminarTipoSolicitud(Integer id) {
+        log.info("Eliminando tipo de solicitud con id: {}", id);
+        if (!tipoSolicitudRepository.existsById(id)) {
+            throw new RuntimeException("Tipo de solicitud no encontrado con id: " + id);
+        }
+        tipoSolicitudRepository.deleteById(id);
+    }
+
+    /**
+     * Crear un nuevo campus
+     */
+    @Transactional
+    public MaestroDTO crearCampus(MaestroRequest request) {
+        log.info("Creando campus: {}", request.getNombre());
+        Campus campus = new Campus();
+        campus.setId(request.getId());
+        campus.setNombre(request.getNombre());
+        Campus saved = campusRepository.save(campus);
+        return new MaestroDTO(saved.getId().longValue(), null, saved.getNombre());
+    }
+
+    /**
+     * Actualizar un campus existente
+     */
+    @Transactional
+    public MaestroDTO actualizarCampus(Integer id, MaestroRequest request) {
+        log.info("Actualizando campus con id: {}", id);
+        Campus campus = campusRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Campus no encontrado con id: " + id));
+        campus.setNombre(request.getNombre());
+        Campus updated = campusRepository.save(campus);
+        return new MaestroDTO(updated.getId().longValue(), null, updated.getNombre());
+    }
+
+    /**
+     * Eliminar un campus
+     */
+    @Transactional
+    public void eliminarCampus(Integer id) {
+        log.info("Eliminando campus con id: {}", id);
+        if (!campusRepository.existsById(id)) {
+            throw new RuntimeException("Campus no encontrado con id: " + id);
+        }
+        campusRepository.deleteById(id);
+    }
+
+    /**
+     * Crear una nueva dependencia
+     */
+    @Transactional
+    public MaestroDTO crearDependencia(MaestroRequest request) {
+        log.info("Creando dependencia: {}", request.getNombre());
+        Dependencia dependencia = new Dependencia();
+        dependencia.setId(request.getId());
+        dependencia.setNombre(request.getNombre());
+        Dependencia saved = dependenciaRepository.save(dependencia);
+        return new MaestroDTO(saved.getId().longValue(), null, saved.getNombre());
+    }
+
+    /**
+     * Actualizar una dependencia existente
+     */
+    @Transactional
+    public MaestroDTO actualizarDependencia(Integer id, MaestroRequest request) {
+        log.info("Actualizando dependencia con id: {}", id);
+        Dependencia dependencia = dependenciaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Dependencia no encontrada con id: " + id));
+        dependencia.setNombre(request.getNombre());
+        Dependencia updated = dependenciaRepository.save(dependencia);
+        return new MaestroDTO(updated.getId().longValue(), null, updated.getNombre());
+    }
+
+    /**
+     * Eliminar una dependencia
+     */
+    @Transactional
+    public void eliminarDependencia(Integer id) {
+        log.info("Eliminando dependencia con id: {}", id);
+        if (!dependenciaRepository.existsById(id)) {
+            throw new RuntimeException("Dependencia no encontrada con id: " + id);
+        }
+        dependenciaRepository.deleteById(id);
+    }
+
+    /**
+     * Crear una nueva facultad
+     */
+    @Transactional
+    public MaestroDTO crearFacultad(MaestroRequest request) {
+        log.info("Creando facultad: {}", request.getNombre());
+        FacultadEscuelaInstituto facultad = new FacultadEscuelaInstituto();
+        facultad.setId(request.getId());
+        facultad.setNombre(request.getNombre());
+        FacultadEscuelaInstituto saved = facultadRepository.save(facultad);
+        return new MaestroDTO(saved.getId().longValue(), null, saved.getNombre());
+    }
+
+    /**
+     * Actualizar una facultad existente
+     */
+    @Transactional
+    public MaestroDTO actualizarFacultad(Integer id, MaestroRequest request) {
+        log.info("Actualizando facultad con id: {}", id);
+        FacultadEscuelaInstituto facultad = facultadRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Facultad no encontrada con id: " + id));
+        facultad.setNombre(request.getNombre());
+        FacultadEscuelaInstituto updated = facultadRepository.save(facultad);
+        return new MaestroDTO(updated.getId().longValue(), null, updated.getNombre());
+    }
+
+    /**
+     * Eliminar una facultad
+     */
+    @Transactional
+    public void eliminarFacultad(Integer id) {
+        log.info("Eliminando facultad con id: {}", id);
+        if (!facultadRepository.existsById(id)) {
+            throw new RuntimeException("Facultad no encontrada con id: " + id);
+        }
+        facultadRepository.deleteById(id);
+    }
+
+    /**
+     * Crear un nuevo tipo de identificación
+     */
+    @Transactional
+    public MaestroDTO crearTipoIdentificacion(MaestroRequest request) {
+        log.info("Creando tipo de identificación: {}", request.getNombre());
+        TipoIdentificacion tipoIdentificacion = new TipoIdentificacion();
+        tipoIdentificacion.setId(request.getId());
+        tipoIdentificacion.setCodigo(request.getCodigo());
+        tipoIdentificacion.setNombre(request.getNombre());
+        TipoIdentificacion saved = tipoIdentificacionRepository.save(tipoIdentificacion);
+        return new MaestroDTO(saved.getId().longValue(), saved.getCodigo(), saved.getNombre());
+    }
+
+    /**
+     * Actualizar un tipo de identificación existente
+     */
+    @Transactional
+    public MaestroDTO actualizarTipoIdentificacion(Integer id, MaestroRequest request) {
+        log.info("Actualizando tipo de identificación con id: {}", id);
+        TipoIdentificacion tipoIdentificacion = tipoIdentificacionRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Tipo de identificación no encontrado con id: " + id));
+        tipoIdentificacion.setCodigo(request.getCodigo());
+        tipoIdentificacion.setNombre(request.getNombre());
+        TipoIdentificacion updated = tipoIdentificacionRepository.save(tipoIdentificacion);
+        return new MaestroDTO(updated.getId().longValue(), updated.getCodigo(), updated.getNombre());
+    }
+
+    /**
+     * Eliminar un tipo de identificación
+     */
+    @Transactional
+    public void eliminarTipoIdentificacion(Integer id) {
+        log.info("Eliminando tipo de identificación con id: {}", id);
+        if (!tipoIdentificacionRepository.existsById(id)) {
+            throw new RuntimeException("Tipo de identificación no encontrado con id: " + id);
+        }
+        tipoIdentificacionRepository.deleteById(id);
     }
 }

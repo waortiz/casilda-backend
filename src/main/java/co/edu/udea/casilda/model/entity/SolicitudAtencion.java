@@ -38,6 +38,10 @@ public class SolicitudAtencion {
     @JoinColumn(name = "idtiposolicitud", nullable = false)
     private TipoSolicitud tipoSolicitud;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idestadosolicitud", nullable = false)
+    private EstadoSolicitud estadoSolicitud;
+
     @OneToMany(mappedBy = "solicitudAtencion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ContactoTelefonico> contactosTelefonicos = new ArrayList<>();
 

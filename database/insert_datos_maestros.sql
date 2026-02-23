@@ -527,9 +527,22 @@ INSERT INTO eps (id, nombre) VALUES
 -- 24. ROLES DE USUARIO
 -- ============================================================================
 INSERT INTO rol (id, nombre) VALUES
-(1, 'ADMIN'),
-(2, 'COORDINADOR'),
-(3, 'PROFESIONAL'),
-(4, 'REVISOR'),
-(5, 'USUARIO');
+(1, 'Admin'),
+(2, 'Coordinador'),
+(3, 'Profesional'),
+(4, 'Revisor'),
+(5, 'Usuario');
 
+
+-- ============================================================================
+-- 25. ESTADOS DE SOLICITUD
+-- ============================================================================
+insert into estadosolicitud values(1, 'Sin asignar');
+insert into estadosolicitud values(2, 'Asignada');
+
+
+-- ============================================================================
+-- 26. ESTADOS DE CITA
+-- ============================================================================
+insert into estadocita values(1, 'Sin asignar');
+insert into estadocita values(2, 'Asignada');
