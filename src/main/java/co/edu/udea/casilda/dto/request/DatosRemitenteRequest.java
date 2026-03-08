@@ -1,5 +1,8 @@
 package co.edu.udea.casilda.dto.request;
 
+import java.time.LocalDate;
+
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -15,6 +18,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class DatosRemitenteRequest {
 
+    @Column(name = "numerodocumento", nullable = false, length = 50, unique = true)
+    private String numeroDocumento;
+
     @NotBlank(message = "El primer nombre del remitente es obligatorio")
     @Size(min = 2, max = 100, message = "El primer nombre debe tener entre 2 y 100 caracteres")
     private String primerNombre;
@@ -29,6 +35,17 @@ public class DatosRemitenteRequest {
     @Size(max = 100, message = "El segundo apellido no puede exceder 100 caracteres")
     private String segundoApellido;
 
+    @Column(name = "fechanacimiento")
+    private LocalDate fechaNacimiento;
+
+    private Integer tipoDocumentoId;
+
     @NotNull(message = "El cargo del remitente es obligatorio")
     private Integer cargoId;
+
+    private Integer campusId;
+
+    private Integer dependenciaId;
+
+    private Integer facultadId;
 }

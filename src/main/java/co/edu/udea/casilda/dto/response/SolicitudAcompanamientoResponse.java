@@ -26,7 +26,6 @@ public class SolicitudAcompanamientoResponse {
     // Datos del solicitante (resumen)
     private String nombreSolicitante;
     private String documentoSolicitante;
-    private String correoSolicitante;
     
     // Datos del remitente (si aplica)
     private String nombreRemitente;

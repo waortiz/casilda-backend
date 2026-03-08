@@ -325,6 +325,14 @@ CREATE TABLE asignacion (
     constraint asignacion_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION
 );
 
+CREATE TABLE profesional (
+    idpersona bigint not null,
+    idcargo int  not null,
+    constraint profesional_pkey PRIMARY KEY (idpersona),
+    constraint profesional_idpersona_fkey FOREIGN KEY (idpersona) REFERENCES persona(id) ON DELETE NO ACTION,
+    constraint profesional_idcargo_fkey FOREIGN KEY (idcargo) REFERENCES cargo(id) ON DELETE NO ACTION
+);
+
 CREATE TABLE grupoprofesional (
     id int NOT NULL,
     nombre character varying COLLATE pg_catalog."default" NOT NULL,
@@ -339,14 +347,6 @@ CREATE TABLE profesionalgrupoprofesional (
     constraint profesionalgrupoprofesional_idprofesional_fkey FOREIGN KEY (idprofesional) REFERENCES profesional(idpersona) ON DELETE NO ACTION
 );
 
-
-CREATE TABLE profesional (
-    idpersona bigint not null,
-    idcargo int  not null,
-    constraint profesional_pkey PRIMARY KEY (idpersona),
-    constraint profesional_idpersona_fkey FOREIGN KEY (idpersona) REFERENCES persona(id) ON DELETE NO ACTION,
-    constraint profesional_idcargo_fkey FOREIGN KEY (idcargo) REFERENCES cargo(id) ON DELETE NO ACTION
-);
 
 CREATE TABLE profesionalasignacion (
     idasignacion bigint not null,

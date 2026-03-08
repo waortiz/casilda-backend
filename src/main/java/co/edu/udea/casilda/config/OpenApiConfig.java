@@ -6,7 +6,6 @@ import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import io.swagger.v3.oas.models.security.SecurityScheme;
-import io.swagger.v3.oas.models.servers.Server;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -16,14 +15,13 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .addServersItem(new Server().url("http://localhost:8080/api/v1").description("Servidor local"))
                 .info(new Info()
                         .title("CASILDA API")
                         .version("1.0.0")
                         .description("""
                                 API REST para el sistema de gestión CASILDA.
 
-                                Base URL: `http://localhost:8080/api/v1`
+                                Base URL: `<protocolo>://<sitio>/...` (tomada automáticamente del host actual)
                                 OpenAPI JSON: `/api-docs`
                                 Swagger UI: `/swagger-ui.html`
 

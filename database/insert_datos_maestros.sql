@@ -453,12 +453,8 @@ INSERT INTO modalidadviolenciasexual (id, nombre) VALUES
 -- 18. TIPOS DE SOLICITUD
 -- ============================================================================
 INSERT INTO tiposolicitud (id, nombre) VALUES
-(1, 'Psicológico'),
-(2, 'Jurídico'),
-(3, 'Académico'),
-(4, 'Social'),
-(5, 'Psicosocial'),
-(6, 'Salud');
+(1, 'Directa'),
+(2, 'Indirecta');
 
 -- ============================================================================
 -- 19. CARGOS
