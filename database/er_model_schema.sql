@@ -292,38 +292,22 @@ CREATE TABLE solicitudatencion (
     constraint solicitudatencion_idestadosolicitud_fkey FOREIGN KEY (idestadosolicitud) REFERENCES estadosolicitud(id) ON DELETE NO ACTION  
 );
 
-CREATE TABLE jornada (
-    id int NOT NULL,
-    nombre character varying COLLATE pg_catalog."default" NOT NULL,
-    constraint jornada_pkey PRIMARY KEY (id)
-);
-
 CREATE TABLE resultadocontactotelefonico (
     id int NOT NULL,
     nombre character varying COLLATE pg_catalog."default" NOT NULL,
     constraint resultadocontactotelefonico_pkey PRIMARY KEY (id)
 );
 
-
 CREATE TABLE contactotelefonico (
     id bigserial NOT NULL,
     idsolicitudatencion bigint not null,
     fecha timestamp without time zone NOT NULL,
-    idjornada INT not null,
     idresultado INT not null,
     CONSTRAINT contactotelefonico_pkey PRIMARY KEY (id),
     CONSTRAINT contactotelefonico_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION,
-    CONSTRAINT contactotelefonico_idjornada_fkey FOREIGN KEY (idjornada) REFERENCES jornada(id) ON DELETE NO ACTION,
     CONSTRAINT contactotelefonico_idresultado_fkey FOREIGN KEY (idresultado) REFERENCES resultadocontactotelefonico(id) ON DELETE NO ACTION
 );
 
-CREATE TABLE asignacion (
-    id bigserial NOT NULL,
-    fecha timestamp without time zone NOT NULL,
-    idsolicitudatencion bigint not null,
-    constraint asignacion_pkey PRIMARY KEY (id),
-    constraint asignacion_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION
-);
 
 CREATE TABLE profesional (
     idpersona bigint not null,
@@ -347,13 +331,14 @@ CREATE TABLE profesionalgrupoprofesional (
     constraint profesionalgrupoprofesional_idprofesional_fkey FOREIGN KEY (idprofesional) REFERENCES profesional(idpersona) ON DELETE NO ACTION
 );
 
-
-CREATE TABLE profesionalasignacion (
-    idasignacion bigint not null,
-    idprofesional bigint not null,
-    constraint profesionalasignacion_pkey PRIMARY KEY (idasignacion, idprofesional),
-    constraint profesionalasignacion_idasignacion_fkey FOREIGN KEY (idasignacion) REFERENCES asignacion(id) ON DELETE NO ACTION,
-    constraint profesionalasignacion_idprofesional_fkey FOREIGN KEY (idprofesional) REFERENCES profesional(idpersona) ON DELETE NO ACTION
+CREATE TABLE asignacion (
+    id bigserial NOT NULL,
+    fecha timestamp without time zone NOT NULL,
+    idsolicitudatencion bigint not null,
+    idgrupoprofesional int not null,
+    constraint asignacion_pkey PRIMARY KEY (id),
+    constraint asignacion_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION,
+    constraint asignacion_idgrupoprofesional_fkey FOREIGN KEY (idgrupoprofesional) REFERENCES grupoprofesional(id) ON DELETE NO ACTION
 );
 
 CREATE TABLE regimen (

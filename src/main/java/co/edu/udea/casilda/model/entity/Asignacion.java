@@ -5,11 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Entidad Asignacion - Asignación de profesionales a solicitudes de atención.
+ * Entidad Asignacion - Asignación de un grupo profesional a una solicitud de atención.
  */
 @Entity
 @Table(name = "asignacion")
@@ -29,11 +27,7 @@ public class Asignacion {
     @JoinColumn(name = "idsolicitudatencion", nullable = false)
     private SolicitudAtencion solicitudAtencion;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "profesionalasignacion",
-            joinColumns = @JoinColumn(name = "idasignacion"),
-            inverseJoinColumns = @JoinColumn(name = "idprofesional")
-    )
-    private List<Profesional> profesionales = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idgrupoprofesional", nullable = false)
+    private GrupoProfesional grupoProfesional;
 }

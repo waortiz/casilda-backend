@@ -1,8 +1,10 @@
 package co.edu.udea.casilda.controller;
 
 import co.edu.udea.casilda.dto.request.AsignarSolicitudRequest;
+import co.edu.udea.casilda.dto.request.ContactoTelefonicoRequest;
 import co.edu.udea.casilda.dto.request.SolicitudAcompanamientoRequest;
 import co.edu.udea.casilda.dto.request.UpdateSolicitudRequest;
+import co.edu.udea.casilda.dto.response.ContactoTelefonicoResponse;
 import co.edu.udea.casilda.dto.response.ProfesionalResponse;
 import co.edu.udea.casilda.dto.response.SolicitudAcompanamientoResponse;
 import co.edu.udea.casilda.service.SolicitudAcompanamientoService;
@@ -158,16 +160,40 @@ public class SolicitudController {
     }
 
     /**
-     * Lista todos los profesionales disponibles
+     * Lista todos los grupos profesionales disponibles
      */
-    @GetMapping("/profesionales")
+    @GetMapping("/grupos-profesionales")
     @SecurityRequirement(name = "bearerAuth")
     @Operation(
-            summary = "Listar profesionales",
-            description = "Obtiene todos los profesionales disponibles para asignación. **Requiere autenticación.**"
+            summary = "Listar grupos profesionales",
+            description = "Obtiene todos los grupos profesionales disponibles para asignación. **Requiere autenticación.**"
     )
-    @ApiResponse(responseCode = "200", description = "Lista de profesionales obtenida exitosamente")
-    public ResponseEntity<List<ProfesionalResponse>> listarProfesionales() {
-        return ResponseEntity.ok(service.listarProfesionales());
+    @ApiResponse(responseCode = "200", description = "Lista de grupos profesionales obtenida exitosamente")
+    public ResponseEntity<List<ProfesionalResponse>> listarGruposProfesionales() {
+        return ResponseEntity.ok(service.listarGruposProfesionales());
+    }
+
+    /**
+     * Registra un intento de contacto telefonico para una solicitud
+     */
+    @PostMapping("/acompanamiento/{id}/contacto")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Registrar contacto telefónico", description = "Registra un intento de contacto telefónico para una solicitud. **Requiere autenticación.**")
+    @ApiResponse(responseCode = "201", description = "Contacto registrado exitosamente")
+    public ResponseEntity<ContactoTelefonicoResponse> registrarContacto(
+            @PathVariable Long id,
+            @Valid @RequestBody ContactoTelefonicoRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(service.registrarContacto(id, request));
+    }
+
+    /**
+     * Lista los intentos de contacto telefonico de una solicitud
+     */
+    @GetMapping("/acompanamiento/{id}/contactos")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Listar contactos telefónicos", description = "Obtiene el historial de contactos telefónicos de una solicitud. **Requiere autenticación.**")
+    @ApiResponse(responseCode = "200", description = "Historial de contactos obtenido exitosamente")
+    public ResponseEntity<List<ContactoTelefonicoResponse>> listarContactos(@PathVariable Long id) {
+        return ResponseEntity.ok(service.listarContactos(id));
     }
 }

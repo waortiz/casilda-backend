@@ -41,7 +41,6 @@ public class MaestroService {
     private final TipoSolicitudRepository tipoSolicitudRepository;
     private final ProgramaRepository programaRepository;
     private final RoleRepository roleRepository;
-    private final JornadaRepository jornadaRepository;
     private final ResultadoContactoTelefonicoRepository resultadoContactoRepository;
     private final RegimenRepository regimenRepository;
     private final EPSRepository epsRepository;
@@ -245,16 +244,6 @@ public class MaestroService {
         log.info("Obteniendo roles desde la base de datos");
         return roleRepository.findAll().stream()
             .map(r -> new MaestroDTO(r.getId().longValue(), null, r.getNombre()))
-            .collect(Collectors.toList());
-    }
-
-    /**
-     * Obtiene lista de jornadas
-     */
-    public List<MaestroDTO> obtenerJornadas() {
-        log.info("Obteniendo jornadas desde la base de datos");
-        return jornadaRepository.findAll().stream()
-            .map(j -> new MaestroDTO(j.getId().longValue(), null, j.getNombre()))
             .collect(Collectors.toList());
     }
 

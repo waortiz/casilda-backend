@@ -28,10 +28,12 @@ public class ContactoTelefonico {
     private LocalDateTime fecha;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idjornada", nullable = false)
-    private Jornada jornada;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idresultado", nullable = false)
     private ResultadoContactoTelefonico resultado;
+
+    @Column(name = "observacion")
+    private String observacion;
+
+    @Column(name = "hora")
+    private String hora;
 }

@@ -1,6 +1,7 @@
 package co.edu.udea.casilda.service;
 
 import co.edu.udea.casilda.dto.request.*;
+import co.edu.udea.casilda.dto.response.ContactoTelefonicoResponse;
 import co.edu.udea.casilda.dto.response.ProfesionalResponse;
 import co.edu.udea.casilda.dto.response.SolicitudAcompanamientoResponse;
 import co.edu.udea.casilda.exception.ResourceNotFoundException;
@@ -52,7 +53,9 @@ public class SolicitudAcompanamientoService {
     private final TipoCorreoRepository tipoCorreoRepository;
     private final TipoTelefonoRepository tipoTelefonoRepository;
     private final AsignacionRepository asignacionRepository;
-    private final ProfesionalRepository profesionalRepository;
+    private final GrupoProfesionalRepository grupoProfesionalRepository;
+    private final ContactoTelefonicoRepository contactoTelefonicoRepository;
+    private final ResultadoContactoTelefonicoRepository resultadoContactoRepository;
 
     /**
      * Crea una nueva solicitud de acompañamiento usando arquitectura relacional
@@ -308,14 +311,12 @@ public class SolicitudAcompanamientoService {
     private SolicitudAcompanamientoResponse buildResponse(Caso caso, SolicitudAtencion solicitud, Remision remision) {
         Persona solicitante = caso.getPersona();
 
-        // Profesional asignado (última asignación)
+        // Grupo profesional asignado (última asignación)
         String profesionalNombre = "Sin asignar";
         if (solicitud.getAsignaciones() != null && !solicitud.getAsignaciones().isEmpty()) {
             Asignacion ultimaAsignacion = solicitud.getAsignaciones().get(solicitud.getAsignaciones().size() - 1);
-            if (!ultimaAsignacion.getProfesionales().isEmpty()) {
-                profesionalNombre = ultimaAsignacion.getProfesionales().stream()
-                        .map(p -> p.getPersona().getNombreCompleto())
-                        .collect(java.util.stream.Collectors.joining(" & "));
+            if (ultimaAsignacion.getGrupoProfesional() != null) {
+                profesionalNombre = ultimaAsignacion.getGrupoProfesional().getNombre();
             }
         }
 
@@ -498,12 +499,10 @@ public class SolicitudAcompanamientoService {
         asignacion.setFecha(LocalDateTime.now());
         asignacion.setSolicitudAtencion(solicitud);
 
-        if (req.getProfesionalesIds() != null && !req.getProfesionalesIds().isEmpty()) {
-            List<Profesional> profesionales = req.getProfesionalesIds().stream()
-                    .map(pid -> profesionalRepository.findById(pid)
-                            .orElseThrow(() -> new ResourceNotFoundException("Profesional no encontrado con ID: " + pid)))
-                    .collect(Collectors.toList());
-            asignacion.setProfesionales(profesionales);
+        if (req.getGrupoProfesionalId() != null) {
+            GrupoProfesional grupo = grupoProfesionalRepository.findById(req.getGrupoProfesionalId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Grupo profesional no encontrado con ID: " + req.getGrupoProfesionalId()));
+            asignacion.setGrupoProfesional(grupo);
         }
         asignacionRepository.save(asignacion);
 
@@ -516,17 +515,75 @@ public class SolicitudAcompanamientoService {
     }
 
     /**
-     * Lista todos los profesionales del sistema
+     * Registra un intento de contacto telefonico para una solicitud
+     */
+    @Transactional
+    public ContactoTelefonicoResponse registrarContacto(Long solicitudId, ContactoTelefonicoRequest req) {
+        SolicitudAtencion solicitud = solicitudAtencionRepository.findById(solicitudId)
+                .orElseThrow(() -> new ResourceNotFoundException("Solicitud no encontrada con ID: " + solicitudId));
+
+        ResultadoContactoTelefonico resultado = resultadoContactoRepository.findAll().stream()
+                .filter(r -> r.getNombre().equalsIgnoreCase(req.getResultado()))
+                .findFirst()
+                .orElseThrow(() -> new ResourceNotFoundException("Resultado de contacto no encontrado: " + req.getResultado()));
+
+        ContactoTelefonico contacto = new ContactoTelefonico();
+        contacto.setSolicitudAtencion(solicitud);
+        contacto.setFecha(java.time.LocalDateTime.now());
+        contacto.setResultado(resultado);
+        contacto.setObservacion(req.getObservacion());
+        contacto.setHora(req.getHora());
+        contactoTelefonicoRepository.save(contacto);
+
+        return ContactoTelefonicoResponse.builder()
+                .fecha(req.getFecha())
+                .hora(req.getHora())
+                .jornada(calcularJornada(req.getHora()))
+                .resultado(resultado.getNombre())
+                .observacion(req.getObservacion())
+                .build();
+    }
+
+    /**
+     * Lista los contactos telefonicos de una solicitud
      */
     @Transactional(readOnly = true)
-    public List<ProfesionalResponse> listarProfesionales() {
-        log.info("Listando todos los profesionales");
-        return profesionalRepository.findAll().stream()
-                .map(p -> ProfesionalResponse.builder()
-                        .id(p.getIdPersona())
-                        .nombre(p.getPersona().getNombreCompleto())
-                        .cargo(p.getCargo() != null ? p.getCargo().getNombre() : "")
+    public List<ContactoTelefonicoResponse> listarContactos(Long solicitudId) {
+        if (!solicitudAtencionRepository.existsById(solicitudId)) {
+            throw new ResourceNotFoundException("Solicitud no encontrada con ID: " + solicitudId);
+        }
+        return contactoTelefonicoRepository.findBySolicitudAtencionIdOrderByFechaDesc(solicitudId).stream()
+                .map(c -> ContactoTelefonicoResponse.builder()
+                        .fecha(c.getFecha() != null ? c.getFecha().toLocalDate().toString() : "")
+                        .hora(c.getHora() != null ? c.getHora() : "")
+                        .jornada(calcularJornada(c.getHora()))
+                        .resultado(c.getResultado().getNombre())
+                        .observacion(c.getObservacion() != null ? c.getObservacion() : "")
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Lista todos los grupos profesionales del sistema
+     */
+    @Transactional(readOnly = true)
+    public List<ProfesionalResponse> listarGruposProfesionales() {
+        log.info("Listando todos los grupos profesionales");
+        return grupoProfesionalRepository.findAll().stream()
+                .map(g -> ProfesionalResponse.builder()
+                        .id(g.getId().longValue())
+                        .nombre(g.getNombre())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    private String calcularJornada(String hora) {
+        if (hora == null || hora.isBlank()) return "";
+        try {
+            int h = Integer.parseInt(hora.split(":")[0]);
+            return h < 12 ? "Mañana" : "Tarde";
+        } catch (NumberFormatException e) {
+            return "";
+        }
     }
 }

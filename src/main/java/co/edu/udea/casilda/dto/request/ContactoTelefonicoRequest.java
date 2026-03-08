@@ -12,9 +12,6 @@ public class ContactoTelefonicoRequest {
     private String hora;
 
     @NotBlank
-    private String jornada;
-
-    @NotBlank
     private String resultado;
 
     @NotBlank

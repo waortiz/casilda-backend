@@ -146,12 +146,6 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerProgramas());
     }
 
-    @GetMapping("/jornadas")
-    @Operation(summary = "Obtener lista de jornadas")
-    public ResponseEntity<List<MaestroDTO>> obtenerJornadas() {
-        return ResponseEntity.ok(catalogoService.obtenerJornadas());
-    }
-
     @GetMapping("/resultados-contacto-telefonico")
     @Operation(summary = "Obtener lista de resultados de contacto telefónico")
     public ResponseEntity<List<MaestroDTO>> obtenerResultadosContactoTelefonico() {

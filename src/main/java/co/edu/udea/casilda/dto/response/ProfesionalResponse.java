@@ -15,5 +15,4 @@ import lombok.NoArgsConstructor;
 public class ProfesionalResponse {
     private Long id;
     private String nombre;
-    private String cargo;
 }
