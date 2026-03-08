@@ -3,10 +3,12 @@ package co.edu.udea.casilda.model.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Entidad que representa una Persona en el sistema CASILDA.
@@ -58,15 +60,21 @@ public class Persona {
     @JoinColumn(name = "idpaisnacimiento")
     private Pais paisNacimiento;
 
-    // Relaciones Many-to-Many
+    // Relaciones One-to-Many
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "persona", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<DiscapacidadPersona> discapacidades = new HashSet<>();
+    private List<DiscapacidadPersona> discapacidades = new ArrayList<>();
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "persona", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<CorreoPersona> correos = new HashSet<>();
+    private List<CorreoPersona> correos = new ArrayList<>();
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @OneToMany(mappedBy = "persona", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private Set<TelefonoPersona> telefonos = new HashSet<>();
+    private List<TelefonoPersona> telefonos = new ArrayList<>();
 
     // Método para obtener nombre completo
     public String getNombreCompleto() {

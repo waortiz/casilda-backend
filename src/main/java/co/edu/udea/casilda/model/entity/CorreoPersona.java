@@ -3,7 +3,9 @@ package co.edu.udea.casilda.model.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "correopersona")
@@ -21,6 +23,8 @@ public class CorreoPersona {
     @Column(name = "idtipo", nullable = false)
     private Integer idtipo;
 
+    @ToString.Exclude
+    @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idpersona", nullable = false, insertable = false, updatable = false)
     private Persona persona;

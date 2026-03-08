@@ -1,6 +1,9 @@
 package co.edu.udea.casilda.controller;
 
+import co.edu.udea.casilda.dto.request.AsignarSolicitudRequest;
 import co.edu.udea.casilda.dto.request.SolicitudAcompanamientoRequest;
+import co.edu.udea.casilda.dto.request.UpdateSolicitudRequest;
+import co.edu.udea.casilda.dto.response.ProfesionalResponse;
 import co.edu.udea.casilda.dto.response.SolicitudAcompanamientoResponse;
 import co.edu.udea.casilda.service.SolicitudAcompanamientoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -96,5 +99,75 @@ public class SolicitudController {
     public ResponseEntity<List<SolicitudAcompanamientoResponse>> listarTodas() {
         List<SolicitudAcompanamientoResponse> solicitudes = service.listarTodas();
         return ResponseEntity.ok(solicitudes);
+    }
+
+    /**
+     * Elimina una solicitud por ID
+     */
+    @DeleteMapping("/acompanamiento/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(
+            summary = "Eliminar solicitud",
+            description = "Elimina una solicitud de acompañamiento por su ID. **Requiere autenticación.**"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "204", description = "Solicitud eliminada exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Solicitud no encontrada")
+    })
+    public ResponseEntity<Void> eliminarSolicitud(@PathVariable Long id) {
+        service.eliminarSolicitud(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Actualiza los datos de una solicitud
+     */
+    @PutMapping("/acompanamiento/{id}")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(
+            summary = "Actualizar solicitud",
+            description = "Actualiza los datos del solicitante de una solicitud. **Requiere autenticación.**"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Solicitud actualizada exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Solicitud no encontrada")
+    })
+    public ResponseEntity<SolicitudAcompanamientoResponse> actualizarSolicitud(
+            @PathVariable Long id,
+            @RequestBody UpdateSolicitudRequest request) {
+        return ResponseEntity.ok(service.actualizarSolicitud(id, request));
+    }
+
+    /**
+     * Asigna profesionales a una solicitud
+     */
+    @PostMapping("/acompanamiento/{id}/asignar")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(
+            summary = "Asignar solicitud",
+            description = "Asigna profesionales a una solicitud y la marca como asignada. **Requiere autenticación.**"
+    )
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Solicitud asignada exitosamente"),
+            @ApiResponse(responseCode = "404", description = "Solicitud o profesional no encontrado")
+    })
+    public ResponseEntity<SolicitudAcompanamientoResponse> asignarSolicitud(
+            @PathVariable Long id,
+            @RequestBody AsignarSolicitudRequest request) {
+        return ResponseEntity.ok(service.asignarSolicitud(id, request));
+    }
+
+    /**
+     * Lista todos los profesionales disponibles
+     */
+    @GetMapping("/profesionales")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(
+            summary = "Listar profesionales",
+            description = "Obtiene todos los profesionales disponibles para asignación. **Requiere autenticación.**"
+    )
+    @ApiResponse(responseCode = "200", description = "Lista de profesionales obtenida exitosamente")
+    public ResponseEntity<List<ProfesionalResponse>> listarProfesionales() {
+        return ResponseEntity.ok(service.listarProfesionales());
     }
 }
