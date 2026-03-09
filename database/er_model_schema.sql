@@ -331,14 +331,30 @@ CREATE TABLE profesionalgrupoprofesional (
     constraint profesionalgrupoprofesional_idprofesional_fkey FOREIGN KEY (idprofesional) REFERENCES profesional(idpersona) ON DELETE NO ACTION
 );
 
+CREATE TABLE tipoasignacion (
+    id int not null,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    constraint tipoasignacion_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE tiposervicio (
+    id int not null,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    constraint tiposervicio_pkey PRIMARY KEY (id)
+);
+
 CREATE TABLE asignacion (
     id bigserial NOT NULL,
     fecha timestamp without time zone NOT NULL,
     idsolicitudatencion bigint not null,
     idgrupoprofesional int not null,
+    idtipoasignacion int not null,
+    idtiposervicio int not null,
     constraint asignacion_pkey PRIMARY KEY (id),
     constraint asignacion_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION,
-    constraint asignacion_idgrupoprofesional_fkey FOREIGN KEY (idgrupoprofesional) REFERENCES grupoprofesional(id) ON DELETE NO ACTION
+    constraint asignacion_idgrupoprofesional_fkey FOREIGN KEY (idgrupoprofesional) REFERENCES grupoprofesional(id) ON DELETE NO ACTION,
+    constraint asignacion_idtipoasignacion_fkey FOREIGN KEY (idtipoasignacion) REFERENCES tipoasignacion(id) ON DELETE NO ACTION,
+    constraint asignacion_idtiposervicio_fkey FOREIGN KEY (idtiposervicio) REFERENCES tiposervicio(id) ON DELETE NO ACTION
 );
 
 CREATE TABLE regimen (
@@ -380,4 +396,12 @@ CREATE TABLE archivoconsentimiento (
     nombre character varying(500) COLLATE pg_catalog."default" NOT NULL,
     constraint archivoconsentimiento_pkey PRIMARY KEY (id),
     constraint archivoconsentimiento_idatencion_fkey FOREIGN KEY (idatencion) REFERENCES atencion(id) ON DELETE NO ACTION
+);
+
+CREATE TABLE parametrosistema (
+    id serial NOT NULL,
+    clave character varying NOT NULL,
+    valor character varying NOT NULL,
+    CONSTRAINT parametrosistema_pkey PRIMARY KEY (id),
+    CONSTRAINT parametrosistema_clave_unique UNIQUE (clave)
 );

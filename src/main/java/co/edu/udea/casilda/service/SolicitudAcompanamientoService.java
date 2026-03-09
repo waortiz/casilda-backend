@@ -54,8 +54,13 @@ public class SolicitudAcompanamientoService {
     private final TipoTelefonoRepository tipoTelefonoRepository;
     private final AsignacionRepository asignacionRepository;
     private final GrupoProfesionalRepository grupoProfesionalRepository;
+    private final TipoAsignacionRepository tipoAsignacionRepository;
+    private final TipoServicioRepository tipoServicioRepository;
     private final ContactoTelefonicoRepository contactoTelefonicoRepository;
     private final ResultadoContactoTelefonicoRepository resultadoContactoRepository;
+    private final EstadoCitaRepository estadoCitaRepository;
+    private final CitaRepository citaRepository;
+    private final ParametroSistemaRepository parametroSistemaRepository;
 
     /**
      * Crea una nueva solicitud de acompañamiento usando arquitectura relacional
@@ -504,6 +509,16 @@ public class SolicitudAcompanamientoService {
                     .orElseThrow(() -> new ResourceNotFoundException("Grupo profesional no encontrado con ID: " + req.getGrupoProfesionalId()));
             asignacion.setGrupoProfesional(grupo);
         }
+        if (req.getIdTipoAsignacion() != null) {
+            TipoAsignacion tipoAsignacion = tipoAsignacionRepository.findById(req.getIdTipoAsignacion())
+                    .orElseThrow(() -> new ResourceNotFoundException("Tipo de asignación no encontrado con ID: " + req.getIdTipoAsignacion()));
+            asignacion.setTipoAsignacion(tipoAsignacion);
+        }
+        if (req.getIdTipoServicio() != null) {
+            TipoServicio tipoServicio = tipoServicioRepository.findById(req.getIdTipoServicio())
+                    .orElseThrow(() -> new ResourceNotFoundException("Tipo de servicio no encontrado con ID: " + req.getIdTipoServicio()));
+            asignacion.setTipoServicio(tipoServicio);
+        }
         asignacionRepository.save(asignacion);
 
         // Actualizar estado de la solicitud a ASIGNADA
@@ -515,7 +530,10 @@ public class SolicitudAcompanamientoService {
     }
 
     /**
-     * Registra un intento de contacto telefonico para una solicitud
+     * Registra un intento de contacto telefonico para una solicitud.
+     * Crea una cita automáticamente cuando:
+     * - La llamada resulta en "Contesta y se concerta cita" (id=1), o
+     * - El número de llamadas alcanza el máximo configurable (parámetro MAX_LLAMADAS_CONTACTO, defecto 2)
      */
     @Transactional
     public ContactoTelefonicoResponse registrarContacto(Long solicitudId, ContactoTelefonicoRequest req) {
@@ -527,6 +545,10 @@ public class SolicitudAcompanamientoService {
                 .findFirst()
                 .orElseThrow(() -> new ResourceNotFoundException("Resultado de contacto no encontrado: " + req.getResultado()));
 
+        // Contar llamadas previas para determinar el número de esta llamada
+        long llamadasPrevias = contactoTelefonicoRepository.countBySolicitudAtencionId(solicitudId);
+        long numeroDeLlamada = llamadasPrevias + 1;
+
         ContactoTelefonico contacto = new ContactoTelefonico();
         contacto.setSolicitudAtencion(solicitud);
         contacto.setFecha(java.time.LocalDateTime.now());
@@ -535,12 +557,46 @@ public class SolicitudAcompanamientoService {
         contacto.setHora(req.getHora());
         contactoTelefonicoRepository.save(contacto);
 
+        // Obtener el parámetro configurable de máximo de llamadas (defecto 2)
+        int maxLlamadas = 2;
+        Optional<ParametroSistema> param = parametroSistemaRepository.findByClave("MAX_LLAMADAS_CONTACTO");
+        if (param.isPresent()) {
+            try { maxLlamadas = Integer.parseInt(param.get().getValor()); } catch (NumberFormatException ignored) {}
+        }
+
+        // Determinar si se debe crear una cita:
+        // - Primera llamada exitosa ("Contesta y se concerta cita", id=1), o
+        // - Número de llamada alcanza el máximo (asignación unilateral)
+        boolean esConcertada = resultado.getId() == 1;
+        boolean esUnilateral  = numeroDeLlamada >= maxLlamadas;
+        boolean crearCita = esConcertada || esUnilateral;
+
+        Long citaId = null;
+        String fechaCitaStr = null;
+        if (crearCita && req.getFechaCita() != null && !req.getFechaCita().isBlank()
+                && req.getHoraCita() != null && !req.getHoraCita().isBlank()) {
+            log.info("Creando cita para solicitud {} (llamada {}, unilateral={})", solicitudId, numeroDeLlamada, esUnilateral);
+            LocalDateTime fechaHoraCita = LocalDateTime.parse(req.getFechaCita() + "T" + req.getHoraCita());
+            EstadoCita estadoSinAsignar = estadoCitaRepository.findById(1)
+                    .orElseThrow(() -> new ResourceNotFoundException("Estado de cita 'Sin asignar' no encontrado"));
+            Cita cita = new Cita();
+            cita.setSolicitudAtencion(solicitud);
+            cita.setFecha(fechaHoraCita);
+            cita.setEstadoCita(estadoSinAsignar);
+            cita = citaRepository.save(cita);
+            citaId = cita.getId();
+            fechaCitaStr = req.getFechaCita() + " " + req.getHoraCita();
+        }
+
         return ContactoTelefonicoResponse.builder()
                 .fecha(req.getFecha())
                 .hora(req.getHora())
                 .jornada(calcularJornada(req.getHora()))
                 .resultado(resultado.getNombre())
                 .observacion(req.getObservacion())
+                .citaCreada(citaId != null)
+                .citaId(citaId)
+                .fechaCita(fechaCitaStr)
                 .build();
     }
 

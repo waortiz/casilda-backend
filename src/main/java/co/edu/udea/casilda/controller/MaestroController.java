@@ -176,6 +176,18 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerTiposTelefono());
     }
 
+    @GetMapping("/tipos-asignacion")
+    @Operation(summary = "Obtener lista de tipos de asignación")
+    public ResponseEntity<List<MaestroDTO>> obtenerTiposAsignacion() {
+        return ResponseEntity.ok(catalogoService.obtenerTiposAsignacion());
+    }
+
+    @GetMapping("/tipos-servicio")
+    @Operation(summary = "Obtener lista de tipos de servicio")
+    public ResponseEntity<List<MaestroDTO>> obtenerTiposServicio() {
+        return ResponseEntity.ok(catalogoService.obtenerTiposServicio());
+    }
+
     // ==================== ENDPOINTS CRUD PARA MAESTROS ====================
 
     // TIPOS DE SOLICITUD

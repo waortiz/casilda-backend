@@ -9,4 +9,9 @@ import java.util.List;
 @Repository
 public interface ContactoTelefonicoRepository extends JpaRepository<ContactoTelefonico, Long> {
     List<ContactoTelefonico> findBySolicitudAtencionIdOrderByFechaDesc(Long solicitudId);
+
+    /**
+     * Cuenta el número de contactos telefónicos registrados para una solicitud
+     */
+    long countBySolicitudAtencionId(Long solicitudId);
 }

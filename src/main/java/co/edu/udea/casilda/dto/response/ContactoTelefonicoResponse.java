@@ -15,4 +15,7 @@ public class ContactoTelefonicoResponse {
     private String jornada;
     private String resultado;
     private String observacion;
+    private Boolean citaCreada;
+    private Long citaId;
+    private String fechaCita;
 }

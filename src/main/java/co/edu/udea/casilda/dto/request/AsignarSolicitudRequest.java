@@ -10,8 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AsignarSolicitudRequest {
     private Integer grupoProfesionalId;
-    private String tipoAsignacion;
-    private String servicio;
+    private Integer idTipoAsignacion;
+    private Integer idTipoServicio;
     private String observaciones;
     private String fechaReparto;
 }

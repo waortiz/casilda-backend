@@ -46,6 +46,8 @@ public class MaestroService {
     private final EPSRepository epsRepository;
     private final TipoCorreoRepository tipoCorreoRepository;
     private final TipoTelefonoRepository tipoTelefonoRepository;
+    private final TipoAsignacionRepository tipoAsignacionRepository;
+    private final TipoServicioRepository tipoServicioRepository;
 
     /**
      * Obtiene lista de países
@@ -489,5 +491,27 @@ public class MaestroService {
             throw new RuntimeException("Tipo de identificación no encontrado con id: " + id);
         }
         tipoIdentificacionRepository.deleteById(id);
+    }
+
+    /**
+     * Obtiene lista de tipos de asignación
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerTiposAsignacion() {
+        log.info("Obteniendo tipos de asignación desde la base de datos");
+        return tipoAsignacionRepository.findAll().stream()
+            .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de tipos de servicio
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerTiposServicio() {
+        log.info("Obteniendo tipos de servicio desde la base de datos");
+        return tipoServicioRepository.findAll().stream()
+            .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
+            .collect(Collectors.toList());
     }
 }

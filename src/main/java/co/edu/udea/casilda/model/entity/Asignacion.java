@@ -30,4 +30,12 @@ public class Asignacion {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idgrupoprofesional", nullable = false)
     private GrupoProfesional grupoProfesional;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idtipoasignacion")
+    private TipoAsignacion tipoAsignacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idtiposervicio")
+    private TipoServicio tipoServicio;
 }

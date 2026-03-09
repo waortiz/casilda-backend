@@ -16,4 +16,10 @@ public class ContactoTelefonicoRequest {
 
     @NotBlank
     private String observacion;
+
+    /** Fecha de la cita a crear (yyyy-MM-dd). Solo requerido cuando aplica asignación de cita. */
+    private String fechaCita;
+
+    /** Hora de la cita a crear (HH:mm). Solo requerido cuando aplica asignación de cita. */
+    private String horaCita;
 }
