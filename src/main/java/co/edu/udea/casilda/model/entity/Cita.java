@@ -30,4 +30,11 @@ public class Cita {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idestadocita", nullable = false)
     private EstadoCita estadoCita;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idmotivoestadocita")
+    private MotivoEstadoCita motivoEstadoCita;
+
+    @Column(name = "observaciones", length = 500)
+    private String observaciones;
 }

@@ -369,16 +369,24 @@ CREATE TABLE eps (
     constraint eps_pkey PRIMARY KEY (id)
 );
 
+CREATE TABLE motivoestadocita (
+    id int not null,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    constraint motivoestadocita_pkey PRIMARY KEY (id)
+);
+
 CREATE TABLE cita (
     id bigserial NOT NULL,
     idsolicitudatencion bigint not null,
     fecha timestamp without time zone NOT NULL,
     idestadocita INT not null,
+    idmotivoestadocita int,
+    observaciones character varying COLLATE pg_catalog."default",
     constraint cita_pkey PRIMARY KEY (id),
     constraint cita_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION,
-    constraint cita_idestadocita_fkey FOREIGN KEY (idestadocita) REFERENCES estadocita(id) ON DELETE NO ACTION
+    constraint cita_idestadocita_fkey FOREIGN KEY (idestadocita) REFERENCES estadocita(id) ON DELETE NO ACTION,
+    constraint cita_idmotivoestadocita_fkey FOREIGN KEY (idmotivoestadocita) REFERENCES motivoestadocita(id) ON DELETE NO ACTION
 );
-
 
 CREATE TABLE atencion (
     id bigint NOT NULL,

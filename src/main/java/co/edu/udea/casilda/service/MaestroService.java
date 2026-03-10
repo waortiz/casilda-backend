@@ -48,6 +48,7 @@ public class MaestroService {
     private final TipoTelefonoRepository tipoTelefonoRepository;
     private final TipoAsignacionRepository tipoAsignacionRepository;
     private final TipoServicioRepository tipoServicioRepository;
+    private final MotivoEstadoCitaRepository motivoEstadoCitaRepository;
 
     /**
      * Obtiene lista de países
@@ -512,6 +513,17 @@ public class MaestroService {
         log.info("Obteniendo tipos de servicio desde la base de datos");
         return tipoServicioRepository.findAll().stream()
             .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de motivos del estado de la cita
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerMotivosEstadoCita() {
+        log.info("Obteniendo motivos de estado de cita desde la base de datos");
+        return motivoEstadoCitaRepository.findAll().stream()
+            .map(m -> new MaestroDTO(m.getId().longValue(), null, m.getNombre()))
             .collect(Collectors.toList());
     }
 }

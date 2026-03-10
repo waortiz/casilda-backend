@@ -471,14 +471,6 @@ INSERT INTO cargo (id, nombre) VALUES
 (9, 'Otro');
 
 -- ============================================================================
--- 20. JORNADAS
--- ============================================================================
-INSERT INTO jornada (id, nombre) VALUES
-(1, 'Mañana'),
-(2, 'Tarde'),
-(3, 'N/A');
-
--- ============================================================================
 -- 21. RESULTADO CONTACTO TELEFÓNICO
 -- ============================================================================
 INSERT INTO resultadocontactotelefonico (id, nombre) VALUES
@@ -540,5 +532,14 @@ insert into estadosolicitud values(2, 'Asignada');
 -- ============================================================================
 -- 26. ESTADOS DE CITA
 -- ============================================================================
-insert into estadocita values(1, 'Sin asignar');
-insert into estadocita values(2, 'Asignada');
+insert into estadocita values(1, 'Creada');
+insert into estadocita values(2, 'Cancelada');
+insert into estadocita values(3, 'Reprogramada');
+
+
+INSERT INTO public.motivoestadocita (id, nombre) VALUES 
+    (1, 'Inasistencia injustificada'),
+    (2,'Cambio de agenda de la dupla o la profesional'),
+    (3,'Circunstancias externas'),
+    (4,'Solicitud de persona a atender'),
+    (5,'NA')

@@ -188,6 +188,12 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerTiposServicio());
     }
 
+    @GetMapping("/motivos-estado-cita")
+    @Operation(summary = "Obtener lista de motivos del estado de la cita")
+    public ResponseEntity<List<MaestroDTO>> obtenerMotivosEstadoCita() {
+        return ResponseEntity.ok(catalogoService.obtenerMotivosEstadoCita());
+    }
+
     // ==================== ENDPOINTS CRUD PARA MAESTROS ====================
 
     // TIPOS DE SOLICITUD

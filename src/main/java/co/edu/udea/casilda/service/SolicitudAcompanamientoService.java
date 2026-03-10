@@ -6,6 +6,7 @@ import co.edu.udea.casilda.dto.response.ProfesionalResponse;
 import co.edu.udea.casilda.dto.response.SolicitudAcompanamientoResponse;
 import co.edu.udea.casilda.exception.ResourceNotFoundException;
 import co.edu.udea.casilda.model.entity.*;
+import co.edu.udea.casilda.model.enums.EstadoCitaEnum;
 import co.edu.udea.casilda.model.enums.EstadoSolicitud;
 import co.edu.udea.casilda.model.enums.TipoCorreoEnum;
 import co.edu.udea.casilda.model.enums.TipoSolicitud;
@@ -577,12 +578,12 @@ public class SolicitudAcompanamientoService {
                 && req.getHoraCita() != null && !req.getHoraCita().isBlank()) {
             log.info("Creando cita para solicitud {} (llamada {}, unilateral={})", solicitudId, numeroDeLlamada, esUnilateral);
             LocalDateTime fechaHoraCita = LocalDateTime.parse(req.getFechaCita() + "T" + req.getHoraCita());
-            EstadoCita estadoSinAsignar = estadoCitaRepository.findById(1)
-                    .orElseThrow(() -> new ResourceNotFoundException("Estado de cita 'Sin asignar' no encontrado"));
+            EstadoCita estadoCreada = estadoCitaRepository.findById(EstadoCitaEnum.CREADA.getId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Estado de cita 'Creada' no encontrado"));
             Cita cita = new Cita();
             cita.setSolicitudAtencion(solicitud);
             cita.setFecha(fechaHoraCita);
-            cita.setEstadoCita(estadoSinAsignar);
+            cita.setEstadoCita(estadoCreada);
             cita = citaRepository.save(cita);
             citaId = cita.getId();
             fechaCitaStr = req.getFechaCita() + " " + req.getHoraCita();
