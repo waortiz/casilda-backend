@@ -34,6 +34,17 @@ public class Caso {
     private LocalDateTime fechaCreacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idusuariocreacion")
+    private Usuario usuarioCreacion;
+
+    @Column(name = "fechaactualizacion")
+    private LocalDateTime fechaActualizacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idusuarioactualizacion")
+    private Usuario usuarioActualizacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idorientacionsexual")
     private OrientacionSexual orientacionSexual;
 
@@ -78,5 +89,13 @@ public class Caso {
         if (fechaCreacion == null) {
             fechaCreacion = LocalDateTime.now();
         }
+        if (fechaActualizacion == null) {
+            fechaActualizacion = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        fechaActualizacion = LocalDateTime.now();
     }
 }

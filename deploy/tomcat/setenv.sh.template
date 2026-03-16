@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# Java 21 (ajusta según tu servidor)
+export JAVA_HOME="/usr/lib/jvm/java-21-openjdk-amd64"
+
+# Opciones JVM
+export JAVA_OPTS="-Xms512m -Xmx1024m -Dfile.encoding=UTF-8"
+
+# Variables Spring Boot
+export SPRING_PROFILES_ACTIVE="prod"
+export SERVER_PORT="8080"
+export SERVER_SERVLET_CONTEXT_PATH="/api/v1"
+
+export SPRING_DATASOURCE_URL="jdbc:postgresql://localhost:5432/casilda"
+export SPRING_DATASOURCE_USERNAME="postgres"
+export SPRING_DATASOURCE_PASSWORD="CAMBIAR_ESTA_CLAVE"
+
+export SPRING_JPA_HIBERNATE_DDL_AUTO="update"
+export SPRING_JPA_SHOW_SQL="false"
+
+export JWT_SECRET="CAMBIAR_EN_PRODUCCION"
+export JWT_EXPIRATION="86400000"

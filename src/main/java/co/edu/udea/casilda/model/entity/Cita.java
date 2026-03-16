@@ -27,6 +27,20 @@ public class Cita {
     @Column(name = "fecha", nullable = false)
     private LocalDateTime fecha;
 
+    @Column(name = "fechacreacion")
+    private LocalDateTime fechaCreacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idusuariocreacion")
+    private Usuario usuarioCreacion;
+
+    @Column(name = "fechaactualizacion")
+    private LocalDateTime fechaActualizacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idusuarioactualizacion")
+    private Usuario usuarioActualizacion;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idestadocita", nullable = false)
     private EstadoCita estadoCita;
@@ -37,4 +51,19 @@ public class Cita {
 
     @Column(name = "observaciones", length = 500)
     private String observaciones;
+
+    @PrePersist
+    protected void onCreate() {
+        if (fechaCreacion == null) {
+            fechaCreacion = LocalDateTime.now();
+        }
+        if (fechaActualizacion == null) {
+            fechaActualizacion = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        fechaActualizacion = LocalDateTime.now();
+    }
 }

@@ -1,0 +1,71 @@
+flowchart LR
+    Base[Base URL: /api/v1]
+
+    subgraph AUTH[AuthController]
+        A1[POST /auth/login]
+    end
+
+    subgraph MAESTROS[MaestroController]
+        M1[GET /maestros/paises]
+        M2[GET /maestros/sexos]
+        M3[GET /maestros/tipos-identificacion]
+        M4[GET /maestros/etnias]
+        M5[GET /maestros/identidades-genero]
+        M6[GET /maestros/orientaciones-sexuales]
+        M7[GET /maestros/discapacidades]
+        M8[GET /maestros/departamentos]
+        M9[GET /maestros/municipios]
+        M10[GET /maestros/campus]
+        M11[GET /maestros/dependencias]
+        M12[GET /maestros/facultades]
+        M13[GET /maestros/vinculos-agresor-victima]
+        M14[GET /maestros/vinculos-udea]
+        M15[GET /maestros/modalidades-violencia]
+        M16[GET /maestros/modalidades-violencia-sexual]
+        M17[GET /maestros/cargos]
+        M18[GET /maestros/tipos-solicitud]
+        M19[GET /maestros/programas]
+        M20[GET /maestros/roles]
+        M21[GET /maestros/jornadas]
+        M22[GET /maestros/resultados-contacto-telefonico]
+        M23[GET /maestros/regimenes]
+        M24[GET /maestros/eps]
+        M25[GET /maestros/tipos-correo]
+        M26[GET /maestros/tipos-telefono]
+    end
+
+    subgraph FORMULARIOS[FormularioController]
+        F1[POST /quejas]
+        F2[POST /acompanamientos]
+        F3[POST /atenciones]
+    end
+
+    subgraph GESTION[GestionController]
+        G1[GET /usuarios]
+        G2[POST /usuarios]
+        G3[PUT /usuarios/:id]
+        G4[PATCH /usuarios/:id/estado]
+        G5[DELETE /usuarios/:id]
+        G6[GET /listas]
+        G7[POST /listas/:nombreLista/items]
+        G8[PUT /listas/:nombreLista/items]
+        G9[DELETE /listas/:nombreLista/items por query item]
+    end
+
+    subgraph CASOS[CasosController]
+        C1[GET /casos]
+        C2[GET /casos/sin-asignar]
+        C3[PUT /casos/:codigo]
+        C4[POST /repartos]
+        C5[GET /asignaciones/mis-casos por query profesional]
+        C6[GET /acompanamientos/:codigoCaso/contactos]
+        C7[POST /acompanamientos/:codigoCaso/contactos]
+        C8[GET /seguimiento/:codigoCaso]
+        C9[GET /dashboard/revisor]
+    end
+
+    Base --> AUTH
+    Base --> MAESTROS
+    Base --> FORMULARIOS
+    Base --> GESTION
+    Base --> CASOS

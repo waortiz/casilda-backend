@@ -1,0 +1,61 @@
+flowchart TB
+    Client[Frontend Angular / Cliente HTTP]
+    Apache[Apache HTTP Server / Reverse Proxy]
+    Tomcat[Tomcat 10 / Spring Boot Runtime]
+
+    subgraph API[API Layer - Controllers]
+        AuthC[AuthController]
+        MaestroC[MaestroController]
+        FormularioC[FormularioController]
+        GestionC[GestionController]
+        CasosC[CasosController]
+    end
+
+    subgraph Security[Security Layer]
+        SecCfg[SecurityConfig]
+        JwtFilter[JwtAuthenticationFilter]
+        JwtSvc[JwtService]
+        UserDetails[UsuarioDetailsService]
+        AuthSvc[AuthService]
+    end
+
+    subgraph App[Application Layer - Services]
+        WorkflowSvc[FormularioWorkflowService]
+        MaestroSvc[MaestroService]
+    end
+
+    subgraph Data[Data Layer]
+        Repos[Spring Data Repositories]
+        Entities[Entidades JPA\nUsuario, Caso, Persona, Campus, etc.]
+        PG[(PostgreSQL)]
+    end
+
+    subgraph Docs[Docs Layer]
+        OpenApi[OpenApiConfig]
+        Swagger[Swagger UI /api/v1/swagger-ui.html]
+    end
+
+    Client --> Apache --> Tomcat
+    Tomcat --> API
+
+    AuthC --> AuthSvc
+    AuthSvc --> JwtSvc
+    AuthSvc --> UserDetails
+
+    MaestroC --> MaestroSvc
+    FormularioC --> WorkflowSvc
+    GestionC --> WorkflowSvc
+    CasosC --> WorkflowSvc
+
+    JwtFilter --> JwtSvc
+    JwtFilter --> UserDetails
+    SecCfg --> JwtFilter
+
+    MaestroSvc --> Repos
+    WorkflowSvc --> Repos
+    UserDetails --> Repos
+
+    Repos --> Entities --> PG
+
+    OpenApi --> Swagger
+    API -.documentado por.-> OpenApi

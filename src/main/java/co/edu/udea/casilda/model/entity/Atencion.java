@@ -23,6 +23,20 @@ public class Atencion {
     @Column(name = "fecha", nullable = false)
     private LocalDateTime fecha;
 
+    @Column(name = "fechacreacion")
+    private LocalDateTime fechaCreacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idusuariocreacion")
+    private Usuario usuarioCreacion;
+
+    @Column(name = "fechaactualizacion")
+    private LocalDateTime fechaActualizacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idusuarioactualizacion")
+    private Usuario usuarioActualizacion;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idsolicitudatencion", nullable = false)
     private SolicitudAtencion solicitudAtencion;
@@ -37,4 +51,19 @@ public class Atencion {
 
     @OneToMany(mappedBy = "atencion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private java.util.List<ArchivoConsentimiento> archivos = new java.util.ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        if (fechaCreacion == null) {
+            fechaCreacion = LocalDateTime.now();
+        }
+        if (fechaActualizacion == null) {
+            fechaActualizacion = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        fechaActualizacion = LocalDateTime.now();
+    }
 }

@@ -1,0 +1,19 @@
+[Unit]
+Description=__APP_NAME__ Spring Boot Service
+After=network.target
+
+[Service]
+Type=simple
+User=__APP_USER__
+Group=__APP_GROUP__
+WorkingDirectory=__INSTALL_DIR__
+EnvironmentFile=__CONFIG_DIR__/__APP_NAME__.env
+ExecStart=/usr/bin/java ${JAVA_OPTS} -jar __INSTALL_DIR__/__APP_NAME__.jar
+SuccessExitStatus=143
+Restart=always
+RestartSec=10
+StandardOutput=append:__LOG_DIR__/application.log
+StandardError=append:__LOG_DIR__/application-error.log
+
+[Install]
+WantedBy=multi-user.target

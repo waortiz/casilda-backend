@@ -153,6 +153,10 @@ CREATE TABLE caso (
     id bigserial NOT NULL,
     idpersona bigint not null,
     codigo character varying COLLATE pg_catalog."default" UNIQUE NOT NULL,
+    fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuariocreacion bigint,
+    fechaactualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuarioactualizacion bigint,
     idorientacionsexual INT,
     ididentidadgenero INT,
     iddependencia INT,
@@ -255,6 +259,10 @@ CREATE TABLE usuario (
     constraint usuario_idrol_fkey FOREIGN KEY (idrol) REFERENCES rol(id) ON DELETE NO ACTION
 );
 
+ALTER TABLE caso
+    ADD CONSTRAINT caso_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
+    ADD CONSTRAINT caso_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION;
+
 CREATE TABLE cargo (
     id int NOT NULL,
     nombre character varying COLLATE pg_catalog."default" NOT NULL,
@@ -268,13 +276,18 @@ CREATE TABLE remision (
     iddependencia INT not null,
     idfacultad INT not null,
     idcampus INT not null,
-    fecha timestamp without time zone NOT NULL,
+    fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuariocreacion bigint,
+    fechaactualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuarioactualizacion bigint,
     constraint remision_pkey PRIMARY KEY (id),
     constraint remision_idremitente_fkey FOREIGN KEY (idremitente) REFERENCES persona(id) ON DELETE NO ACTION,
     constraint remision_idcargo_fkey FOREIGN KEY (idcargo) REFERENCES cargo(id) ON DELETE NO ACTION,
     constraint remision_iddependencia_fkey FOREIGN KEY (iddependencia) REFERENCES dependencia(id) ON DELETE NO ACTION,
     constraint remision_idfacultad_fkey FOREIGN KEY (idfacultad) REFERENCES facultadescuelainstituto(id) ON DELETE NO ACTION,
-    constraint remision_idcampus_fkey FOREIGN KEY (idcampus) REFERENCES campus(id) ON DELETE NO ACTION
+    constraint remision_idcampus_fkey FOREIGN KEY (idcampus) REFERENCES campus(id) ON DELETE NO ACTION,
+    constraint remision_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
+    constraint remision_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION
 );
 
 
@@ -282,14 +295,19 @@ CREATE TABLE solicitudatencion (
     id bigserial NOT NULL,
     idcaso bigint not null,
     idremision bigint,
-    fecha timestamp without time zone NOT NULL,
+    fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuariocreacion bigint,
+    fechaactualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuarioactualizacion bigint,
     idtiposolicitud INT not null,
     idestadosolicitud INT not null,
     constraint solicitudatencion_pkey PRIMARY KEY (id),
     constraint solicitudatencion_idcaso_fkey FOREIGN KEY (idcaso) REFERENCES caso(id) ON DELETE NO ACTION,
     constraint solicitudatencion_idremision_fkey FOREIGN KEY (idremision) REFERENCES remision(id) ON DELETE NO ACTION,
     constraint solicitudatencion_idtiposolicitud_fkey FOREIGN KEY (idtiposolicitud) REFERENCES tiposolicitud(id) ON DELETE NO ACTION,
-    constraint solicitudatencion_idestadosolicitud_fkey FOREIGN KEY (idestadosolicitud) REFERENCES estadosolicitud(id) ON DELETE NO ACTION  
+    constraint solicitudatencion_idestadosolicitud_fkey FOREIGN KEY (idestadosolicitud) REFERENCES estadosolicitud(id) ON DELETE NO ACTION,
+    constraint solicitudatencion_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
+    constraint solicitudatencion_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION
 );
 
 CREATE TABLE resultadocontactotelefonico (
@@ -301,11 +319,16 @@ CREATE TABLE resultadocontactotelefonico (
 CREATE TABLE contactotelefonico (
     id bigserial NOT NULL,
     idsolicitudatencion bigint not null,
-    fecha timestamp without time zone NOT NULL,
+    fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuariocreacion bigint,
+    fechaactualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuarioactualizacion bigint,
     idresultado INT not null,
     CONSTRAINT contactotelefonico_pkey PRIMARY KEY (id),
     CONSTRAINT contactotelefonico_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION,
-    CONSTRAINT contactotelefonico_idresultado_fkey FOREIGN KEY (idresultado) REFERENCES resultadocontactotelefonico(id) ON DELETE NO ACTION
+    CONSTRAINT contactotelefonico_idresultado_fkey FOREIGN KEY (idresultado) REFERENCES resultadocontactotelefonico(id) ON DELETE NO ACTION,
+    CONSTRAINT contactotelefonico_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
+    CONSTRAINT contactotelefonico_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION
 );
 
 
@@ -345,7 +368,10 @@ CREATE TABLE tiposervicio (
 
 CREATE TABLE asignacion (
     id bigserial NOT NULL,
-    fecha timestamp without time zone NOT NULL,
+    fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuariocreacion bigint,
+    fechaactualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuarioactualizacion bigint,
     idsolicitudatencion bigint not null,
     idgrupoprofesional int not null,
     idtipoasignacion int not null,
@@ -354,7 +380,9 @@ CREATE TABLE asignacion (
     constraint asignacion_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION,
     constraint asignacion_idgrupoprofesional_fkey FOREIGN KEY (idgrupoprofesional) REFERENCES grupoprofesional(id) ON DELETE NO ACTION,
     constraint asignacion_idtipoasignacion_fkey FOREIGN KEY (idtipoasignacion) REFERENCES tipoasignacion(id) ON DELETE NO ACTION,
-    constraint asignacion_idtiposervicio_fkey FOREIGN KEY (idtiposervicio) REFERENCES tiposervicio(id) ON DELETE NO ACTION
+    constraint asignacion_idtiposervicio_fkey FOREIGN KEY (idtiposervicio) REFERENCES tiposervicio(id) ON DELETE NO ACTION,
+    constraint asignacion_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
+    constraint asignacion_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION
 );
 
 CREATE TABLE regimen (
@@ -379,21 +407,33 @@ CREATE TABLE cita (
     id bigserial NOT NULL,
     idsolicitudatencion bigint not null,
     fecha timestamp without time zone NOT NULL,
+    fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuariocreacion bigint,
+    fechaactualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuarioactualizacion bigint,
     idestadocita INT not null,
     idmotivoestadocita int,
     observaciones character varying COLLATE pg_catalog."default",
     constraint cita_pkey PRIMARY KEY (id),
     constraint cita_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION,
     constraint cita_idestadocita_fkey FOREIGN KEY (idestadocita) REFERENCES estadocita(id) ON DELETE NO ACTION,
-    constraint cita_idmotivoestadocita_fkey FOREIGN KEY (idmotivoestadocita) REFERENCES motivoestadocita(id) ON DELETE NO ACTION
+    constraint cita_idmotivoestadocita_fkey FOREIGN KEY (idmotivoestadocita) REFERENCES motivoestadocita(id) ON DELETE NO ACTION,
+    constraint cita_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
+    constraint cita_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION
 );
 
 CREATE TABLE atencion (
     id bigint NOT NULL,
     fecha timestamp without time zone NOT NULL,
+    fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuariocreacion bigint,
+    fechaactualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuarioactualizacion bigint,
     idcita bigint not null,
     constraint atencion_pkey PRIMARY KEY (id),
-    constraint atencion_idcita_fkey FOREIGN KEY (idcita) REFERENCES cita(id) ON DELETE NO ACTION
+    constraint atencion_idcita_fkey FOREIGN KEY (idcita) REFERENCES cita(id) ON DELETE NO ACTION,
+    constraint atencion_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
+    constraint atencion_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION
 );
 
 CREATE TABLE archivoconsentimiento (

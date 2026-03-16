@@ -11,8 +11,11 @@ import co.edu.udea.casilda.model.enums.EstadoCitaEnum;
 import co.edu.udea.casilda.repository.CitaRepository;
 import co.edu.udea.casilda.repository.EstadoCitaRepository;
 import co.edu.udea.casilda.repository.MotivoEstadoCitaRepository;
+import co.edu.udea.casilda.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,6 +35,7 @@ public class CitaService {
     private final CitaRepository citaRepository;
     private final EstadoCitaRepository estadoCitaRepository;
     private final MotivoEstadoCitaRepository motivoEstadoCitaRepository;
+    private final UsuarioRepository usuarioRepository;
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
@@ -59,6 +63,10 @@ public class CitaService {
             cita.setMotivoEstadoCita(motivo);
         }
         cita.setObservaciones(req.getObservaciones());
+        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
+        if (usuarioAutenticado != null) {
+            cita.setUsuarioActualizacion(usuarioAutenticado);
+        }
         return mapToResponse(citaRepository.save(cita));
     }
 
@@ -76,6 +84,10 @@ public class CitaService {
             cita.setMotivoEstadoCita(motivo);
         }
         cita.setObservaciones(req.getObservaciones());
+        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
+        if (usuarioAutenticado != null) {
+            cita.setUsuarioActualizacion(usuarioAutenticado);
+        }
         return mapToResponse(citaRepository.save(cita));
     }
 
@@ -161,5 +173,19 @@ public class CitaService {
                 .correoInstitucional(correoInstitucional)
                 .correoPersonal(correoPersonal)
                 .build();
+    }
+
+    private Usuario obtenerUsuarioAutenticado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        String email = authentication.getName();
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+
+        return usuarioRepository.findByEmail(email).orElse(null);
     }
 }

@@ -14,6 +14,8 @@ import co.edu.udea.casilda.model.enums.TipoTelefonoEnum;
 import co.edu.udea.casilda.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,6 +64,7 @@ public class SolicitudAcompanamientoService {
     private final EstadoCitaRepository estadoCitaRepository;
     private final CitaRepository citaRepository;
     private final ParametroSistemaRepository parametroSistemaRepository;
+    private final UsuarioRepository usuarioRepository;
 
     /**
      * Crea una nueva solicitud de acompañamiento usando arquitectura relacional
@@ -242,8 +245,11 @@ public class SolicitudAcompanamientoService {
      */
     private Caso crearCaso(Persona persona, SolicitudAcompanamientoRequest request) {
         Caso caso = new Caso();
+        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
         caso.setPersona(persona);
         caso.setCodigo(generarCodigoCaso());
+        caso.setUsuarioCreacion(usuarioAutenticado);
+        caso.setUsuarioActualizacion(usuarioAutenticado);
         caso.setIdentidadGenero(identidadGeneroRepository.findById(request.getDatosSolicitante().getIdentidadGeneroId())
                 .orElseThrow(() -> new ResourceNotFoundException("IdentidadGenero no encontrada con ID: " + request.getDatosSolicitante().getIdentidadGeneroId())));
         
@@ -254,6 +260,8 @@ public class SolicitudAcompanamientoService {
      * Crea una remisión para reportes indirectos
      */
     private Remision crearRemision(DatosRemitenteRequest datos) {
+        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
+
         // Crear persona simple para remitente (sin validación de documento)
         Persona remitente = new Persona();
         remitente.setPrimerNombre(datos.getPrimerNombre());
@@ -270,7 +278,8 @@ public class SolicitudAcompanamientoService {
         // Crear remisión
         Remision remision = new Remision();
         remision.setRemitente(remitenteGuardado);
-        remision.setFecha(LocalDateTime.now());
+        remision.setUsuarioCreacion(usuarioAutenticado);
+        remision.setUsuarioActualizacion(usuarioAutenticado);
         
         remision.setCargo(cargoRepository.findById(datos.getCargoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo no encontrado con ID: " + datos.getCargoId())));
@@ -298,9 +307,11 @@ public class SolicitudAcompanamientoService {
      */
     private SolicitudAtencion crearSolicitudAtencion(Caso caso, Remision remision, SolicitudAcompanamientoRequest request) {
         SolicitudAtencion solicitud = new SolicitudAtencion();
+        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
         solicitud.setCaso(caso);
         solicitud.setRemision(remision);
-        solicitud.setFecha(LocalDateTime.now());
+        solicitud.setUsuarioCreacion(usuarioAutenticado);
+        solicitud.setUsuarioActualizacion(usuarioAutenticado);
         
         solicitud.setTipoSolicitud(tipoSolicitudRepository.findById(request.getTipoSolicitudId())
                 .orElseThrow(() -> new ResourceNotFoundException("TipoSolicitud no encontrado con ID: " + request.getTipoSolicitudId())));
@@ -375,7 +386,9 @@ public class SolicitudAcompanamientoService {
         String remitenteCampus = "";
         String remitenteDependencia = "";
         String remitenteFacultad = "";
-        String remitenteFechaSolicitud = remision != null ? remision.getFecha().toLocalDate().toString() : "";
+        String remitenteFechaSolicitud = remision != null && remision.getFechaCreacion() != null
+            ? remision.getFechaCreacion().toLocalDate().toString()
+            : "";
         String remitenteTipoDocumento = "";
         String remitenteNumeroDocumento = "";
         String nombreRemitente = null;
@@ -400,7 +413,7 @@ public class SolicitudAcompanamientoService {
                 .codigo(caso.getCodigo())
                 .tipoSolicitud(solicitud.getTipoSolicitud().getNombre())
                 .estado(solicitud.getEstadoSolicitud().getNombre())
-                .fechaCreacion(solicitud.getFecha())
+                .fechaCreacion(solicitud.getFechaCreacion())
                 .profesional(profesionalNombre)
                 // Solicitante resumen
                 .nombreSolicitante(solicitante.getNombreCompleto())
@@ -485,6 +498,12 @@ public class SolicitudAcompanamientoService {
                     .findFirst()
                     .ifPresent(ig -> solicitud.getCaso().setIdentidadGenero(ig));
         }
+
+        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
+        if (usuarioAutenticado != null) {
+            solicitud.getCaso().setUsuarioActualizacion(usuarioAutenticado);
+        }
+
         personaRepository.save(persona);
         casoRepository.save(solicitud.getCaso());
 
@@ -499,11 +518,13 @@ public class SolicitudAcompanamientoService {
         log.info("Asignando profesionales a solicitud con ID: {}", id);
         SolicitudAtencion solicitud = solicitudAtencionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Solicitud no encontrada con ID: " + id));
+        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
 
         // Crear asignación
         Asignacion asignacion = new Asignacion();
-        asignacion.setFecha(LocalDateTime.now());
         asignacion.setSolicitudAtencion(solicitud);
+        asignacion.setUsuarioCreacion(usuarioAutenticado);
+        asignacion.setUsuarioActualizacion(usuarioAutenticado);
 
         if (req.getGrupoProfesionalId() != null) {
             GrupoProfesional grupo = grupoProfesionalRepository.findById(req.getGrupoProfesionalId())
@@ -525,6 +546,9 @@ public class SolicitudAcompanamientoService {
         // Actualizar estado de la solicitud a ASIGNADA
         solicitud.setEstadoSolicitud(estadoSolicitudRepository.findById(EstadoSolicitud.ASIGNADA.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Estado ASIGNADA no encontrado")));
+        if (usuarioAutenticado != null) {
+            solicitud.setUsuarioActualizacion(usuarioAutenticado);
+        }
         solicitudAtencionRepository.save(solicitud);
 
         return buildResponse(solicitud.getCaso(), solicitud, solicitud.getRemision());
@@ -540,6 +564,7 @@ public class SolicitudAcompanamientoService {
     public ContactoTelefonicoResponse registrarContacto(Long solicitudId, ContactoTelefonicoRequest req) {
         SolicitudAtencion solicitud = solicitudAtencionRepository.findById(solicitudId)
                 .orElseThrow(() -> new ResourceNotFoundException("Solicitud no encontrada con ID: " + solicitudId));
+        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
 
         ResultadoContactoTelefonico resultado = resultadoContactoRepository.findAll().stream()
                 .filter(r -> r.getNombre().equalsIgnoreCase(req.getResultado()))
@@ -552,7 +577,8 @@ public class SolicitudAcompanamientoService {
 
         ContactoTelefonico contacto = new ContactoTelefonico();
         contacto.setSolicitudAtencion(solicitud);
-        contacto.setFecha(java.time.LocalDateTime.now());
+        contacto.setUsuarioCreacion(usuarioAutenticado);
+        contacto.setUsuarioActualizacion(usuarioAutenticado);
         contacto.setResultado(resultado);
         contacto.setObservacion(req.getObservacion());
         contacto.setHora(req.getHora());
@@ -584,6 +610,8 @@ public class SolicitudAcompanamientoService {
             cita.setSolicitudAtencion(solicitud);
             cita.setFecha(fechaHoraCita);
             cita.setEstadoCita(estadoCreada);
+            cita.setUsuarioCreacion(usuarioAutenticado);
+            cita.setUsuarioActualizacion(usuarioAutenticado);
             cita = citaRepository.save(cita);
             citaId = cita.getId();
             fechaCitaStr = req.getFechaCita() + " " + req.getHoraCita();
@@ -609,9 +637,9 @@ public class SolicitudAcompanamientoService {
         if (!solicitudAtencionRepository.existsById(solicitudId)) {
             throw new ResourceNotFoundException("Solicitud no encontrada con ID: " + solicitudId);
         }
-        return contactoTelefonicoRepository.findBySolicitudAtencionIdOrderByFechaDesc(solicitudId).stream()
+        return contactoTelefonicoRepository.findBySolicitudAtencionIdOrderByFechaCreacionDesc(solicitudId).stream()
                 .map(c -> ContactoTelefonicoResponse.builder()
-                        .fecha(c.getFecha() != null ? c.getFecha().toLocalDate().toString() : "")
+                        .fecha(c.getFechaCreacion() != null ? c.getFechaCreacion().toLocalDate().toString() : "")
                         .hora(c.getHora() != null ? c.getHora() : "")
                         .jornada(calcularJornada(c.getHora()))
                         .resultado(c.getResultado().getNombre())
@@ -642,5 +670,19 @@ public class SolicitudAcompanamientoService {
         } catch (NumberFormatException e) {
             return "";
         }
+    }
+
+    private Usuario obtenerUsuarioAutenticado() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return null;
+        }
+
+        String email = authentication.getName();
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+
+        return usuarioRepository.findByEmail(email).orElse(null);
     }
 }

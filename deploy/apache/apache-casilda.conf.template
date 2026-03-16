@@ -1,0 +1,15 @@
+<VirtualHost *:80>
+    ServerName __SERVER_NAME__
+
+    ProxyPreserveHost On
+    ProxyRequests Off
+
+    RequestHeader set X-Forwarded-Proto "http"
+    RequestHeader set X-Forwarded-Port "80"
+
+    ProxyPass        __CONTEXT_PATH__ http://127.0.0.1:__BACKEND_PORT____CONTEXT_PATH__
+    ProxyPassReverse __CONTEXT_PATH__ http://127.0.0.1:__BACKEND_PORT____CONTEXT_PATH__
+
+    ErrorLog ${APACHE_LOG_DIR}/__APP_NAME__-error.log
+    CustomLog ${APACHE_LOG_DIR}/__APP_NAME__-access.log combined
+</VirtualHost>
