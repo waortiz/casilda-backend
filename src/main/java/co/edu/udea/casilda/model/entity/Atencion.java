@@ -38,8 +38,16 @@ public class Atencion {
     private Usuario usuarioActualizacion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idsolicitudatencion", nullable = false)
-    private SolicitudAtencion solicitudAtencion;
+    @JoinColumn(name = "idcita", nullable = false)
+    private Cita cita;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idtiposervicio", nullable = false)
+    private TipoServicio tipoServicio;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idlugarentrevista", nullable = false)
+    private Municipio lugarEntrevista;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idregimen", nullable = false)
@@ -48,6 +56,9 @@ public class Atencion {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ideps", nullable = false)
     private EPS eps;
+
+    @Column(name = "logroacuerdo", nullable = false)
+    private boolean logroAcuerdo;
 
     @OneToMany(mappedBy = "atencion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private java.util.List<ArchivoConsentimiento> archivos = new java.util.ArrayList<>();

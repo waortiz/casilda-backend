@@ -18,14 +18,17 @@ public class DiscapacidadPersona {
     private Long idpersona;
 
     @Id
-    @Column(name = "iddiscapacidad", nullable = false)
-    private Integer iddiscapacidad;
+    @Column(name = "idsubtipodiscapacidad", nullable = false)
+    private Integer idsubtipodiscapacidad;
+
+    @Column(name = "descripcion")
+    private String descripcion;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idpersona", nullable = false, insertable = false, updatable = false)
     private Persona persona;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "iddiscapacidad", nullable = false, insertable = false, updatable = false)
-    private Discapacidad discapacidad;
+    @JoinColumn(name = "idsubtipodiscapacidad", nullable = false, insertable = false, updatable = false)
+    private SubTipoDiscapacidad subTipoDiscapacidad;
 }

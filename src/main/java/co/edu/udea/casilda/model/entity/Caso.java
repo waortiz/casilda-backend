@@ -49,6 +49,10 @@ public class Caso {
     private OrientacionSexual orientacionSexual;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ididentidadsexual", nullable = false)
+    private IdentidadSexual identidadSexual;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ididentidadgenero")
     private IdentidadGenero identidadGenero;
 
@@ -65,15 +69,54 @@ public class Caso {
     private Campus campus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idvinvuloagresorvictima")
-    private VinculoAgresorVictima vinculoAgresorVictima;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idvinculoudea")
     private VinculoUdeA vinculoUdeA;
 
-    @Column(name = "circunstancias", length = 1000)
-    private String circunstancias;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idsubvinculoudea")
+    private SubVinculoUdeA subVinculoUdeA;
+
+    @Column(name = "hacecuantooccurrio", length = 255)
+    private String haceCuantoOccurrio;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idformaocurrencia")
+    private FormaOcurrencia formaOcurrencia;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idlugarocurrencia")
+    private LugarOcurrencia lugarOcurrencia;
+
+    @Column(name = "violenciabasadagenero")
+    private Boolean violenciaBasadaGenero;
+
+    @Column(name = "hechoviolenciaocurrioactividadesmisionales")
+    private Boolean hechoViolenciaOcurrioActividadesMisionales;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idactivadmisional")
+    private ActividadMisional actividadMisional;
+
+    @Column(name = "tipoviolenciapsicologica")
+    private Boolean tipoViolenciaPsicologica;
+
+    @Column(name = "tipoviolenciafisica")
+    private Boolean tipoViolenciaFisica;
+
+    @Column(name = "tipoviolenciasexual")
+    private Boolean tipoViolenciaSexual;
+
+    @Column(name = "tipoviolenciainstitucional")
+    private Boolean tipoViolenciaInstitucional;
+
+    @Column(name = "tipoviolenciaeconomicapatrimonial")
+    private Boolean tipoViolenciaEconomicaPatrimonial;
+
+    @Column(name = "tipoviolenciasexualinformatica")
+    private Boolean tipoViolenciaSexualInformatica;
+
+    @Column(name = "tipoviolenciaporprejuicio")
+    private Boolean tipoViolenciaPorPrejuicio;
 
     @OneToMany(mappedBy = "caso", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ModalidadViolenciaCaso> modalidadesViolencia = new ArrayList<>();

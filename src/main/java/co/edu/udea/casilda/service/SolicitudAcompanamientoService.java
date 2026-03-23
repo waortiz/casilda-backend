@@ -164,7 +164,7 @@ public class SolicitudAcompanamientoService {
         persona.setNumeroDocumento(datos.getNumeroDocumento());
         
         // Usar la fecha de nacimiento proporcionada
-        persona.setFechaNacimiento(datos.getFechaNacimiento());
+        persona.setFechaNacimiento(datos.getFechaNacimiento().atStartOfDay());
 
         // Lookup FK a tablas maestras usando IDs
         persona.setTipoIdentificacion(tipoIdentificacionRepository.findById(datos.getTipoDocumentoId())
@@ -269,7 +269,7 @@ public class SolicitudAcompanamientoService {
         remitente.setPrimerApellido(datos.getPrimerApellido());
         remitente.setSegundoApellido(datos.getSegundoApellido());
         remitente.setNumeroDocumento(datos.getNumeroDocumento());
-        remitente.setFechaNacimiento(datos.getFechaNacimiento());
+        remitente.setFechaNacimiento(datos.getFechaNacimiento().atStartOfDay());
         remitente.setTipoIdentificacion(tipoIdentificacionRepository.findById(datos.getTipoDocumentoId())
                 .orElseThrow(() -> new ResourceNotFoundException("TipoIdentificacion no encontrado con ID: " + datos.getTipoDocumentoId())));
 

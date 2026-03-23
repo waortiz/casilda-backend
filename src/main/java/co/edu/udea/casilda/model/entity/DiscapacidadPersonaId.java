@@ -10,5 +10,5 @@ import java.io.Serializable;
 @AllArgsConstructor
 public class DiscapacidadPersonaId implements Serializable {
     private Long idpersona;
-    private Integer iddiscapacidad;
+    private Integer idsubtipodiscapacidad;
 }

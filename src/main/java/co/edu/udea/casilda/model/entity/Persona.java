@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,11 +37,11 @@ public class Persona {
     @Column(name = "segundoapellido", length = 100)
     private String segundoApellido;
 
-    @Column(name = "numerodocumento", nullable = false, length = 50, unique = true)
+    @Column(name = "numerodocumento", nullable = false, length = 50)
     private String numeroDocumento;
 
     @Column(name = "fechanacimiento")
-    private LocalDate fechaNacimiento;
+    private LocalDateTime fechaNacimiento;
 
     // Relaciones Many-to-One
     @ManyToOne(fetch = FetchType.LAZY)
@@ -57,8 +57,8 @@ public class Persona {
     private Etnia etnia;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idpaisnacimiento")
-    private Pais paisNacimiento;
+    @JoinColumn(name = "idciudadnacimiento", nullable = false)
+    private Municipio ciudadNacimiento;
 
     // Relaciones One-to-Many
     @ToString.Exclude

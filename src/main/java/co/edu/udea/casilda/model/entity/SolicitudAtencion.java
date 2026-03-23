@@ -59,9 +59,6 @@ public class SolicitudAtencion {
     @OneToMany(mappedBy = "solicitudAtencion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Asignacion> asignaciones = new ArrayList<>();
 
-    @OneToMany(mappedBy = "solicitudAtencion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<Atencion> atenciones = new ArrayList<>();
-
     @PrePersist
     protected void onCreate() {
         if (fechaCreacion == null) {

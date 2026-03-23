@@ -2,6 +2,7 @@ package co.edu.udea.casilda.service;
 
 import co.edu.udea.casilda.dto.request.MaestroRequest;
 import co.edu.udea.casilda.dto.response.MaestroDTO;
+import co.edu.udea.casilda.exception.ResourceNotFoundException;
 import co.edu.udea.casilda.model.entity.*;
 import co.edu.udea.casilda.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,8 @@ public class MaestroService {
     private final EtniaRepository etniaRepository;
     private final IdentidadGeneroRepository identidadGeneroRepository;
     private final OrientacionSexualRepository orientacionSexualRepository;
-    private final DiscapacidadRepository discapacidadRepository;
+    private final SubTipoDiscapacidadRepository subTipoDiscapacidadRepository;
+    private final TipoDiscapacidadRepository tipoDiscapacidadRepository;
     private final DepartamentoRepository departamentoRepository;
     private final MunicipioRepository municipioRepository;
     private final CampusRepository campusRepository;
@@ -35,6 +37,13 @@ public class MaestroService {
     private final FacultadEscuelaInstitutoRepository facultadRepository;
     private final VinculoAgresorVictimaRepository vinculoAgresorRepository;
     private final VinculoUdeARepository vinculoUdeARepository;
+    private final SubVinculoUdeARepository subVinculoUdeARepository;
+    private final IdentidadSexualRepository identidadSexualRepository;
+    private final FormaOcurrenciaRepository formaOcurrenciaRepository;
+    private final LugarOcurrenciaRepository lugarOcurrenciaRepository;
+    private final ActividadMisionalRepository actividadMisionalRepository;
+    private final TipoViolenciaRepository tipoViolenciaRepository;
+    private final GrupoAtencionRepository grupoAtencionRepository;
     private final ModalidadViolenciaRepository modalidadViolenciaRepository;
     private final ModalidadViolenciaSexualRepository modalidadViolenciaSexualRepository;
     private final CargoRepository cargoRepository;
@@ -42,6 +51,7 @@ public class MaestroService {
     private final ProgramaRepository programaRepository;
     private final RoleRepository roleRepository;
     private final ResultadoContactoTelefonicoRepository resultadoContactoRepository;
+    private final EstadoSolicitudRepository estadoSolicitudRepository;
     private final RegimenRepository regimenRepository;
     private final EPSRepository epsRepository;
     private final TipoCorreoRepository tipoCorreoRepository;
@@ -49,6 +59,11 @@ public class MaestroService {
     private final TipoAsignacionRepository tipoAsignacionRepository;
     private final TipoServicioRepository tipoServicioRepository;
     private final MotivoEstadoCitaRepository motivoEstadoCitaRepository;
+    private final ApreciacionRepository apreciacionRepository;
+    private final TipoApreciacionRepository tipoApreciacionRepository;
+    private final TipoRutaActivacionRepository tipoRutaActivacionRepository;
+    private final RutaActivacionRepository rutaActivacionRepository;
+    private final TipoRemisionRepository tipoRemisionRepository;
 
     /**
      * Obtiene lista de países
@@ -111,12 +126,24 @@ public class MaestroService {
     }
 
     /**
-     * Obtiene lista de discapacidades
+     * Obtiene lista de tipos de discapacidad
      */
-    public List<MaestroDTO> obtenerDiscapacidades() {
-        log.info("Obteniendo discapacidades desde la base de datos");
-        return discapacidadRepository.findAll().stream()
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerTipoDiscapacidad() {
+        log.info("Obteniendo tipos de discapacidad desde la base de datos");
+        return tipoDiscapacidadRepository.findAll().stream()
             .map(d -> new MaestroDTO(d.getId().longValue(), null, d.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de subtipos de discapacidad por tipo ID
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerSubTipoDiscapacidadPorTipoId(Integer tipoId) {
+        log.info("Obteniendo subtipos de discapacidad para tipo ID: {}", tipoId);
+        return subTipoDiscapacidadRepository.findByTipoId(tipoId).stream()
+            .map(s -> new MaestroDTO(s.getId().longValue(), null, s.getNombre()))
             .collect(Collectors.toList());
     }
 
@@ -136,6 +163,35 @@ public class MaestroService {
     public List<MaestroDTO> obtenerMunicipios() {
         log.info("Obteniendo municipios desde la base de datos");
         return municipioRepository.findAll().stream()
+            .map(m -> new MaestroDTO(m.getId().longValue(), m.getCodigo(), m.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de ciudades (municipios) por id de departamento.
+     */
+    public List<MaestroDTO> obtenerMunicipiosPorDepartamento(Integer departamentoId) {
+        log.info("Obteniendo municipios para departamento ID {}", departamentoId);
+
+        if (!departamentoRepository.existsById(departamentoId)) {
+            throw new ResourceNotFoundException("Departamento no encontrado con ID: " + departamentoId);
+        }
+
+        return municipioRepository.findByDepartamentoIdOrderByNombreAsc(departamentoId).stream()
+            .map(m -> new MaestroDTO(m.getId().longValue(), m.getCodigo(), m.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de ciudades (municipios) por codigo de departamento.
+     */
+    public List<MaestroDTO> obtenerMunicipiosPorCodigoDepartamento(String codigoDepartamento) {
+        log.info("Obteniendo municipios para codigo de departamento {}", codigoDepartamento);
+
+        departamentoRepository.findByCodigo(codigoDepartamento)
+            .orElseThrow(() -> new ResourceNotFoundException("Departamento no encontrado con codigo: " + codigoDepartamento));
+
+        return municipioRepository.findByDepartamentoCodigoOrderByNombreAsc(codigoDepartamento).stream()
             .map(m -> new MaestroDTO(m.getId().longValue(), m.getCodigo(), m.getNombre()))
             .collect(Collectors.toList());
     }
@@ -191,11 +247,81 @@ public class MaestroService {
     }
 
     /**
+     * Obtiene lista de sub vínculos Universidad
+     */
+    public List<MaestroDTO> obtenerSubVinculosUdeA() {
+        log.info("Obteniendo sub vínculos Universidad desde la base de datos");
+        return subVinculoUdeARepository.findAll().stream()
+            .map(v -> new MaestroDTO(v.getId().longValue(), null, v.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de identidades sexuales
+     */
+    public List<MaestroDTO> obtenerIdentidadesSexuales() {
+        log.info("Obteniendo identidades sexuales desde la base de datos");
+        return identidadSexualRepository.findAll().stream()
+            .map(i -> new MaestroDTO(i.getId().longValue(), null, i.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de formas de ocurrencia
+     */
+    public List<MaestroDTO> obtenerFormasOcurrencia() {
+        log.info("Obteniendo formas de ocurrencia desde la base de datos");
+        return formaOcurrenciaRepository.findAll().stream()
+            .map(f -> new MaestroDTO(f.getId().longValue(), null, f.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de lugares de ocurrencia
+     */
+    public List<MaestroDTO> obtenerLugaresOcurrencia() {
+        log.info("Obteniendo lugares de ocurrencia desde la base de datos");
+        return lugarOcurrenciaRepository.findAll().stream()
+            .map(l -> new MaestroDTO(l.getId().longValue(), null, l.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de actividades misionales
+     */
+    public List<MaestroDTO> obtenerActividadesMisionales() {
+        log.info("Obteniendo actividades misionales desde la base de datos");
+        return actividadMisionalRepository.findAll().stream()
+            .map(a -> new MaestroDTO(a.getId().longValue(), null, a.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de tipos de violencia
+     */
+    public List<MaestroDTO> obtenerTiposViolencia() {
+        log.info("Obteniendo tipos de violencia desde la base de datos");
+        return tipoViolenciaRepository.findAll().stream()
+            .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
      * Obtiene lista de modalidades de violencia
      */
     public List<MaestroDTO> obtenerModalidadesViolencia() {
         log.info("Obteniendo modalidades de violencia desde la base de datos");
         return modalidadViolenciaRepository.findAll().stream()
+            .map(m -> new MaestroDTO(m.getId().longValue(), null, m.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de modalidades de violencia por tipo
+     */
+    public List<MaestroDTO> obtenerModalidadesViolenciaPorTipo(Integer tipoViolenciaId) {
+        log.info("Obteniendo modalidades de violencia para tipo {}", tipoViolenciaId);
+        return modalidadViolenciaRepository.findByTipoViolenciaIdOrderByNombreAsc(tipoViolenciaId).stream()
             .map(m -> new MaestroDTO(m.getId().longValue(), null, m.getNombre()))
             .collect(Collectors.toList());
     }
@@ -276,6 +402,26 @@ public class MaestroService {
     public List<MaestroDTO> obtenerEPS() {
         log.info("Obteniendo EPS desde la base de datos");
         return epsRepository.findAll().stream()
+            .map(e -> new MaestroDTO(e.getId().longValue(), null, e.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de grupos de atención
+     */
+    public List<MaestroDTO> obtenerGruposAtencion() {
+        log.info("Obteniendo grupos de atención desde la base de datos");
+        return grupoAtencionRepository.findAll().stream()
+            .map(g -> new MaestroDTO(g.getId().longValue(), null, g.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de estados de atención (tabla estadosolicitud)
+     */
+    public List<MaestroDTO> obtenerEstadosAtencion() {
+        log.info("Obteniendo estados de atención desde la base de datos");
+        return estadoSolicitudRepository.findAll().stream()
             .map(e -> new MaestroDTO(e.getId().longValue(), null, e.getNombre()))
             .collect(Collectors.toList());
     }
@@ -524,6 +670,61 @@ public class MaestroService {
         log.info("Obteniendo motivos de estado de cita desde la base de datos");
         return motivoEstadoCitaRepository.findAll().stream()
             .map(m -> new MaestroDTO(m.getId().longValue(), null, m.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de apreciaciones
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerApreciaciones() {
+        log.info("Obteniendo apreciaciones desde la base de datos");
+        return apreciacionRepository.findAll().stream()
+            .map(a -> new MaestroDTO(a.getId().longValue(), null, a.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de tipos de apreciación por apreciación ID
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerTiposApreciacionPorApreciacionId(Integer apreciacionId) {
+        log.info("Obteniendo tipos de apreciación para apreciación ID: {}", apreciacionId);
+        return tipoApreciacionRepository.findByApreciacionId(apreciacionId).stream()
+            .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de tipos de ruta de activación
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerTiposRutaActivacion() {
+        log.info("Obteniendo tipos de ruta de activación desde la base de datos");
+        return tipoRutaActivacionRepository.findAll().stream()
+            .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de rutas de activación
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerRutasActivacion() {
+        log.info("Obteniendo rutas de activación desde la base de datos");
+        return rutaActivacionRepository.findAll().stream()
+            .map(r -> new MaestroDTO(r.getId().longValue(), null, r.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de tipos de remisión
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerTiposRemision() {
+        log.info("Obteniendo tipos de remisión desde la base de datos");
+        return tipoRemisionRepository.findAll().stream()
+            .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
             .collect(Collectors.toList());
     }
 }

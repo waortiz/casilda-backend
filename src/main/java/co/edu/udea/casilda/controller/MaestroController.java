@@ -62,10 +62,16 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerOrientacionesSexuales());
     }
 
-    @GetMapping("/discapacidades")
-    @Operation(summary = "Obtener lista de discapacidades")
-    public ResponseEntity<List<MaestroDTO>> obtenerDiscapacidades() {
-        return ResponseEntity.ok(catalogoService.obtenerDiscapacidades());
+    @GetMapping("/tipo-discapacidad")
+    @Operation(summary = "Obtener lista de tipos de discapacidad")
+    public ResponseEntity<List<MaestroDTO>> obtenerTipoDiscapacidad() {
+        return ResponseEntity.ok(catalogoService.obtenerTipoDiscapacidad());
+    }
+
+    @GetMapping("/subtipo-discapacidad/{tipoId}")
+    @Operation(summary = "Obtener lista de subtipos de discapacidad por tipo ID")
+    public ResponseEntity<List<MaestroDTO>> obtenerSubTipoDiscapacidadPorTipoId(@PathVariable Integer tipoId) {
+        return ResponseEntity.ok(catalogoService.obtenerSubTipoDiscapacidadPorTipoId(tipoId));
     }
 
     @GetMapping("/departamentos")
@@ -78,6 +84,24 @@ public class MaestroController {
     @Operation(summary = "Obtener lista de municipios")
     public ResponseEntity<List<MaestroDTO>> obtenerMunicipios() {
         return ResponseEntity.ok(catalogoService.obtenerMunicipios());
+    }
+
+    @GetMapping("/ciudades")
+    @Operation(summary = "Obtener lista de ciudades")
+    public ResponseEntity<List<MaestroDTO>> obtenerCiudades() {
+        return ResponseEntity.ok(catalogoService.obtenerMunicipios());
+    }
+
+    @GetMapping("/departamentos/{departamentoId}/ciudades")
+    @Operation(summary = "Obtener lista de ciudades por departamento")
+    public ResponseEntity<List<MaestroDTO>> obtenerCiudadesPorDepartamento(@PathVariable Integer departamentoId) {
+        return ResponseEntity.ok(catalogoService.obtenerMunicipiosPorDepartamento(departamentoId));
+    }
+
+    @GetMapping("/departamentos/codigo/{codigoDepartamento}/ciudades")
+    @Operation(summary = "Obtener lista de ciudades por codigo de departamento")
+    public ResponseEntity<List<MaestroDTO>> obtenerCiudadesPorCodigoDepartamento(@PathVariable String codigoDepartamento) {
+        return ResponseEntity.ok(catalogoService.obtenerMunicipiosPorCodigoDepartamento(codigoDepartamento));
     }
 
     @GetMapping("/campus")
@@ -116,10 +140,52 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerVinculosUdeA());
     }
 
+    @GetMapping("/subvinculos-udea")
+    @Operation(summary = "Obtener lista de sub vínculos Universidad")
+    public ResponseEntity<List<MaestroDTO>> obtenerSubVinculosUdeA() {
+        return ResponseEntity.ok(catalogoService.obtenerSubVinculosUdeA());
+    }
+
+    @GetMapping("/identidades-sexuales")
+    @Operation(summary = "Obtener lista de identidades sexuales")
+    public ResponseEntity<List<MaestroDTO>> obtenerIdentidadesSexuales() {
+        return ResponseEntity.ok(catalogoService.obtenerIdentidadesSexuales());
+    }
+
+    @GetMapping("/formas-ocurrencia")
+    @Operation(summary = "Obtener lista de formas de ocurrencia")
+    public ResponseEntity<List<MaestroDTO>> obtenerFormasOcurrencia() {
+        return ResponseEntity.ok(catalogoService.obtenerFormasOcurrencia());
+    }
+
+    @GetMapping("/lugares-ocurrencia")
+    @Operation(summary = "Obtener lista de lugares de ocurrencia")
+    public ResponseEntity<List<MaestroDTO>> obtenerLugaresOcurrencia() {
+        return ResponseEntity.ok(catalogoService.obtenerLugaresOcurrencia());
+    }
+
+    @GetMapping("/actividades-misionales")
+    @Operation(summary = "Obtener lista de actividades misionales")
+    public ResponseEntity<List<MaestroDTO>> obtenerActividadesMisionales() {
+        return ResponseEntity.ok(catalogoService.obtenerActividadesMisionales());
+    }
+
+    @GetMapping("/tipos-violencia")
+    @Operation(summary = "Obtener lista de tipos de violencia")
+    public ResponseEntity<List<MaestroDTO>> obtenerTiposViolencia() {
+        return ResponseEntity.ok(catalogoService.obtenerTiposViolencia());
+    }
+
     @GetMapping("/modalidades-violencia")
     @Operation(summary = "Obtener lista de modalidades de violencia")
     public ResponseEntity<List<MaestroDTO>> obtenerModalidadesViolencia() {
         return ResponseEntity.ok(catalogoService.obtenerModalidadesViolencia());
+    }
+
+    @GetMapping("/modalidades-violencia/tipo/{tipoViolenciaId}")
+    @Operation(summary = "Obtener lista de modalidades de violencia por tipo")
+    public ResponseEntity<List<MaestroDTO>> obtenerModalidadesViolenciaPorTipo(@PathVariable Integer tipoViolenciaId) {
+        return ResponseEntity.ok(catalogoService.obtenerModalidadesViolenciaPorTipo(tipoViolenciaId));
     }
 
     @GetMapping("/modalidades-violencia-sexual")
@@ -164,6 +230,18 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerEPS());
     }
 
+    @GetMapping("/grupos-atencion")
+    @Operation(summary = "Obtener lista de grupos de atención")
+    public ResponseEntity<List<MaestroDTO>> obtenerGruposAtencion() {
+        return ResponseEntity.ok(catalogoService.obtenerGruposAtencion());
+    }
+
+    @GetMapping("/estados-atencion")
+    @Operation(summary = "Obtener lista de estados de atención")
+    public ResponseEntity<List<MaestroDTO>> obtenerEstadosAtencion() {
+        return ResponseEntity.ok(catalogoService.obtenerEstadosAtencion());
+    }
+
     @GetMapping("/tipos-correo")
     @Operation(summary = "Obtener lista de tipos de correo")
     public ResponseEntity<List<MaestroDTO>> obtenerTiposCorreo() {
@@ -192,6 +270,36 @@ public class MaestroController {
     @Operation(summary = "Obtener lista de motivos del estado de la cita")
     public ResponseEntity<List<MaestroDTO>> obtenerMotivosEstadoCita() {
         return ResponseEntity.ok(catalogoService.obtenerMotivosEstadoCita());
+    }
+
+    @GetMapping("/apreciaciones")
+    @Operation(summary = "Obtener lista de apreciaciones")
+    public ResponseEntity<List<MaestroDTO>> obtenerApreciaciones() {
+        return ResponseEntity.ok(catalogoService.obtenerApreciaciones());
+    }
+
+    @GetMapping("/tipos-apreciacion/{apreciacionId}")
+    @Operation(summary = "Obtener lista de tipos de apreciación por apreciación ID")
+    public ResponseEntity<List<MaestroDTO>> obtenerTiposApreciacionPorApreciacionId(@PathVariable Integer apreciacionId) {
+        return ResponseEntity.ok(catalogoService.obtenerTiposApreciacionPorApreciacionId(apreciacionId));
+    }
+
+    @GetMapping("/tipos-ruta-activacion")
+    @Operation(summary = "Obtener lista de tipos de ruta de activación")
+    public ResponseEntity<List<MaestroDTO>> obtenerTiposRutaActivacion() {
+        return ResponseEntity.ok(catalogoService.obtenerTiposRutaActivacion());
+    }
+
+    @GetMapping("/rutas-activacion")
+    @Operation(summary = "Obtener lista de rutas de activación")
+    public ResponseEntity<List<MaestroDTO>> obtenerRutasActivacion() {
+        return ResponseEntity.ok(catalogoService.obtenerRutasActivacion());
+    }
+
+    @GetMapping("/tipos-remision")
+    @Operation(summary = "Obtener lista de tipos de remisión")
+    public ResponseEntity<List<MaestroDTO>> obtenerTiposRemision() {
+        return ResponseEntity.ok(catalogoService.obtenerTiposRemision());
     }
 
     // ==================== ENDPOINTS CRUD PARA MAESTROS ====================

@@ -6,18 +6,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "modalidadviolencia")
+@Table(name = "tiporemision")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ModalidadViolencia {
+public class TipoRemision {
     @Id
     private Integer id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String nombre;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idtipoviolencia", nullable = false)
-    private TipoViolencia tipoViolencia;
 }

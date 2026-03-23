@@ -238,21 +238,37 @@ INSERT INTO municipio (id, codigo, nombre, iddepartamento) VALUES
 -- ============================================================================
 -- 9. TIPOS DE DISCAPACIDAD
 -- ============================================================================
-INSERT INTO discapacidad (id, nombre) VALUES
-(1, 'Persona ciega'),
-(2, 'Persona con baja visión'),
-(3, 'Persona sordo-oralizado'),
-(4, 'Persona con hipoacusia'),
-(5, 'Persona con compromiso en miembros superiores'),
-(6, 'Persona con compromiso en miembros inferiores'),
-(7, 'Persona con compromiso en miembros superiores e inferiores'),
-(8, 'Discapacidad intelectual'),
-(9, 'Discapacidad psicosocial'),
-(10, 'Discapacidad múltiple'),
-(11, 'Talla baja'),
-(12, 'Sordoceguera'),
-(13, 'Persona sordoseñante'),
-(14, 'Ninguna');
+INSERT INTO tipodiscapacidad (id, nombre) VALUES
+(1, 'Física o Motora'),
+(2, 'Sensorial'),
+(3, 'Intelectual'),
+(4, 'Psíquica o Psicosocial'),
+(5, 'Múltiple o Pluridiscapacidad'),
+(6, 'Orgánica o Visceral');
+
+-- Insertar los Subtipos (relacionados por el ID del tipo)
+INSERT INTO subtipodiscapacidad (id, nombre, idtipodiscapacidad) VALUES
+-- Subtipos de Física o Motora (ID 1)
+(1, 'Dificultades motoras (parálisis, amputaciones, distrofias, malformaciones)', 1),
+(2, 'Afectaciones neurológicas que limitan el desplazamiento', 1),
+
+-- Subtipos de Sensorial (ID 2)
+(3, 'Visual (Baja visión a ceguera total)', 2),
+(4, 'Auditiva (Sordera o hipoacusia)', 2),
+(5, 'Olfativa y del gusto', 2),
+
+-- Subtipos de Intelectual (ID 3)
+(6, 'Síndrome de Down', 3),
+(7, 'Retraso en el desarrollo', 3),
+(8, 'Dificultades de aprendizaje', 3),
+
+-- Subtipos de Psíquica o Psicosocial (ID 4)
+(9, 'Trastornos del espectro autista (TEA)', 4),
+(10, 'Esquizofrenia', 4),
+(11, 'Trastorno bipolar', 4),
+(12, 'Depresión mayor', 4),
+(13, 'Trastornos de pánico', 4);
+
 
 -- ============================================================================
 -- 10. TIPOS DE TELÉFONO
@@ -543,3 +559,160 @@ INSERT INTO public.motivoestadocita (id, nombre) VALUES
     (3,'Circunstancias externas'),
     (4,'Solicitud de persona a atender'),
     (5,'NA')
+
+-- Insertar tipos de asignación
+INSERT INTO tipoasignacion (id, nombre) VALUES
+    (1, 'Prioritaria'),
+    (2, 'Ordinaria'),
+    (3, 'Seguimiento')
+ON CONFLICT (id) DO NOTHING;
+
+-- Insertar tipos de servicio
+INSERT INTO tiposervicio (id, nombre) VALUES
+    (1, 'Psicología'),
+    (2, 'Asesoría Jurídica'),
+    (3, 'Trabajo Social'),
+    (4, 'Dupla Psicosocial')
+ON CONFLICT (id) DO NOTHING;    
+
+-- Insertar tipos de vínculo con la UDEA (agrupados para el formulario de registro de casos)
+INSERT INTO subvinculoudea (id, nombre) VALUES
+ (1, 'Estudiante Pregrado'),
+ (2, 'Docente'),
+ (3, 'Administrativo'),
+ (4, 'Egresado'),
+ (5, 'Contratista'),
+ (6, 'Visitante');
+
+INSERT INTO formaocurrencia (id, nombre) VALUES
+ (1, 'Individual'),
+ (2, 'Colectiva'),
+ (3, 'Otra');
+
+ insert INTO lugarocurrencia (id, nombre) VALUES
+ (1, 'Campus Principal'),
+ (2, 'Campus Salud'),
+ (3, 'Entorno Virtual'),
+ (4, 'Fuera de la Universidad');
+ 
+ 
+ insert INTO actividadmisional (id, nombre) VALUES
+ (1, 'Docencia'),
+ (2, 'Investigación'),
+ (3, 'Extensión'),
+ (4, 'Administrativa');
+
+insert INTO tipoviolencia (id, nombre) VALUES
+ (1, 'Psicológica'),
+ (2, 'Física'),
+ (3, 'Sexual'),
+ (4, 'Institucional'),
+ (5, 'Económica o patrimonial'),
+ (6, 'Sexual informática'),
+ (7, 'Por prejuicio');
+
+ --Tipo de violencia psicológica
+insert INTO modalidadviolencia (idmodalidad, nombre, idtipoviolencia) VALUES
+(1, 'Difusión de contenido íntimo', 1),
+(2, 'Constreñimiento ilegal', 1),
+(3, 'Lenguaje misógino, sexista o discursos de odio', 1),
+(4, 'Intimidación y amenazas', 1),
+(5, 'Aislamiento forzado', 1),
+(6, 'Abuso de poder y/o confianza', 1),
+(7, 'Injurias por vías de hecho o calumnia', 1);
+
+--Tipo de violencia física 
+insert INTO modalidadviolencia (idmodalidad, nombre, idtipoviolencia) VALUES
+(8, 'Violencia intrafamiliar', 2),
+(9, 'Violencia de pareja/expareja', 2),
+(10, 'Violencia interpersonal', 2),
+(11, 'Lesiones personales', 2),
+(12, 'Feminicidio (Tentativa o comisión)', 2);
+
+--Tipo de violencia sexual 
+insert INTO modalidadviolencia (idmodalidad, nombre, idtipoviolencia) VALUES
+(13, 'Acoso sexual', 3),
+(14, 'Acceso carnal', 3),
+(15, 'Actos sexuales', 3),
+(16, 'Violencia sexual correctiva', 3);
+
+--Tipo de violencia Institucional
+insert INTO modalidadviolencia (idmodalidad, nombre, idtipoviolencia) VALUES
+(17, 'Omision del deber de denuncia', 4),
+(18, 'Revictimización', 4),
+(19, 'Omisión al deber de debida diligencia', 4);
+
+--Tipo de violencia económica/Patrimonial
+insert INTO modalidadviolencia (idmodalidad, nombre, idtipoviolencia) VALUES
+(20, 'Inasistencia alimentaria', 5),
+(21, 'Hurto', 5),
+(22, 'Control económico', 5),
+(23, 'Daño en bien ajeno', 5);
+
+
+--Tipo de violencia sexual informática
+insert INTO modalidadviolencia (idmodalidad, nombre, idtipoviolencia) VALUES
+(24, 'Grooming', 6),
+(25, 'Pornografía', 6),
+(26, 'Sexting', 6),
+(27, 'Chantaje sexual o extorsión sexual', 6),
+(28, 'Violación de datos personales', 6);
+
+--Tipo de violencia por prejuicio
+insert INTO modalidadviolencia (idmodalidad, nombre, idtipoviolencia) VALUES
+(29, 'Discriminación por género u orientación sexual o identidad de género', 7);
+
+--Apreciación de la violencia
+insert into apreciacion (id, nombre) values
+(1, 'Jurídica'),
+(2, 'Psicológica');
+
+insert into tipoapreciacion (id, nombre, idapreciacion) values
+(1, 'Penal', 1),
+(2, 'Civil', 1),
+(3, 'Laboral', 1),
+(4, 'Administrativa', 1),
+(5, 'Derechos Humanos', 1);
+
+insert into tipoapreciacion (id, nombre, idapreciacion) values
+(6, 'Clínica', 2),
+(7, 'Familiar', 2),
+(8, 'Educativa', 2),
+(9, 'Social', 2),
+(10, 'Otra', 2);
+
+insert into identidadsexual (id, nombre) values
+(1, 'Hombre cisgénero'),
+(2, 'Mujer cisgénero'),
+(3, 'Hombre trans'),
+(4, 'Mujer trans'),
+(5, 'No binario'),
+(6, 'Género fluido'),
+(7, 'Otro');
+
+insert into tiporutaactivacion (id, nombre) values
+(1, 'Interna'),
+(2, 'Externa');
+
+insert into rutaactivacion (id, nombre) values
+(1, 'UAD 3 y 4 (Unidad de asuntos disciplinarios)'),
+(2, 'URC (Unidad de resolución de conflictos)'),
+(3, 'Defensa técnica'),
+(4, 'Línea Alma'),
+(5, 'Seguridad a personas y bienes (vigilancia)'),
+(6, 'Ruta de atención por amenaza'),
+(7, 'Medidas de protección (académicas)'),
+(8, 'Medidas de protección (laborales)'),
+(9, 'No acepta/No toma ninguna decisión en esta sesión'),
+(10, 'No aplica'),
+(11, 'Otras');
+
+insert into tiporemision (id, nombre) values
+(1, 'Interna'),
+(2, 'Externa');
+
+insert into grupoatencion (id, nombre) values
+(1, 'Grupo de atención psicológica'),
+(2, 'Grupo de atención jurídica'),
+(3, 'Grupo de atención en trabajo social'),
+(4, 'Grupo de atención en dupla psicosocial');
