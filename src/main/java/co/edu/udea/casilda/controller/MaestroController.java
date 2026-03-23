@@ -302,6 +302,48 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerTiposRemision());
     }
 
+    @GetMapping("/tipos-compromiso")
+    @Operation(summary = "Obtener lista de tipos de compromiso")
+    public ResponseEntity<List<MaestroDTO>> obtenerTiposCompromiso() {
+        return ResponseEntity.ok(catalogoService.obtenerTiposCompromiso());
+    }
+
+    @GetMapping("/motivos-estado-seguimiento")
+    @Operation(summary = "Obtener lista de motivos de estado de seguimiento")
+    public ResponseEntity<List<MaestroDTO>> obtenerMotivosEstadoSeguimiento() {
+        return ResponseEntity.ok(catalogoService.obtenerMotivosEstadoSeguimiento());
+    }
+
+    @GetMapping("/tipos-seguimiento")
+    @Operation(summary = "Obtener lista de tipos de seguimiento")
+    public ResponseEntity<List<MaestroDTO>> obtenerTiposSeguimiento() {
+        return ResponseEntity.ok(catalogoService.obtenerTiposSeguimiento());
+    }
+
+    @GetMapping("/acciones")
+    @Operation(summary = "Obtener lista de acciones")
+    public ResponseEntity<List<MaestroDTO>> obtenerAcciones() {
+        return ResponseEntity.ok(catalogoService.obtenerAcciones());
+    }
+
+    @GetMapping("/actividades")
+    @Operation(summary = "Obtener lista de actividades")
+    public ResponseEntity<List<MaestroDTO>> obtenerActividades() {
+        return ResponseEntity.ok(catalogoService.obtenerActividades());
+    }
+
+    @GetMapping("/estados-seguimiento")
+    @Operation(summary = "Obtener lista de estados de seguimiento")
+    public ResponseEntity<List<MaestroDTO>> obtenerEstadosSeguimiento() {
+        return ResponseEntity.ok(catalogoService.obtenerEstadosSeguimiento());
+    }
+
+    @GetMapping("/seguimientos-atencion")
+    @Operation(summary = "Obtener lista de seguimientos de atencion")
+    public ResponseEntity<List<MaestroDTO>> obtenerSeguimientosAtencion() {
+        return ResponseEntity.ok(catalogoService.obtenerSeguimientosAtencion());
+    }
+
     // ==================== ENDPOINTS CRUD PARA MAESTROS ====================
 
     // TIPOS DE SOLICITUD
@@ -413,4 +455,5 @@ public class MaestroController {
         catalogoService.eliminarTipoIdentificacion(id);
         return ResponseEntity.noContent().build();
     }
+
 }

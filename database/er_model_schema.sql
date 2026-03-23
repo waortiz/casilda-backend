@@ -612,3 +612,86 @@ CREATE TABLE grupoatencion (
     nombre character varying COLLATE pg_catalog."default" NOT NULL,
     constraint grupoatencion_pkey PRIMARY KEY (id)
 );
+
+CREATE TABLE tipocompromiso (
+    id int not null,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    constraint tipocompromiso_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE compromisopersonaatendida (
+    idatencion bigint not null,
+    fechacompromiso timestamp without time zone NOT NULL,
+    idtipocompromiso int not null,
+    constraint compromisopersonaatendida_pkey PRIMARY KEY (idatencion, idtipocompromiso),
+    constraint compromisopersonaatendida_idatencion_fkey FOREIGN KEY (idatencion) REFERENCES atencion(id) ON DELETE NO ACTION,
+    constraint compromisopersonaatendida_idtipocompromiso_fkey FOREIGN KEY (idtipocompromiso) REFERENCES tipocompromiso(id) ON DELETE NO ACTION
+);
+
+CREATE TABLE compromisoprofesional (
+    idatencion bigint not null,
+    fechacompromiso timestamp without time zone NOT NULL,
+    idgrupoprofesional int not null,
+    idtipocompromiso int not null,
+    constraint compromisoprofesional_pkey PRIMARY KEY (idatencion, idtipocompromiso),
+    constraint compromisoprofesional_idatencion_fkey FOREIGN KEY (idatencion) REFERENCES atencion(id) ON DELETE NO ACTION,
+    constraint compromisoprofesional_idtipocompromiso_fkey FOREIGN KEY (idtipocompromiso) REFERENCES tipocompromiso(id) ON DELETE NO ACTION,
+    constraint compromisoprofesional_idgrupoprofesional_fkey FOREIGN KEY (idgrupoprofesional) REFERENCES grupoatencion(id) ON DELETE NO ACTION
+);
+
+CREATE TABLE tipocompromiso (
+    id int not null,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    constraint tipocompromiso_pkey PRIMARY KEY (id)
+);
+
+
+CREATE TABLE tiposeguimiento (
+    id int not null,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    constraint tiposeguimiento_pkey PRIMARY KEY (id)
+);
+
+
+CREATE TABLE accion (
+    id int not null,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    constraint accion_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE actividad (
+    id int not null,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    constraint actividad_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE estadoseguimiento (
+    id int not null,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    constraint estadoseguimiento_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE motivoestadoseguimiento (
+    id int not null,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    constraint motivoestadoseguimiento_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE seguimientoatencion (
+    id bigserial NOT NULL,
+    idatencion bigint not null,
+    idtiposeguimiento int not null,
+    fecha timestamp without time zone NOT NULL,
+    idaccion int not null,
+    idactividad int not null,
+    descripcion character varying COLLATE pg_catalog."default" NOT NULL,
+    idestadoseguimiento int not null,
+    idmotivoestado int not null,
+    constraint seguimientoatencion_pkey PRIMARY KEY (id),
+    constraint seguimientoatencion_idatencion_fkey FOREIGN KEY (idatencion) REFERENCES atencion(id) ON DELETE NO ACTION,
+    constraint seguimientoatencion_idtiposeguimiento_fkey FOREIGN KEY (idtiposeguimiento) REFERENCES tiposeguimiento(id) ON DELETE NO ACTION,
+    constraint seguimientoatencion_idaccion_fkey FOREIGN KEY (idaccion) REFERENCES accion(id) ON DELETE NO ACTION,
+    constraint seguimientoatencion_idactividad_fkey FOREIGN KEY (idactividad) REFERENCES actividad(id) ON DELETE NO ACTION,
+    constraint seguimientoatencion_idestadoseguimiento_fkey FOREIGN KEY (idestadoseguimiento) REFERENCES estadoseguimiento(id) ON DELETE NO ACTION,
+    constraint seguimientoatencion_idmotivoestado_fkey FOREIGN KEY (idmotivoestado) REFERENCES motivoestadocita(id) ON DELETE NO ACTION 
+);

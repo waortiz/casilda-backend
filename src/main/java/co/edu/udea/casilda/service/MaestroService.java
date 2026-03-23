@@ -64,6 +64,13 @@ public class MaestroService {
     private final TipoRutaActivacionRepository tipoRutaActivacionRepository;
     private final RutaActivacionRepository rutaActivacionRepository;
     private final TipoRemisionRepository tipoRemisionRepository;
+    private final TipoCompromisoRepository tipoCompromisoRepository;
+    private final MotivoEstadoSeguimientoRepository motivoEstadoSeguimientoRepository;
+    private final TipoSeguimientoRepository tipoSeguimientoRepository;
+    private final AccionRepository accionRepository;
+    private final ActividadRepository actividadRepository;
+    private final EstadoSeguimientoRepository estadoSeguimientoRepository;
+    private final SeguimientoAtencionRepository seguimientoAtencionRepository;
 
     /**
      * Obtiene lista de países
@@ -725,6 +732,83 @@ public class MaestroService {
         log.info("Obteniendo tipos de remisión desde la base de datos");
         return tipoRemisionRepository.findAll().stream()
             .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de tipos de compromiso
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerTiposCompromiso() {
+        log.info("Obteniendo tipos de compromiso desde la base de datos");
+        return tipoCompromisoRepository.findAll().stream()
+            .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de motivos de estado de seguimiento.
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerMotivosEstadoSeguimiento() {
+        log.info("Obteniendo motivos de estado de seguimiento desde la base de datos");
+        return motivoEstadoSeguimientoRepository.findAll().stream()
+            .map(m -> new MaestroDTO(m.getId().longValue(), null, m.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de tipos de seguimiento.
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerTiposSeguimiento() {
+        log.info("Obteniendo tipos de seguimiento desde la base de datos");
+        return tipoSeguimientoRepository.findAll().stream()
+            .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de acciones.
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerAcciones() {
+        log.info("Obteniendo acciones desde la base de datos");
+        return accionRepository.findAll().stream()
+            .map(a -> new MaestroDTO(a.getId().longValue(), null, a.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de actividades.
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerActividades() {
+        log.info("Obteniendo actividades desde la base de datos");
+        return actividadRepository.findAll().stream()
+            .map(a -> new MaestroDTO(a.getId().longValue(), null, a.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de estados de seguimiento.
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerEstadosSeguimiento() {
+        log.info("Obteniendo estados de seguimiento desde la base de datos");
+        return estadoSeguimientoRepository.findAll().stream()
+            .map(e -> new MaestroDTO(e.getId().longValue(), null, e.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de seguimientos de atencion como maestro simplificado.
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerSeguimientosAtencion() {
+        log.info("Obteniendo seguimientos de atencion desde la base de datos");
+        return seguimientoAtencionRepository.findAll().stream()
+            .map(s -> new MaestroDTO(s.getId(), s.getAtencion().getId().toString(), s.getDescripcion()))
             .collect(Collectors.toList());
     }
 }

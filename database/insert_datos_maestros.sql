@@ -716,3 +716,30 @@ insert into grupoatencion (id, nombre) values
 (2, 'Grupo de atención jurídica'),
 (3, 'Grupo de atención en trabajo social'),
 (4, 'Grupo de atención en dupla psicosocial');
+
+
+insert into tiposeguimiento (id, nombre) values
+(1, 'Presencial'),
+(2, 'Telefónico'),
+(3, 'Virtual'),
+(4, 'Visita Domiciliaria');
+
+insert into accion (id, nombre) values
+(1, 'Acción 1'),
+(2, 'Acción 2'),
+(3, 'Acción 3');
+
+insert into actividad (id, nombre) values
+(1, 'Actividad A'),
+(2, 'Actividad B'),
+(3, 'Actividad C');
+
+insert into estadoseguimiento (id, nombre) values
+(1, 'En Proceso'),
+(2, 'Cerrado'),
+(3, 'Pendiente');
+
+insert into motivoestadoseguimiento (id, nombre) values
+(1, 'Motivo 1'),
+(2, 'Motivo 2'),
+(3, 'Motivo 3');
