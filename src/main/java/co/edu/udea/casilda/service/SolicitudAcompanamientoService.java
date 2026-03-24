@@ -427,6 +427,13 @@ public class SolicitudAcompanamientoService {
                 .primerApellido(solicitante.getPrimerApellido() != null ? solicitante.getPrimerApellido() : "")
                 .segundoApellido(solicitante.getSegundoApellido() != null ? solicitante.getSegundoApellido() : "")
                 .identidadGenero(caso.getIdentidadGenero() != null ? caso.getIdentidadGenero().getNombre() : "")
+                .idDepartamentoResidencia(
+                    solicitante.getCiudadResidencia() != null && solicitante.getCiudadResidencia().getDepartamento() != null
+                        ? solicitante.getCiudadResidencia().getDepartamento().getId()
+                        : null
+                )
+                .idCiudadResidencia(solicitante.getCiudadResidencia() != null ? solicitante.getCiudadResidencia().getId() : null)
+                .direccionResidencia(solicitante.getDireccionResidencia())
                 .celular(celular)
                 .telefonoAlterno(telefonoAlterno)
                 .correoInstitucional(correoInstitucional)

@@ -88,11 +88,14 @@ CREATE TABLE persona (
     idsexo INT,
     idciudadnacimiento int not null,
     idetnia INT,
+    idciudadresidencia int,
+    direccionresidencia character varying COLLATE pg_catalog."default",
     CONSTRAINT persona_pkey PRIMARY KEY (id),
     constraint persona_idtipoidentificacion_fkey FOREIGN KEY (idtipoidentificacion) REFERENCES tipoidentificacion(id) ON DELETE NO ACTION,
     constraint persona_idsexo_fkey FOREIGN KEY (idsexo) REFERENCES sexo(id) ON DELETE NO ACTION,
     constraint persona_idciudadnacimiento_fkey FOREIGN KEY (idciudadnacimiento) REFERENCES municipio(id) ON DELETE NO ACTION,
-    constraint persona_idetnia_fkey FOREIGN KEY (idetnia) REFERENCES etnia(id) ON DELETE NO ACTION
+    constraint persona_idetnia_fkey FOREIGN KEY (idetnia) REFERENCES etnia(id) ON DELETE NO ACTION,
+    constraint persona_idciudadresidencia_fkey FOREIGN KEY (idciudadresidencia) REFERENCES municipio(id) ON DELETE NO ACTION
 );
 
 CREATE TABLE discapacidadpersona (
@@ -693,5 +696,15 @@ CREATE TABLE seguimientoatencion (
     constraint seguimientoatencion_idaccion_fkey FOREIGN KEY (idaccion) REFERENCES accion(id) ON DELETE NO ACTION,
     constraint seguimientoatencion_idactividad_fkey FOREIGN KEY (idactividad) REFERENCES actividad(id) ON DELETE NO ACTION,
     constraint seguimientoatencion_idestadoseguimiento_fkey FOREIGN KEY (idestadoseguimiento) REFERENCES estadoseguimiento(id) ON DELETE NO ACTION,
-    constraint seguimientoatencion_idmotivoestado_fkey FOREIGN KEY (idmotivoestado) REFERENCES motivoestadocita(id) ON DELETE NO ACTION 
+    constraint seguimientoatencion_idmotivoestado_fkey FOREIGN KEY (idmotivoestado) REFERENCES motivoestadoseguimiento(id) ON DELETE NO ACTION
+);
+
+CREATE TABLE archivoseguimientoatencion (
+    id bigserial not null,
+    idseguimientoatencion bigint not null,
+    contenido bytea NOT NULL,
+    tipocontenido character varying(200) COLLATE pg_catalog."default" NOT NULL,
+    nombre character varying(500) COLLATE pg_catalog."default" NOT NULL,
+    constraint archivoseguimientoatencion_pkey PRIMARY KEY (id),
+    constraint archivoseguimientoatencion_idseguimientoatencion_fkey FOREIGN KEY (idseguimientoatencion) REFERENCES seguimientoatencion(id) ON DELETE NO ACTION
 );

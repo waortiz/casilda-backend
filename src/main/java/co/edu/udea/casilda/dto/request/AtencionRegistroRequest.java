@@ -1,67 +1,32 @@
 package co.edu.udea.casilda.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+/**
+ * DTO con los datos propios de la atencion registrados desde el formulario.
+ */
 @Data
 public class AtencionRegistroRequest {
-    @NotBlank
-    private String tipoSolicitud;
 
-    @NotBlank
-    private String personaAtiende;
+    @NotNull
+    private Long citaId;
 
-    @NotBlank
-    private String personaRegistra;
+    @NotNull
+    private Integer idTipoServicio;
 
-    @NotBlank
-    private String tipoServicio;
+    @NotNull
+    private Integer idMunicipioEntrevista;
 
-    @NotBlank
-    private String quienRemite;
+    @NotNull
+    private Integer idRegimen;
 
-    @NotBlank
-    private String formaEntrevista;
+    @NotNull
+    private Integer idEps;
 
-    @NotBlank
-    private String tipoDocumento;
+    private Boolean logroAcuerdo;
 
-    @NotBlank
-    private String documento;
-
-    @NotBlank
-    private String primerNombre;
-
-    @NotBlank
-    private String primerApellido;
-
-    @NotBlank
-    private String sexo;
-
-    @NotBlank
-    private String etnia;
-
-    @NotBlank
-    private String eps;
-
-    @NotBlank
-    private String regimenSalud;
-
-    @NotBlank
-    private String campus;
-
-    @NotBlank
-    private String facultad;
-
-    @NotBlank
-    private String vinculo;
-
-    @NotBlank
-    private String tipoViolencia;
-
-    @NotBlank
-    private String subcategoriaViolencia;
-
-    @NotBlank
-    private String hechos;
+    private String archivoConsentimientoNombre;
+    private String archivoConsentimientoTipo;
+    private String archivoConsentimientoContenido;
 }

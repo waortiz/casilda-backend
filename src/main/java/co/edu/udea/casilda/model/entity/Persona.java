@@ -60,6 +60,13 @@ public class Persona {
     @JoinColumn(name = "idciudadnacimiento", nullable = false)
     private Municipio ciudadNacimiento;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idciudadresidencia")
+    private Municipio ciudadResidencia;
+
+    @Column(name = "direccionresidencia", length = 500)
+    private String direccionResidencia;
+
     // Relaciones One-to-Many
     @ToString.Exclude
     @EqualsAndHashCode.Exclude

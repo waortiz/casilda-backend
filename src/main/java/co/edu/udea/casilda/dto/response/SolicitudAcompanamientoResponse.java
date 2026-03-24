@@ -38,6 +38,9 @@ public class SolicitudAcompanamientoResponse {
     private String primerApellido;
     private String segundoApellido;
     private String identidadGenero;
+    private Integer idDepartamentoResidencia;
+    private Integer idCiudadResidencia;
+    private String direccionResidencia;
     private String celular;
     private String telefonoAlterno;
     private String correoInstitucional;
