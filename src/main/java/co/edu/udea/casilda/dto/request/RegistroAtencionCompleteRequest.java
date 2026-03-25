@@ -29,6 +29,10 @@ public class RegistroAtencionCompleteRequest {
     
     // --- Seguimientos a registrar ---
     private List<SeguimientoAtencionRequest> seguimientos;
+
+    // --- Hechos asociados al caso ---
+    @Valid
+    private List<HechoRequest> hechos;
     
     // --- Compromisos (opcional, si no se persisten antes) ---
     private CompromisosAtencionRequest compromisos;

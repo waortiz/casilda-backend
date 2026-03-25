@@ -6,6 +6,7 @@ import co.edu.udea.casilda.dto.request.CasoAtencionRequest;
 import co.edu.udea.casilda.dto.request.CompromisoPersonaAtendidaRequest;
 import co.edu.udea.casilda.dto.request.CompromisoProfesionalRequest;
 import co.edu.udea.casilda.dto.request.CompromisosAtencionRequest;
+import co.edu.udea.casilda.dto.request.HechoRequest;
 import co.edu.udea.casilda.dto.request.PersonaAtencionRequest;
 import co.edu.udea.casilda.dto.request.RegistroAtencionCompleteRequest;
 import co.edu.udea.casilda.dto.request.SeguimientoAtencionRequest;
@@ -67,6 +68,7 @@ public class AtencionService {
     private final ArchivoConsentimientoRepository archivoConsentimientoRepository;
     private final ArchivoSeguimientoAtencionRepository archivoSeguimientoAtencionRepository;
     private final ModalidadViolenciaRepository modalidadViolenciaRepository;
+    private final HechoRepository hechoRepository;
     private final IdentidadGeneroRepository identidadGeneroRepository;
     private final OrientacionSexualRepository orientacionSexualRepository;
     private final ProgramaRepository programaRepository;
@@ -100,6 +102,9 @@ public class AtencionService {
 
         // Paso 4.1: Guardar/actualizar datos de agresor-víctima
         guardarAgresorVictima(caso, request.getCaso().getAgresorVictima());
+
+        // Paso 4.2: Guardar/actualizar hechos asociados al caso
+        guardarHechos(caso, request.getHechos());
         
         // Paso 5: Crear la Atención
         Atencion atencion = crearAtencion(cita, request, usuario);
@@ -353,6 +358,42 @@ public class AtencionService {
         agresorVictima.setVinculoUdeA(vinculoUdeA);
 
         agresorVictimaRepository.save(agresorVictima);
+    }
+
+    /**
+     * Crea o actualiza los hechos asociados al caso.
+     */
+    private void guardarHechos(Caso caso, List<HechoRequest> hechosRequest) {
+        hechoRepository.deleteByCasoId(caso.getId());
+
+        if (hechosRequest == null || hechosRequest.isEmpty()) {
+            return;
+        }
+
+        for (HechoRequest hechoRequest : hechosRequest) {
+            Hecho hecho = new Hecho();
+            hecho.setCaso(caso);
+            hecho.setFecha(resolverFechaHecho(hechoRequest.getFecha()));
+            hecho.setLugar(hechoRequest.getLugar().trim());
+            hecho.setDescripcion(hechoRequest.getDescripcion().trim());
+            hechoRepository.save(hecho);
+        }
+    }
+
+    /**
+     * Resuelve la fecha del hecho desde texto. Si no puede parsearse, usa la fecha actual.
+     */
+    private LocalDateTime resolverFechaHecho(String fechaTexto) {
+        if (fechaTexto == null || fechaTexto.isBlank()) {
+            return LocalDateTime.now();
+        }
+
+        try {
+            return LocalDateTime.parse(fechaTexto.trim());
+        } catch (Exception ex) {
+            log.warn("No fue posible parsear la fecha del hecho '{}', se usará fecha actual", fechaTexto);
+            return LocalDateTime.now();
+        }
     }
 
     /**
