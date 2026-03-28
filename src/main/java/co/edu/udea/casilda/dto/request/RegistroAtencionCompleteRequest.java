@@ -6,23 +6,28 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * DTO para registrar una atención completa junto con actualizaciones a persona, caso y seguimientos.
+ * DTO para registrar una atención completa junto con datos de persona, caso, contexto y seguimientos.
  * Recibe los datos del formulario de registro de atención del componente registro-atencion
  */
 @Data
 public class RegistroAtencionCompleteRequest {
     
-    // --- Datos de Atención ---
+    // --- Datos de Atención (básicos) ---
     @Valid
     @NotNull
     private AtencionRegistroRequest atencion;
+    
+    // --- Contexto de Atención (dependencia, campus, programa, etc.) ---
+    @Valid
+    @NotNull
+    private AtencionContextoRequest atencionContexto;
     
     // --- Actualización de Persona ---
     @Valid
     @NotNull
     private PersonaAtencionRequest persona;
     
-    // --- Actualización de Caso ---
+    // --- Datos del Caso ---
     @Valid
     @NotNull
     private CasoAtencionRequest caso;

@@ -196,4 +196,5 @@ public class SolicitudController {
     public ResponseEntity<List<ContactoTelefonicoResponse>> listarContactos(@PathVariable Long id) {
         return ResponseEntity.ok(service.listarContactos(id));
     }
+
 }

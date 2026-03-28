@@ -20,26 +20,44 @@ public class Atencion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "fecha", nullable = false)
-    private LocalDateTime fecha;
-
-    @Column(name = "fechacreacion")
-    private LocalDateTime fechaCreacion;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idusuariocreacion")
-    private Usuario usuarioCreacion;
-
-    @Column(name = "fechaactualizacion")
-    private LocalDateTime fechaActualizacion;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idusuarioactualizacion")
-    private Usuario usuarioActualizacion;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idcita", nullable = false)
     private Cita cita;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idetnia")
+    private Etnia etnia;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idciudadresidencia")
+    private Municipio ciudadResidencia;
+
+    @Column(name = "direccionresidencia", length = 500)
+    private String direccionResidencia;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idprograma")
+    private Programa programa;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "iddependencia")
+    private Dependencia dependencia;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idfacultad")
+    private FacultadEscuelaInstituto facultad;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idcampus")
+    private Campus campus;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idvinculoudea")
+    private VinculoUdeA vinculoUdeA;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idsubvinculoudea")
+    private SubVinculoUdeA subVinculoUdeA;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idtiposervicio", nullable = false)
@@ -59,6 +77,20 @@ public class Atencion {
 
     @Column(name = "logroacuerdo", nullable = false)
     private boolean logroAcuerdo;
+
+    @Column(name = "fechacreacion")
+    private LocalDateTime fechaCreacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idusuariocreacion")
+    private Usuario usuarioCreacion;
+
+    @Column(name = "fechaactualizacion")
+    private LocalDateTime fechaActualizacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idusuarioactualizacion")
+    private Usuario usuarioActualizacion;
 
     @OneToMany(mappedBy = "atencion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private java.util.List<ArchivoConsentimiento> archivos = new java.util.ArrayList<>();

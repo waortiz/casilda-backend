@@ -24,8 +24,8 @@ public class Caso {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idpersona", nullable = false)
-    private Persona persona;
+    @JoinColumn(name = "idsolicitud", nullable = false)
+    private SolicitudAtencion solicitudAtencion;
 
     @Column(name = "codigo", nullable = false, unique = true, length = 50)
     private String codigo;
@@ -51,30 +51,6 @@ public class Caso {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ididentidadsexual", nullable = false)
     private IdentidadSexual identidadSexual;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ididentidadgenero")
-    private IdentidadGenero identidadGenero;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "iddependencia")
-    private Dependencia dependencia;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idfacultad")
-    private FacultadEscuelaInstituto facultad;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idcampus")
-    private Campus campus;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idvinculoudea")
-    private VinculoUdeA vinculoUdeA;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idsubvinculoudea")
-    private SubVinculoUdeA subVinculoUdeA;
 
     @Column(name = "hacecuantooccurrio", length = 255)
     private String haceCuantoOccurrio;

@@ -3,6 +3,7 @@ package co.edu.udea.casilda.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -74,6 +75,13 @@ public class GlobalExceptionHandler {
             NoResourceFoundException ex, WebRequest request) {
         ErrorResponse errorResponse = buildErrorResponse(HttpStatus.NOT_FOUND, "Recurso no encontrado", request);
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<ErrorResponse> handleDisabledException(
+            DisabledException ex, WebRequest request) {
+        ErrorResponse errorResponse = buildErrorResponse(HttpStatus.FORBIDDEN, "La cuenta de usuario está inactiva. Contacte al administrador.", request);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)

@@ -35,9 +35,6 @@ public class DatosRemitenteRequest {
     @Size(max = 100, message = "El segundo apellido no puede exceder 100 caracteres")
     private String segundoApellido;
 
-    @Column(name = "fechanacimiento")
-    private LocalDate fechaNacimiento;
-
     private Integer tipoDocumentoId;
 
     @NotNull(message = "El cargo del remitente es obligatorio")

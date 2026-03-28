@@ -95,8 +95,16 @@ public class CitaService {
 
     private CitaResponse mapToResponse(Cita cita) {
         SolicitudAtencion sa = cita.getSolicitudAtencion();
-        Caso caso = sa.getCaso();
-        Persona persona = caso.getPersona();
+        Remision remision = sa.getRemision();
+        // La persona es el solicitante de la solicitud; para solicitudes indirectas también existe el remitente
+        Persona persona = sa.getSolicitante();
+        if (persona == null) {
+            // Fallback: intentar el remitente de la remisión
+            persona = remision != null ? remision.getRemitente() : null;
+        }
+        if (persona == null) {
+            throw new IllegalArgumentException("No se encontró persona para la solicitud de atención ID: " + sa.getId());
+        }
 
         // Correos
         String correoInstitucional = "";
@@ -139,24 +147,24 @@ public class CitaService {
         }
 
         // Para solicitudes indirectas, los datos de ubicación vienen de la remisión
-        Remision remision = sa.getRemision();
         boolean esIndirecta = remision != null;
 
         String dependenciaNombre = esIndirecta
                 ? (remision.getDependencia() != null ? remision.getDependencia().getNombre() : null)
-                : (caso.getDependencia() != null ? caso.getDependencia().getNombre() : null);
+                : null;
         String facultadNombre = esIndirecta
                 ? (remision.getFacultad() != null ? remision.getFacultad().getNombre() : null)
-                : (caso.getFacultad() != null ? caso.getFacultad().getNombre() : null);
+                : null;
         String campusNombre = esIndirecta
                 ? (remision.getCampus() != null ? remision.getCampus().getNombre() : null)
-                : (caso.getCampus() != null ? caso.getCampus().getNombre() : null);
+                : null;
 
         return CitaResponse.builder()
                 .id(cita.getId())
                 .solicitudId(sa.getId())
-                .codigoSolicitud(caso.getCodigo())
+                .codigoSolicitud(sa.getId().toString())
                 .nombreSolicitante(persona.getNombreCompleto().trim())
+                .tipoDocumento(persona.getTipoIdentificacion() != null ? persona.getTipoIdentificacion().getNombre() : null)
                 .documento(persona.getNumeroDocumento())
                 .fechaCita(cita.getFecha() != null ? cita.getFecha().format(FORMATTER) : null)
                 .idEstadoCita(cita.getEstadoCita() != null ? cita.getEstadoCita().getId() : null)
@@ -167,7 +175,7 @@ public class CitaService {
                 .dependencia(dependenciaNombre)
                 .facultad(facultadNombre)
                 .campus(campusNombre)
-                .identidadGenero(caso.getIdentidadGenero() != null ? caso.getIdentidadGenero().getNombre() : null)
+                .identidadGenero(sa.getIdentidadGenero() != null ? sa.getIdentidadGenero().getNombre() : null)
                 .celular(celular)
                 .telefonoAlterno(telefonoAlterno)
                 .correoInstitucional(correoInstitucional)

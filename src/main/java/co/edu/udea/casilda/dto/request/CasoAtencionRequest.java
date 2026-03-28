@@ -8,33 +8,17 @@ import lombok.Data;
 import java.util.List;
 
 /**
- * DTO con los datos del caso actualizados durante el registro de atencion.
+ * DTO con los datos específicos del caso durante el registro de atención.
+ * Contiene únicamente los campos que pertenecen a la entidad Caso.
  */
 @Data
 public class CasoAtencionRequest {
 
     @NotNull
-    private Integer idDependencia;
-
-    @NotNull
-    private Integer idCampus;
-
-    @NotNull
-    private Integer idFacultad;
-
-    @NotNull
-    private Integer idVinculoUniversidad;
-
-    private Integer idSubVinculoUniversidad;
-
-    @NotNull
-    private Integer idPrograma;
-
-    @NotNull
-    private Integer idIdentidadGenero;
-
-    @NotNull
     private Integer idOrientacionSexual;
+
+    @NotNull
+    private Integer idIdentidadSexual;
 
     @NotBlank
     private String tiempoOcurrido;
@@ -53,6 +37,8 @@ public class CasoAtencionRequest {
 
     private Integer idActividadMisional;
 
+    private Integer idPrograma;
+
     private List<Integer> modalidadesViolenciaPsicologica;
     private List<Integer> modalidadesViolenciaFisica;
     private List<Integer> modalidadesViolenciaSexual;
@@ -64,6 +50,4 @@ public class CasoAtencionRequest {
     @Valid
     @NotNull
     private AgresorVictimaRequest agresorVictima;
-
-    private String direccionLugar;
 }

@@ -24,22 +24,16 @@ public class SolicitudAtencion {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idcaso", nullable = false)
-    private Caso caso;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idremision")
     private Remision remision;
 
-    @Column(name = "fechacreacion")
-    private LocalDateTime fechaCreacion;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idsolicitante", nullable = false)
+    private Persona solicitante;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idusuariocreacion")
-    private Usuario usuarioCreacion;
-
-    @Column(name = "fechaactualizacion")
-    private LocalDateTime fechaActualizacion;
+    @JoinColumn(name = "ididentidadgenero")
+    private IdentidadGenero identidadGenero;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idusuarioactualizacion")
@@ -53,11 +47,24 @@ public class SolicitudAtencion {
     @JoinColumn(name = "idestadosolicitud", nullable = false)
     private EstadoSolicitud estadoSolicitud;
 
+    @Column(name = "fechacreacion")
+    private LocalDateTime fechaCreacion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idusuariocreacion")
+    private Usuario usuarioCreacion;
+
+    @Column(name = "fechaactualizacion")
+    private LocalDateTime fechaActualizacion;
+
     @OneToMany(mappedBy = "solicitudAtencion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ContactoTelefonico> contactosTelefonicos = new ArrayList<>();
 
     @OneToMany(mappedBy = "solicitudAtencion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Asignacion> asignaciones = new ArrayList<>();
+
+    @OneToMany(mappedBy = "solicitudAtencion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Caso> casos = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

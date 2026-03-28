@@ -1,15 +1,18 @@
 package co.edu.udea.casilda.service;
 
 import co.edu.udea.casilda.dto.request.AgresorVictimaRequest;
+import co.edu.udea.casilda.dto.request.AtencionContextoRequest;
 import co.edu.udea.casilda.dto.request.AtencionRegistroRequest;
 import co.edu.udea.casilda.dto.request.CasoAtencionRequest;
 import co.edu.udea.casilda.dto.request.CompromisoPersonaAtendidaRequest;
 import co.edu.udea.casilda.dto.request.CompromisoProfesionalRequest;
 import co.edu.udea.casilda.dto.request.CompromisosAtencionRequest;
+import co.edu.udea.casilda.dto.request.CorreoSolicitanteRequest;
 import co.edu.udea.casilda.dto.request.HechoRequest;
 import co.edu.udea.casilda.dto.request.PersonaAtencionRequest;
 import co.edu.udea.casilda.dto.request.RegistroAtencionCompleteRequest;
 import co.edu.udea.casilda.dto.request.SeguimientoAtencionRequest;
+import co.edu.udea.casilda.dto.request.TelefonoSolicitanteRequest;
 import co.edu.udea.casilda.dto.response.AtencionResponse;
 import co.edu.udea.casilda.exception.ResourceNotFoundException;
 import co.edu.udea.casilda.model.entity.*;
@@ -22,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,6 +43,7 @@ public class AtencionService {
     
     // Repositories de entidades relacionadas
     private final CitaRepository citaRepository;
+    private final SolicitudAtencionRepository solicitudAtencionRepository;
     private final PersonaRepository personaRepository;
     private final CasoRepository casoRepository;
     private final UsuarioRepository usuarioRepository;
@@ -69,8 +74,8 @@ public class AtencionService {
     private final ArchivoSeguimientoAtencionRepository archivoSeguimientoAtencionRepository;
     private final ModalidadViolenciaRepository modalidadViolenciaRepository;
     private final HechoRepository hechoRepository;
-    private final IdentidadGeneroRepository identidadGeneroRepository;
     private final OrientacionSexualRepository orientacionSexualRepository;
+    private final IdentidadSexualRepository identidadSexualRepository;
     private final ProgramaRepository programaRepository;
 
     /**
@@ -90,9 +95,12 @@ public class AtencionService {
         Cita cita = citaRepository.findById(request.getAtencion().getCitaId())
             .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada con ID: " + request.getAtencion().getCitaId()));
         
-        // Paso 2: Obtener la Persona y Caso desde la cita
-        Persona persona = cita.getSolicitudAtencion().getCaso().getPersona();
-        Caso caso = cita.getSolicitudAtencion().getCaso();
+        // Paso 2: Obtener la Persona desde la cita
+        SolicitudAtencion solicitud = cita.getSolicitudAtencion();
+        Persona persona = solicitud.getRemision().getRemitente();
+        
+        // Paso 2.1: Crear un nuevo Caso con los datos del DTO
+        Caso caso = crearCaso(solicitud, request.getCaso(), usuario);
         
         // Paso 3: Actualizar datos de la Persona
         actualizarPersona(persona, request);
@@ -109,6 +117,9 @@ public class AtencionService {
         // Paso 5: Crear la Atención
         Atencion atencion = crearAtencion(cita, request, usuario);
         
+        // Paso 5.1: Actualizar campos contextuales de la Atención (dependencia, programa, etc.)
+        actualizarAtencion(atencion, request);
+        
         // Paso 6: Crear los Seguimientos si existen
         if (request.getSeguimientos() != null && !request.getSeguimientos().isEmpty()) {
             for (SeguimientoAtencionRequest segRequest : request.getSeguimientos()) {
@@ -124,6 +135,114 @@ public class AtencionService {
         log.info("Atención registrada exitosamente con ID: {}", atencion.getId());
         
         return mapToResponse(atencion);
+    }
+
+    /**
+     * Crea un nuevo caso asociado a la solicitud con los datos del DTO
+     */
+    private Caso crearCaso(SolicitudAtencion solicitud, CasoAtencionRequest casoRequest, Usuario usuario) {
+        log.info("Creando caso para solicitud ID: {}", solicitud.getId());
+        
+        Caso caso = new Caso();
+        caso.setSolicitudAtencion(solicitud);
+        caso.setCodigo(generarCodigoCaso());
+        caso.setUsuarioCreacion(usuario);
+        caso.setUsuarioActualizacion(usuario);
+        
+        // Establecer datos iniciales del caso desde el DTO
+        caso.setHaceCuantoOccurrio(casoRequest.getTiempoOcurrido());
+        
+        // Orientación sexual
+        if (casoRequest.getIdOrientacionSexual() != null) {
+            OrientacionSexual orientacionSexual = orientacionSexualRepository.findById(casoRequest.getIdOrientacionSexual())
+                    .orElseThrow(() -> new ResourceNotFoundException("Orientación sexual no encontrada con ID: " + casoRequest.getIdOrientacionSexual()));
+            caso.setOrientacionSexual(orientacionSexual);
+        }
+        
+        // Identidad sexual (obligatoria)
+        if (casoRequest.getIdIdentidadSexual() != null) {
+            IdentidadSexual identidadSexual = identidadSexualRepository.findById(casoRequest.getIdIdentidadSexual())
+                    .orElseThrow(() -> new ResourceNotFoundException("Identidad sexual no encontrada con ID: " + casoRequest.getIdIdentidadSexual()));
+            caso.setIdentidadSexual(identidadSexual);
+        }
+        
+        // Forma de ocurrencia
+        if (casoRequest.getIdFormaOcurrencia() != null) {
+            FormaOcurrencia formaOcurrencia = formaOcurrenciaRepository.findById(casoRequest.getIdFormaOcurrencia())
+                    .orElseThrow(() -> new ResourceNotFoundException("Forma de ocurrencia no encontrada con ID: " + casoRequest.getIdFormaOcurrencia()));
+            caso.setFormaOcurrencia(formaOcurrencia);
+        }
+        
+        // Lugar de ocurrencia
+        if (casoRequest.getIdLugarOcurrencia() != null) {
+            LugarOcurrencia lugarOcurrencia = lugarOcurrenciaRepository.findById(casoRequest.getIdLugarOcurrencia())
+                    .orElseThrow(() -> new ResourceNotFoundException("Lugar de ocurrencia no encontrado con ID: " + casoRequest.getIdLugarOcurrencia()));
+            caso.setLugarOcurrencia(lugarOcurrencia);
+        }
+        
+        // Booleanos de violencia
+        caso.setViolenciaBasadaGenero(casoRequest.getViolenciaGenero() != null ? casoRequest.getViolenciaGenero() : false);
+        caso.setHechoViolenciaOcurrioActividadesMisionales(casoRequest.getViolenciaMisional() != null ? casoRequest.getViolenciaMisional() : false);
+        
+        // Actividad misional
+        if (casoRequest.getIdActividadMisional() != null) {
+            ActividadMisional actividadMisional = actividadMisionalRepository.findById(casoRequest.getIdActividadMisional())
+                    .orElseThrow(() -> new ResourceNotFoundException("Actividad misional no encontrada con ID: " + casoRequest.getIdActividadMisional()));
+            caso.setActividadMisional(actividadMisional);
+        }
+        
+        // Modalidades de violencia
+        List<Integer> todosIdsModalidades = new ArrayList<>();
+        if (casoRequest.getModalidadesViolenciaPsicologica() != null)    todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaPsicologica());
+        if (casoRequest.getModalidadesViolenciaFisica() != null)          todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaFisica());
+        if (casoRequest.getModalidadesViolenciaSexual() != null)          todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaSexual());
+        if (casoRequest.getModalidadesViolenciaInstitucional() != null)  todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaInstitucional());
+        if (casoRequest.getModalidadesViolenciaEconomica() != null)      todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaEconomica());
+        if (casoRequest.getModalidadesViolenciaInformatica() != null)    todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaInformatica());
+        if (casoRequest.getModalidadesViolenciaPrejuicio() != null)      todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaPrejuicio());
+        
+        // Flags de tipo de violencia
+        caso.setTipoViolenciaPsicologica(casoRequest.getModalidadesViolenciaPsicologica() != null && !casoRequest.getModalidadesViolenciaPsicologica().isEmpty());
+        caso.setTipoViolenciaFisica(casoRequest.getModalidadesViolenciaFisica() != null && !casoRequest.getModalidadesViolenciaFisica().isEmpty());
+        caso.setTipoViolenciaSexual(casoRequest.getModalidadesViolenciaSexual() != null && !casoRequest.getModalidadesViolenciaSexual().isEmpty());
+        caso.setTipoViolenciaInstitucional(casoRequest.getModalidadesViolenciaInstitucional() != null && !casoRequest.getModalidadesViolenciaInstitucional().isEmpty());
+        caso.setTipoViolenciaEconomicaPatrimonial(casoRequest.getModalidadesViolenciaEconomica() != null && !casoRequest.getModalidadesViolenciaEconomica().isEmpty());
+        caso.setTipoViolenciaSexualInformatica(casoRequest.getModalidadesViolenciaInformatica() != null && !casoRequest.getModalidadesViolenciaInformatica().isEmpty());
+        caso.setTipoViolenciaPorPrejuicio(casoRequest.getModalidadesViolenciaPrejuicio() != null && !casoRequest.getModalidadesViolenciaPrejuicio().isEmpty());
+        
+        // Guardar el caso
+        caso = casoRepository.save(caso);
+        
+        // Agregar modalidades después de guardar (cuando el caso tiene ID)
+        for (Integer idModalidad : todosIdsModalidades) {
+            modalidadViolenciaRepository.findById(idModalidad)
+                    .orElseThrow(() -> new ResourceNotFoundException("Modalidad de violencia no encontrada con ID: " + idModalidad));
+            ModalidadViolenciaCaso mvc = new ModalidadViolenciaCaso();
+            mvc.setIdcaso(caso.getId());
+            mvc.setIdmodalidadviolencia(idModalidad);
+            caso.getModalidadesViolencia().add(mvc);
+        }
+        
+        // Guardar caso nuevamente con las modalidades
+        caso = casoRepository.save(caso);
+        
+        // Asociar el caso a la solicitud
+        solicitud.getCasos().add(caso);
+        solicitudAtencionRepository.save(solicitud);
+        
+        log.info("Caso creado exitosamente con código: {}", caso.getCodigo());
+        return caso;
+    }
+    
+    /**
+     * Genera código único para el caso
+     * Formato: ACO-YYYY-NNNN
+     */
+    private String generarCodigoCaso() {
+        int anioActual = Year.now().getValue();
+        long cantidadDelAnio = casoRepository.countByYear(anioActual);
+        int numeroConsecutivo = (int) (cantidadDelAnio + 1);
+        return String.format("ACO-%d-%04d", anioActual, numeroConsecutivo);
     }
 
     /**
@@ -148,7 +267,6 @@ public class AtencionService {
         
         // Crear la atención
         Atencion atencion = new Atencion();
-        atencion.setFecha(LocalDateTime.now());
         atencion.setFechaCreacion(LocalDateTime.now());
         atencion.setUsuarioCreacion(usuario);
         atencion.setCita(cita);
@@ -183,29 +301,34 @@ public class AtencionService {
             persona.setSexo(sexo);
         }
         
-        if (personaRequest.getIdEtnia() != null) {
-            Etnia etnia = etniaRepository.findById(personaRequest.getIdEtnia())
-                    .orElseThrow(() -> new ResourceNotFoundException("Etnia no encontrada con ID: " + personaRequest.getIdEtnia()));
-            persona.setEtnia(etnia);
-        }
-
-        if (personaRequest.getIdCiudadResidencia() != null) {
-            Municipio ciudadResidencia = municipioRepository.findById(personaRequest.getIdCiudadResidencia())
-                    .orElseThrow(() -> new ResourceNotFoundException("Ciudad de residencia no encontrada con ID: " + personaRequest.getIdCiudadResidencia()));
-            persona.setCiudadResidencia(ciudadResidencia);
-        }
-
-        if (personaRequest.getDireccionResidencia() != null) {
-            String direccionResidencia = personaRequest.getDireccionResidencia().trim();
-            persona.setDireccionResidencia(direccionResidencia.isEmpty() ? null : direccionResidencia);
+        // Procesar correos
+        if (personaRequest.getCorreos() != null && !personaRequest.getCorreos().isEmpty()) {
+            log.info("Actualizando correos de persona ID: {}", persona.getId());
+            persona.getCorreos().clear(); // Elimina automáticamente por orphanRemoval
+            for (CorreoSolicitanteRequest correoReq : personaRequest.getCorreos()) {
+                CorreoPersona correo = new CorreoPersona();
+                correo.setIdpersona(persona.getId());
+                correo.setIdtipo(correoReq.getTipoId());
+                correo.setPersona(persona);
+                correo.setCorreo(correoReq.getCorreo());
+                correo.setDescripcion(correoReq.getDescripcion());
+                persona.getCorreos().add(correo);
+            }
         }
         
-        // Si no se proporcionó direccionResidencia pero sí direccionLugar (del caso), usar esa
-        String direccionLugar = request.getCaso().getDireccionLugar();
-        if ((personaRequest.getDireccionResidencia() == null || personaRequest.getDireccionResidencia().isBlank()) &&
-            direccionLugar != null && !direccionLugar.isBlank()) {
-            persona.setDireccionResidencia(direccionLugar.trim());
-            log.info("Dirección de residencia actualizada con direccionLugar del caso");
+        // Procesar telefonos
+        if (personaRequest.getTelefonos() != null && !personaRequest.getTelefonos().isEmpty()) {
+            log.info("Actualizando telefonos de persona ID: {}", persona.getId());
+            persona.getTelefonos().clear(); // Elimina automáticamente por orphanRemoval
+            for (TelefonoSolicitanteRequest telefonoReq : personaRequest.getTelefonos()) {
+                TelefonoPersona telefono = new TelefonoPersona();
+                telefono.setIdpersona(persona.getId());
+                telefono.setIdtipo(telefonoReq.getTipoId());
+                telefono.setPersona(persona);
+                telefono.setTelefono(telefonoReq.getTelefono());
+                telefono.setDescripcion(telefonoReq.getDescripcion());
+                persona.getTelefonos().add(telefono);
+            }
         }
         
         personaRepository.save(persona);
@@ -217,37 +340,6 @@ public class AtencionService {
     private void actualizarCaso(Caso caso, RegistroAtencionCompleteRequest request) {
         log.info("Actualizando caso ID: {}", caso.getId());
         CasoAtencionRequest casoRequest = request.getCaso();
-        
-        // Resolver maestros por ID
-        if (casoRequest.getIdDependencia() != null) {
-            Dependencia dependencia = dependenciaRepository.findById(casoRequest.getIdDependencia())
-                    .orElseThrow(() -> new ResourceNotFoundException("Dependencia no encontrada con ID: " + casoRequest.getIdDependencia()));
-            caso.setDependencia(dependencia);
-        }
-        
-        if (casoRequest.getIdCampus() != null) {
-            Campus campus = campusRepository.findById(casoRequest.getIdCampus())
-                    .orElseThrow(() -> new ResourceNotFoundException("Campus no encontrado con ID: " + casoRequest.getIdCampus()));
-            caso.setCampus(campus);
-        }
-        
-        if (casoRequest.getIdFacultad() != null) {
-            FacultadEscuelaInstituto facultad = facultadRepository.findById(casoRequest.getIdFacultad())
-                    .orElseThrow(() -> new ResourceNotFoundException("Facultad no encontrada con ID: " + casoRequest.getIdFacultad()));
-            caso.setFacultad(facultad);
-        }
-        
-        if (casoRequest.getIdVinculoUniversidad() != null) {
-            VinculoUdeA vinculo = vinculoUdeARepository.findById(casoRequest.getIdVinculoUniversidad())
-                    .orElseThrow(() -> new ResourceNotFoundException("Vínculo Universidad no encontrado con ID: " + casoRequest.getIdVinculoUniversidad()));
-            caso.setVinculoUdeA(vinculo);
-        }
-        
-        if (casoRequest.getIdSubVinculoUniversidad() != null) {
-            SubVinculoUdeA subVinculo = subVinculoUdeARepository.findById(casoRequest.getIdSubVinculoUniversidad())
-                    .orElseThrow(() -> new ResourceNotFoundException("SubVínculo Universidad no encontrado con ID: " + casoRequest.getIdSubVinculoUniversidad()));
-            caso.setSubVinculoUdeA(subVinculo);
-        }
 
         caso.setHaceCuantoOccurrio(casoRequest.getTiempoOcurrido());
         
@@ -263,13 +355,7 @@ public class AtencionService {
             caso.setLugarOcurrencia(lugarOcurrencia);
         }
         
-        // Actualizar identidad de género y orientación sexual
-        if (casoRequest.getIdIdentidadGenero() != null) {
-            IdentidadGenero identidadGenero = identidadGeneroRepository.findById(casoRequest.getIdIdentidadGenero())
-                    .orElseThrow(() -> new ResourceNotFoundException("Identidad de género no encontrada con ID: " + casoRequest.getIdIdentidadGenero()));
-            caso.setIdentidadGenero(identidadGenero);
-        }
-
+        // Actualizar orientación sexual
         if (casoRequest.getIdOrientacionSexual() != null) {
             OrientacionSexual orientacionSexual = orientacionSexualRepository.findById(casoRequest.getIdOrientacionSexual())
                     .orElseThrow(() -> new ResourceNotFoundException("Orientación sexual no encontrada con ID: " + casoRequest.getIdOrientacionSexual()));
@@ -440,12 +526,94 @@ public class AtencionService {
     }
 
     /**
+     * Actualiza los datos contextuales de una Atención (dependencia, programa, ubicación, etc.)
+     */
+    private void actualizarAtencion(Atencion atencion, RegistroAtencionCompleteRequest request) {
+        log.info("Actualizando contexto de atención ID: {}", atencion.getId());
+        AtencionContextoRequest contextoRequest = request.getAtencionContexto();
+        PersonaAtencionRequest personaRequest = request.getPersona();
+        
+        // Actualizar etnia (del contexto si está disponible, o del persona)
+        if (contextoRequest.getIdEtnia() != null) {
+            Etnia etnia = etniaRepository.findById(contextoRequest.getIdEtnia())
+                    .orElseThrow(() -> new ResourceNotFoundException("Etnia no encontrada con ID: " + contextoRequest.getIdEtnia()));
+            atencion.setEtnia(etnia);
+        } else if (personaRequest.getIdEtnia() != null) {
+            Etnia etnia = etniaRepository.findById(personaRequest.getIdEtnia())
+                    .orElseThrow(() -> new ResourceNotFoundException("Etnia no encontrada con ID: " + personaRequest.getIdEtnia()));
+            atencion.setEtnia(etnia);
+        }
+        
+        // Actualizar ciudad de residencia (del contexto si está disponible, o del persona)
+        if (contextoRequest.getIdCiudadResidencia() != null) {
+            Municipio ciudadResidencia = municipioRepository.findById(contextoRequest.getIdCiudadResidencia())
+                    .orElseThrow(() -> new ResourceNotFoundException("Ciudad de residencia no encontrada con ID: " + contextoRequest.getIdCiudadResidencia()));
+            atencion.setCiudadResidencia(ciudadResidencia);
+        } else if (personaRequest.getIdCiudadResidencia() != null) {
+            Municipio ciudadResidencia = municipioRepository.findById(personaRequest.getIdCiudadResidencia())
+                    .orElseThrow(() -> new ResourceNotFoundException("Ciudad de residencia no encontrada con ID: " + personaRequest.getIdCiudadResidencia()));
+            atencion.setCiudadResidencia(ciudadResidencia);
+        }
+        
+        // Actualizar dirección de residencia (del contexto si está disponible, o del persona)
+        if (contextoRequest.getDireccionResidencia() != null && !contextoRequest.getDireccionResidencia().isBlank()) {
+            atencion.setDireccionResidencia(contextoRequest.getDireccionResidencia().trim());
+        } else if (personaRequest.getDireccionResidencia() != null && !personaRequest.getDireccionResidencia().isBlank()) {
+            atencion.setDireccionResidencia(personaRequest.getDireccionResidencia().trim());
+        }
+        
+        // Actualizar dependencia
+        if (contextoRequest.getIdDependencia() != null) {
+            Dependencia dependencia = dependenciaRepository.findById(contextoRequest.getIdDependencia())
+                    .orElseThrow(() -> new ResourceNotFoundException("Dependencia no encontrada con ID: " + contextoRequest.getIdDependencia()));
+            atencion.setDependencia(dependencia);
+        }
+        
+        // Actualizar facultad
+        if (contextoRequest.getIdFacultad() != null) {
+            FacultadEscuelaInstituto facultad = facultadRepository.findById(contextoRequest.getIdFacultad())
+                    .orElseThrow(() -> new ResourceNotFoundException("Facultad no encontrada con ID: " + contextoRequest.getIdFacultad()));
+            atencion.setFacultad(facultad);
+        }
+        
+        // Actualizar campus
+        if (contextoRequest.getIdCampus() != null) {
+            Campus campus = campusRepository.findById(contextoRequest.getIdCampus())
+                    .orElseThrow(() -> new ResourceNotFoundException("Campus no encontrado con ID: " + contextoRequest.getIdCampus()));
+            atencion.setCampus(campus);
+        }
+        
+        // Actualizar vínculo con la universidad
+        if (contextoRequest.getIdVinculoUniversidad() != null) {
+            VinculoUdeA vinculo = vinculoUdeARepository.findById(contextoRequest.getIdVinculoUniversidad())
+                    .orElseThrow(() -> new ResourceNotFoundException("Vínculo Universidad no encontrado con ID: " + contextoRequest.getIdVinculoUniversidad()));
+            atencion.setVinculoUdeA(vinculo);
+        }
+        
+        // Actualizar subvínculo con la universidad
+        if (contextoRequest.getIdSubVinculoUniversidad() != null) {
+            SubVinculoUdeA subVinculo = subVinculoUdeARepository.findById(contextoRequest.getIdSubVinculoUniversidad())
+                    .orElseThrow(() -> new ResourceNotFoundException("SubVínculo Universidad no encontrado con ID: " + contextoRequest.getIdSubVinculoUniversidad()));
+            atencion.setSubVinculoUdeA(subVinculo);
+        }
+        
+        // Actualizar programa
+        if (contextoRequest.getIdPrograma() != null) {
+            Programa programa = programaRepository.findById(contextoRequest.getIdPrograma())
+                    .orElseThrow(() -> new ResourceNotFoundException("Programa no encontrado con ID: " + contextoRequest.getIdPrograma()));
+            atencion.setPrograma(programa);
+        }
+        
+        atencionRepository.save(atencion);
+        log.info("Atención contextualizada exitosamente con ID: {}", atencion.getId());
+    }
+
+    /**
      * Mapea una Atencion a AtencionResponse
      */
     private AtencionResponse mapToResponse(Atencion atencion) {
         return AtencionResponse.builder()
                 .id(atencion.getId())
-                .fecha(atencion.getFecha())
                 .citaId(atencion.getCita().getId())
                 .tipoServicioId(atencion.getTipoServicio().getId())
                 .tipoServicio(atencion.getTipoServicio().getNombre())

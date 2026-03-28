@@ -1,7 +1,9 @@
 package co.edu.udea.casilda.dto.request;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
+import java.util.List;
 
 /**
  * DTO con los datos de persona actualizados durante el registro de atencion.
@@ -18,4 +20,10 @@ public class PersonaAtencionRequest {
     private Integer idCiudadResidencia;
 
     private String direccionResidencia;
+
+    @Valid
+    private List<CorreoSolicitanteRequest> correos;
+
+    @Valid
+    private List<TelefonoSolicitanteRequest> telefonos;
 }

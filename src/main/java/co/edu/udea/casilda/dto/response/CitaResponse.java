@@ -20,6 +20,7 @@ public class CitaResponse {
 
     // Datos del solicitante
     private String nombreSolicitante;
+    private String tipoDocumento;
     private String documento;
 
     // Datos de la cita

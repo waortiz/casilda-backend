@@ -53,19 +53,8 @@ public class Persona {
     private Sexo sexo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idetnia")
-    private Etnia etnia;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idciudadnacimiento", nullable = false)
     private Municipio ciudadNacimiento;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idciudadresidencia")
-    private Municipio ciudadResidencia;
-
-    @Column(name = "direccionresidencia", length = 500)
-    private String direccionResidencia;
 
     // Relaciones One-to-Many
     @ToString.Exclude
