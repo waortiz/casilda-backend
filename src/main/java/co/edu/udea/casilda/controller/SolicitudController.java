@@ -71,24 +71,6 @@ public class SolicitudController {
     }
 
     /**
-     * Obtiene una solicitud por código
-     */
-    @GetMapping("/acompanamiento/codigo/{codigo}")
-    @SecurityRequirement(name = "bearerAuth")
-    @Operation(
-            summary = "Obtener solicitud por código",
-            description = "Obtiene los detalles de una solicitud por su código único (ej: ACO-2026-0001). **Requiere autenticación.**"
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Solicitud encontrada"),
-            @ApiResponse(responseCode = "404", description = "Solicitud no encontrada")
-    })
-    public ResponseEntity<SolicitudAcompanamientoResponse> obtenerPorCodigo(@PathVariable String codigo) {
-        SolicitudAcompanamientoResponse response = service.obtenerPorCodigo(codigo);
-        return ResponseEntity.ok(response);
-    }
-
-    /**
      * Lista todas las solicitudes
      */
     @GetMapping("/acompanamiento")

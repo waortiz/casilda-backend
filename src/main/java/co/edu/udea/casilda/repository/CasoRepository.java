@@ -29,4 +29,11 @@ public interface CasoRepository extends JpaRepository<Caso, Long> {
      */
     @Query("SELECT COUNT(c) FROM Caso c WHERE YEAR(c.fechaCreacion) = ?1")
     long countByYear(int year);
+
+    /**
+     * Retorna el máximo número consecutivo ya usado en los códigos ACO-YYYY-NNNN del año dado.
+     * Evita colisiones cuando existen huecos en la secuencia por registros eliminados o rollbacks parciales.
+     */
+    @Query(value = "SELECT COALESCE(MAX(CAST(SUBSTRING(codigo FROM 10) AS INTEGER)), 0) FROM caso WHERE codigo LIKE CONCAT('ACO-', CAST(:year AS VARCHAR), '-%')", nativeQuery = true)
+    int findMaxSequentialNumberByYear(@org.springframework.data.repository.query.Param("year") int year);
 }

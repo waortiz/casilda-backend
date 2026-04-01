@@ -97,7 +97,7 @@ public class AtencionService {
         
         // Paso 2: Obtener la Persona desde la cita
         SolicitudAtencion solicitud = cita.getSolicitudAtencion();
-        Persona persona = solicitud.getRemision().getRemitente();
+        Persona persona = resolverPersonaAtencion(solicitud);
         
         // Paso 2.1: Crear un nuevo Caso con los datos del DTO
         Caso caso = crearCaso(solicitud, request.getCaso(), usuario);
@@ -237,12 +237,34 @@ public class AtencionService {
     /**
      * Genera código único para el caso
      * Formato: ACO-YYYY-NNNN
+     * Usa MAX del consecutivo existente para evitar colisiones cuando hay huecos en la secuencia.
      */
     private String generarCodigoCaso() {
         int anioActual = Year.now().getValue();
-        long cantidadDelAnio = casoRepository.countByYear(anioActual);
-        int numeroConsecutivo = (int) (cantidadDelAnio + 1);
+        int maxExistente = casoRepository.findMaxSequentialNumberByYear(anioActual);
+        int numeroConsecutivo = maxExistente + 1;
         return String.format("ACO-%d-%04d", anioActual, numeroConsecutivo);
+    }
+
+    /**
+     * Resuelve la persona a intervenir en la atención.
+     * Para solicitudes sin remisión, usa el solicitante como fallback.
+     */
+    private Persona resolverPersonaAtencion(SolicitudAtencion solicitud) {
+        if (solicitud == null) {
+            throw new ResourceNotFoundException("Solicitud de atención no encontrada para la cita");
+        }
+
+        if (solicitud.getRemision() != null && solicitud.getRemision().getRemitente() != null) {
+            return solicitud.getRemision().getRemitente();
+        }
+
+        if (solicitud.getSolicitante() != null) {
+            log.warn("La solicitud ID {} no tiene remisión asociada; se usará el solicitante para registrar la atención", solicitud.getId());
+            return solicitud.getSolicitante();
+        }
+
+        throw new ResourceNotFoundException("No se encontró persona asociada a la solicitud ID: " + solicitud.getId());
     }
 
     /**

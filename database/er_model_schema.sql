@@ -509,7 +509,7 @@ CREATE TABLE cita (
 );
 
 CREATE TABLE atencion (
-    id bigint NOT NULL,
+    id bigserial NOT NULL,
     idcita bigint not null,
     idetnia INT,
     idciudadresidencia int,

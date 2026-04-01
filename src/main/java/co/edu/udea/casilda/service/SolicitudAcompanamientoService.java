@@ -105,26 +105,6 @@ public class SolicitudAcompanamientoService {
         SolicitudAtencion solicitud = solicitudAtencionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Solicitud no encontrada con ID: " + id));
         
-        Caso caso = solicitud.getCasos().stream()
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("No hay caso asignado a la solicitud ID: " + id));
-        return buildResponse(solicitud, solicitud.getRemision());
-    }
-
-    /**
-     * Obtiene una solicitud por código del caso
-     */
-    @Transactional(readOnly = true)
-    public SolicitudAcompanamientoResponse obtenerPorCodigo(String codigo) {
-        log.info("Obteniendo solicitud con código: {}", codigo);
-        Caso caso = casoRepository.findByCodigo(codigo)
-                .orElseThrow(() -> new ResourceNotFoundException("Caso no encontrado con código: " + codigo));
-        
-        SolicitudAtencion solicitud = caso.getSolicitudAtencion();
-        if (solicitud == null) {
-            throw new ResourceNotFoundException("No hay solicitud para el caso: " + codigo);
-        }
-        
         return buildResponse(solicitud, solicitud.getRemision());
     }
 
