@@ -450,6 +450,7 @@ public class SolicitudAcompanamientoService {
                 .id(solicitud.getId())
                 .codigo(solicitud.getId().toString()) // No hay código específico para solicitud, usar ID como string
                 .tipoSolicitud(solicitud.getTipoSolicitud().getNombre())
+            .idEstadoSolicitud(solicitud.getEstadoSolicitud() != null ? solicitud.getEstadoSolicitud().getId() : null)
                 .estado(solicitud.getEstadoSolicitud().getNombre())
                 .fechaCreacion(solicitud.getFechaCreacion())
                 .profesional(profesionalNombre)
@@ -615,9 +616,9 @@ public class SolicitudAcompanamientoService {
         contacto.setSolicitudAtencion(solicitud);
         contacto.setUsuarioCreacion(usuarioAutenticado);
         contacto.setUsuarioActualizacion(usuarioAutenticado);
+        contacto.setFecha(resolverFechaContacto(req.getFecha()));
         contacto.setResultado(resultado);
         contacto.setObservacion(req.getObservacion());
-        contacto.setHora(req.getHora());
         contactoTelefonicoRepository.save(contacto);
 
         // Obtener el parámetro configurable de máximo de llamadas (defecto 2)
@@ -654,9 +655,8 @@ public class SolicitudAcompanamientoService {
         }
 
         return ContactoTelefonicoResponse.builder()
-                .fecha(req.getFecha())
-                .hora(req.getHora())
-                .jornada(calcularJornada(req.getHora()))
+                .fecha(contacto.getFecha() != null ? contacto.getFecha().toString() : req.getFecha())
+                .jornada(calcularJornada(contacto.getFecha()))
                 .resultado(resultado.getNombre())
                 .observacion(req.getObservacion())
                 .citaCreada(citaId != null)
@@ -675,9 +675,8 @@ public class SolicitudAcompanamientoService {
         }
         return contactoTelefonicoRepository.findBySolicitudAtencionIdOrderByFechaCreacionDesc(solicitudId).stream()
                 .map(c -> ContactoTelefonicoResponse.builder()
-                        .fecha(c.getFechaCreacion() != null ? c.getFechaCreacion().toLocalDate().toString() : "")
-                        .hora(c.getHora() != null ? c.getHora() : "")
-                        .jornada(calcularJornada(c.getHora()))
+                .fecha(c.getFecha() != null ? c.getFecha().toString() : "")
+                .jornada(calcularJornada(c.getFecha()))
                         .resultado(c.getResultado().getNombre())
                         .observacion(c.getObservacion() != null ? c.getObservacion() : "")
                         .build())
@@ -698,13 +697,29 @@ public class SolicitudAcompanamientoService {
                 .collect(Collectors.toList());
     }
 
-    private String calcularJornada(String hora) {
-        if (hora == null || hora.isBlank()) return "";
-        try {
-            int h = Integer.parseInt(hora.split(":")[0]);
-            return h < 12 ? "Mañana" : "Tarde";
-        } catch (NumberFormatException e) {
+    private String calcularJornada(LocalDateTime fechaHora) {
+        if (fechaHora == null) {
             return "";
+        }
+
+        return fechaHora.getHour() < 12 ? "Mañana" : "Tarde";
+    }
+
+    private LocalDateTime resolverFechaContacto(String fechaTexto) {
+        if (fechaTexto == null || fechaTexto.isBlank()) {
+            return LocalDateTime.now();
+        }
+
+        String valor = fechaTexto.trim();
+        try {
+            return LocalDateTime.parse(valor);
+        } catch (Exception ex) {
+            try {
+                return LocalDateTime.parse(valor + "T00:00:00");
+            } catch (Exception ex2) {
+                log.warn("No fue posible parsear la fecha de contacto '{}', se usará fecha actual", fechaTexto);
+                return LocalDateTime.now();
+            }
         }
     }
 

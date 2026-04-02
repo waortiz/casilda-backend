@@ -18,6 +18,7 @@ public class SolicitudAcompanamientoResponse {
     private Long id;
     private String codigo;
     private String tipoSolicitud;
+    private Integer idEstadoSolicitud;
     private String estado;
     private LocalDateTime fechaCreacion;
 

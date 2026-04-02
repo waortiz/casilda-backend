@@ -24,6 +24,9 @@ public class ContactoTelefonico {
     @JoinColumn(name = "idsolicitudatencion", nullable = false)
     private SolicitudAtencion solicitudAtencion;
 
+    @Column(name = "fecha", nullable = false)
+    private LocalDateTime fecha;
+
     @Column(name = "fechacreacion")
     private LocalDateTime fechaCreacion;
 
@@ -44,9 +47,6 @@ public class ContactoTelefonico {
 
     @Column(name = "observacion")
     private String observacion;
-
-    @Column(name = "hora")
-    private String hora;
 
     @PrePersist
     protected void onCreate() {

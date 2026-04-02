@@ -21,6 +21,10 @@ public class Atencion {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idestadoatencion", nullable = false)
+    private EstadoAtencion estadoAtencion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idcita", nullable = false)
     private Cita cita;
 

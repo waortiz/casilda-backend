@@ -51,7 +51,7 @@ public class MaestroService {
     private final ProgramaRepository programaRepository;
     private final RoleRepository roleRepository;
     private final ResultadoContactoTelefonicoRepository resultadoContactoRepository;
-    private final EstadoSolicitudRepository estadoSolicitudRepository;
+    private final EstadoAtencionRepository estadoAtencionRepository;
     private final RegimenRepository regimenRepository;
     private final EPSRepository epsRepository;
     private final TipoCorreoRepository tipoCorreoRepository;
@@ -424,11 +424,11 @@ public class MaestroService {
     }
 
     /**
-     * Obtiene lista de estados de atención (tabla estadosolicitud)
+     * Obtiene lista de estados de atención (tabla estadoatencion)
      */
     public List<MaestroDTO> obtenerEstadosAtencion() {
         log.info("Obteniendo estados de atención desde la base de datos");
-        return estadoSolicitudRepository.findAll().stream()
+        return estadoAtencionRepository.findAll().stream()
             .map(e -> new MaestroDTO(e.getId().longValue(), null, e.getNombre()))
             .collect(Collectors.toList());
     }
@@ -780,12 +780,12 @@ public class MaestroService {
     }
 
     /**
-     * Obtiene lista de actividades.
+     * Obtiene lista de actividades por acción.
      */
     @Transactional(readOnly = true)
-    public List<MaestroDTO> obtenerActividades() {
-        log.info("Obteniendo actividades desde la base de datos");
-        return actividadRepository.findAll().stream()
+    public List<MaestroDTO> obtenerActividadesPorAccion(Integer accionId) {
+        log.info("Obteniendo actividades para acción ID: {}", accionId);
+        return actividadRepository.findByAccionIdOrderByNombreAsc(accionId).stream()
             .map(a -> new MaestroDTO(a.getId().longValue(), null, a.getNombre()))
             .collect(Collectors.toList());
     }

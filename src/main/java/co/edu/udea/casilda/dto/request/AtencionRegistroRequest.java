@@ -12,6 +12,8 @@ public class AtencionRegistroRequest {
     @NotNull
     private Long citaId;
 
+    private Integer idEstadoAtencion;
+
     @NotNull
     private Integer idTipoServicio;
 

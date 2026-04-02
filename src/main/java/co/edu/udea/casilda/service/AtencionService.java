@@ -74,6 +74,7 @@ public class AtencionService {
     private final ArchivoSeguimientoAtencionRepository archivoSeguimientoAtencionRepository;
     private final ModalidadViolenciaRepository modalidadViolenciaRepository;
     private final HechoRepository hechoRepository;
+    private final EstadoAtencionRepository estadoAtencionRepository;
     private final OrientacionSexualRepository orientacionSexualRepository;
     private final IdentidadSexualRepository identidadSexualRepository;
     private final ProgramaRepository programaRepository;
@@ -286,11 +287,19 @@ public class AtencionService {
         
         EPS eps = epsRepository.findById(atencionRequest.getIdEps())
             .orElseThrow(() -> new ResourceNotFoundException("EPS no encontrada con ID: " + atencionRequest.getIdEps()));
+
+        Integer estadoAtencionId = atencionRequest.getIdEstadoAtencion() != null
+            ? atencionRequest.getIdEstadoAtencion()
+            : 1;
+
+        EstadoAtencion estadoAtencion = estadoAtencionRepository.findById(estadoAtencionId)
+            .orElseThrow(() -> new ResourceNotFoundException("EstadoAtencion no encontrado con ID: " + estadoAtencionId));
         
         // Crear la atención
         Atencion atencion = new Atencion();
         atencion.setFechaCreacion(LocalDateTime.now());
         atencion.setUsuarioCreacion(usuario);
+        atencion.setEstadoAtencion(estadoAtencion);
         atencion.setCita(cita);
         atencion.setTipoServicio(tipoServicio);
         atencion.setLugarEntrevista(lugarEntrevista);
@@ -637,6 +646,8 @@ public class AtencionService {
         return AtencionResponse.builder()
                 .id(atencion.getId())
                 .citaId(atencion.getCita().getId())
+            .estadoAtencionId(atencion.getEstadoAtencion().getId())
+            .estadoAtencion(atencion.getEstadoAtencion().getNombre())
                 .tipoServicioId(atencion.getTipoServicio().getId())
                 .tipoServicio(atencion.getTipoServicio().getNombre())
                 .lugarEntrevistaId(atencion.getLugarEntrevista().getId())

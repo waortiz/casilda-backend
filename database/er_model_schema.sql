@@ -405,6 +405,7 @@ CREATE TABLE resultadocontactotelefonico (
 CREATE TABLE contactotelefonico (
     id bigserial NOT NULL,
     idsolicitudatencion bigint not null,
+    fecha TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     idusuariocreacion bigint,
     fechaactualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -508,8 +509,15 @@ CREATE TABLE cita (
     constraint cita_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION
 );
 
+CREATE TABLE estadoatencion (
+    id int not null,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    constraint estadoatencion_pkey PRIMARY KEY (id)
+);
+
 CREATE TABLE atencion (
     id bigserial NOT NULL,
+    idestadoatencion int not null,
     idcita bigint not null,
     idetnia INT,
     idciudadresidencia int,
@@ -531,6 +539,7 @@ CREATE TABLE atencion (
     idusuarioactualizacion bigint,
     constraint atencion_pkey PRIMARY KEY (id),
     constraint atencion_idcita_fkey FOREIGN KEY (idcita) REFERENCES cita(id) ON DELETE NO ACTION,
+    constraint atencion_idestadoatencion_fkey FOREIGN KEY (idestadoatencion) REFERENCES estadoatencion(id) ON DELETE NO ACTION,
     constraint atencion_idetnia_fkey FOREIGN KEY (idetnia) REFERENCES etnia(id) ON DELETE NO ACTION,
     constraint atencion_idciudadresidencia_fkey FOREIGN KEY (idciudadresidencia) REFERENCES municipio(id) ON DELETE NO ACTION,
     constraint atencion_idprograma_fkey FOREIGN KEY (idprograma) REFERENCES programa(id) ON DELETE NO ACTION,
@@ -667,8 +676,10 @@ CREATE TABLE accion (
 
 CREATE TABLE actividad (
     id int not null,
+    idaccion int not null,
     nombre character varying COLLATE pg_catalog."default" NOT NULL,
-    constraint actividad_pkey PRIMARY KEY (id)
+    constraint actividad_pkey PRIMARY KEY (id),
+    constraint actividad_idaccion_fkey FOREIGN KEY (idaccion) REFERENCES accion(id) ON DELETE NO ACTION
 );
 
 CREATE TABLE estadoseguimiento (

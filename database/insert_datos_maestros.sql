@@ -652,14 +652,39 @@ insert into tiposeguimiento (id, nombre) values
 (4, 'Visita Domiciliaria');
 
 insert into accion (id, nombre) values
-(1, 'Acción 1'),
-(2, 'Acción 2'),
-(3, 'Acción 3');
+(1, 'Seguimiento por psicología'),
+(2, 'Seguimiento a activación de ruta interna acordada'),
+(3, 'Seguimiento a remisión interna acordada'),
+(4, 'Seguimiento a activación de ruta externa acordada'),
+(5, 'Seguimiento a remision externa acordada');
 
-insert into actividad (id, nombre) values
-(1, 'Actividad A'),
-(2, 'Actividad B'),
-(3, 'Actividad C');
+insert into actividad (id, idaccion, nombre) values
+(1, 1, 'Seguimiento psicológico'),
+(2, 2, 'Unidad de Asuntos Disciplinarios - UAD'),
+(3, 2, 'Unidad de Resolución de Conflictos - URC'),
+(4, 2, 'Seguridad a Personas y Bienes'),
+(5, 2, 'Protocolo de Amenaza'),
+(6, 2, 'Medidas de Protección Académicas'),
+(7, 2, 'Medidas de Protección Laborales'),
+(8, 3, 'Asesoría psicojurídica y representación - Convenio de Dirección de Bienestar Universitario'),
+(9, 3, 'Línea Violeta te Orienta'),
+(10, 3, 'Psiquiatría'),
+(11, 3, 'Psicoterapia'),
+(12, 3, 'Toxicología'),
+(13, 3, 'Nutrición'),
+(14, 3, 'Ginecología'),
+(15, 3, 'Exámenes ITS'),
+(16, 4, 'Ruta de salud'),
+(17, 4, 'Fiscalía General de la Nación - FGN'),
+(18, 4, 'Comisaría de Familia - CDF'),
+(19, 4, 'Inspección de Policía'),
+(20, 5, 'Línea 123 Agencia Mujer Medellín - Secretaría de las Mujeres del Distrito de Medellín'),
+(21, 5, 'Línea 123 Mujer Metropolitana - Secretaría de las Mujeres del Departamento de Antioquia'),
+(22, 5, 'Atención Psicojurídica en Territorio - Secretaría de las Mujeres del Distrito de Medellín'),
+(23, 5, 'Defensa Técnica - Secretaría de las Mujeres del Distrito de Medellín'),
+(24, 5, 'Defensoría del Pueblo'),
+(25, 5, 'Módulo Diverso Línea 123 Social - Secretaría de Inclusión Social, Familia y Derechos Humanos del Distrito de Medellín'),
+(26, 5, 'Gerencia de Diversidades Sexuales e Identidades de Género - Distrito de Medellín');
 
 insert into estadoseguimiento (id, nombre) values
 (1, 'En Proceso'),
@@ -670,3 +695,8 @@ insert into motivoestadoseguimiento (id, nombre) values
 (1, 'Motivo 1'),
 (2, 'Motivo 2'),
 (3, 'Motivo 3');
+
+insert into estadoatencion (id, nombre) values
+(1, 'Abierto activo'),
+(2, 'Abierto en transición'),
+(3, 'Cerrado');

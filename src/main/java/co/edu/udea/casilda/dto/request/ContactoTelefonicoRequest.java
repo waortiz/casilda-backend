@@ -9,9 +9,6 @@ public class ContactoTelefonicoRequest {
     private String fecha;
 
     @NotBlank
-    private String hora;
-
-    @NotBlank
     private String resultado;
 
     @NotBlank

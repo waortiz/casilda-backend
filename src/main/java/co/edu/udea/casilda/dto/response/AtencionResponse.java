@@ -19,6 +19,8 @@ public class AtencionResponse {
     private Long id;
     private LocalDateTime fecha;
     private Long citaId;
+    private Integer estadoAtencionId;
+    private String estadoAtencion;
     private Integer tipoServicioId;
     private String tipoServicio;
     private Integer lugarEntrevistaId;

@@ -326,10 +326,10 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerAcciones());
     }
 
-    @GetMapping("/actividades")
-    @Operation(summary = "Obtener lista de actividades")
-    public ResponseEntity<List<MaestroDTO>> obtenerActividades() {
-        return ResponseEntity.ok(catalogoService.obtenerActividades());
+    @GetMapping("/actividades/por-accion/{accionId}")
+    @Operation(summary = "Obtener lista de actividades por acción")
+    public ResponseEntity<List<MaestroDTO>> obtenerActividadesPorAccion(@PathVariable Integer accionId) {
+        return ResponseEntity.ok(catalogoService.obtenerActividadesPorAccion(accionId));
     }
 
     @GetMapping("/estados-seguimiento")

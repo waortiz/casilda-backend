@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class ContactoTelefonicoResponse {
     private String fecha;
-    private String hora;
     private String jornada;
     private String resultado;
     private String observacion;
