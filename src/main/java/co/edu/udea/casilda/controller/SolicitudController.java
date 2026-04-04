@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -80,10 +81,28 @@ public class SolicitudController {
             description = "Obtiene un listado con todas las solicitudes de acompañamiento. **Requiere autenticación.**"
     )
     @ApiResponse(responseCode = "200", description = "Lista de solicitudes obtenida exitosamente")
-    public ResponseEntity<List<SolicitudAcompanamientoResponse>> listarTodas() {
-        List<SolicitudAcompanamientoResponse> solicitudes = service.listarTodas();
+        public ResponseEntity<List<SolicitudAcompanamientoResponse>> listarTodas(
+                        @RequestParam(required = false) Integer idEstadoSolicitud) {
+                List<SolicitudAcompanamientoResponse> solicitudes = service.listarTodas(idEstadoSolicitud);
         return ResponseEntity.ok(solicitudes);
     }
+
+        /**
+         * Lista solicitudes paginadas
+         */
+        @GetMapping("/acompanamiento/paginado")
+        @SecurityRequirement(name = "bearerAuth")
+        @Operation(
+                        summary = "Listar solicitudes paginadas",
+                        description = "Obtiene solicitudes de acompañamiento en formato paginado. **Requiere autenticación.**"
+        )
+        @ApiResponse(responseCode = "200", description = "Página de solicitudes obtenida exitosamente")
+        public ResponseEntity<Page<SolicitudAcompanamientoResponse>> listarPaginadas(
+                        @RequestParam(defaultValue = "0") int page,
+                        @RequestParam(defaultValue = "10") int size,
+                        @RequestParam(required = false) Integer idEstadoSolicitud) {
+                return ResponseEntity.ok(service.listarPaginadas(page, size, idEstadoSolicitud));
+        }
 
     /**
      * Elimina una solicitud por ID

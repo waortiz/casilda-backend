@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -40,9 +41,21 @@ public class UsuarioController {
     }
 
     /**
+     * Obtiene usuarios de forma paginada
+     */
+    @GetMapping("/paginado")
+    @Operation(summary = "Obtener usuarios paginados")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<UsuarioResponse>> obtenerPaginados(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(usuarioService.obtenerPaginados(page, size));
+    }
+
+    /**
      * Obtiene un usuario por ID
      */
-    @GetMapping("/{id}")
+    @GetMapping("/{id:\\d+}")
     @Operation(summary = "Obtener usuario por ID")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<UsuarioResponse> obtenerPorId(@PathVariable Long id) {

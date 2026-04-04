@@ -17,6 +17,9 @@ import co.edu.udea.casilda.model.enums.TipoTelefonoEnum;
 import co.edu.udea.casilda.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -171,11 +174,34 @@ public class SolicitudAcompanamientoService {
      * Lista todas las solicitudes
      */
     @Transactional(readOnly = true)
-    public List<SolicitudAcompanamientoResponse> listarTodas() {
-        log.info("Listando todas las solicitudes de acompañamiento");
-        return solicitudAtencionRepository.findAll().stream()
+    public List<SolicitudAcompanamientoResponse> listarTodas(Integer idEstadoSolicitud) {
+        log.info("Listando solicitudes de acompañamiento con filtro idEstadoSolicitud={}", idEstadoSolicitud);
+
+        List<SolicitudAtencion> solicitudes = idEstadoSolicitud == null
+                ? solicitudAtencionRepository.findAll()
+                : solicitudAtencionRepository.findByEstadoSolicitudIdOrderByFechaCreacionDesc(idEstadoSolicitud);
+
+        return solicitudes.stream()
                 .map(solicitud -> buildResponse(solicitud, solicitud.getRemision()))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Lista solicitudes paginadas
+     */
+    @Transactional(readOnly = true)
+    public Page<SolicitudAcompanamientoResponse> listarPaginadas(int page, int size, Integer idEstadoSolicitud) {
+        log.info("Listando solicitudes paginadas. page={}, size={}, idEstadoSolicitud={}", page, size, idEstadoSolicitud);
+
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.max(size, 1);
+        Pageable pageable = PageRequest.of(safePage, safeSize);
+
+        Page<SolicitudAtencion> solicitudes = idEstadoSolicitud == null
+                ? solicitudAtencionRepository.findAllByOrderByFechaCreacionDesc(pageable)
+                : solicitudAtencionRepository.findByEstadoSolicitudIdOrderByFechaCreacionDesc(idEstadoSolicitud, pageable);
+
+        return solicitudes.map(solicitud -> buildResponse(solicitud, solicitud.getRemision()));
     }
 
     // ===========================

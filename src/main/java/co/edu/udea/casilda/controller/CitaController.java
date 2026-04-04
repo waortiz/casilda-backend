@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,6 +36,20 @@ public class CitaController {
     })
     public ResponseEntity<List<CitaResponse>> listarCitas() {
         return ResponseEntity.ok(citaService.listarTodasLasCitas());
+    }
+
+    @GetMapping("/paginado")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Listar citas paginadas", description = "Retorna citas de forma paginada con filtros opcionales de estado. **Requiere autenticación.**")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Página de citas obtenida exitosamente")
+    })
+    public ResponseEntity<Page<CitaResponse>> listarCitasPaginadas(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) Integer idEstadoCita,
+            @RequestParam(required = false) Integer excluirEstadoCitaId) {
+        return ResponseEntity.ok(citaService.listarCitasPaginadas(page, size, idEstadoCita, excluirEstadoCitaId));
     }
 
     @PutMapping("/{id}/reprogramar")

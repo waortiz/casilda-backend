@@ -1,6 +1,8 @@
 package co.edu.udea.casilda.repository;
 
 import co.edu.udea.casilda.model.entity.Cita;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -16,4 +18,19 @@ public interface CitaRepository extends JpaRepository<Cita, Long> {
      * Lista las citas de una solicitud de atención ordenadas por fecha descendente
      */
     List<Cita> findBySolicitudAtencionIdOrderByFechaDesc(Long solicitudId);
+
+    /**
+     * Lista citas paginadas ordenadas por fecha descendente.
+     */
+    Page<Cita> findAllByOrderByFechaDesc(Pageable pageable);
+
+    /**
+     * Lista citas paginadas filtradas por estado.
+     */
+    Page<Cita> findByEstadoCitaIdOrderByFechaDesc(Integer estadoCitaId, Pageable pageable);
+
+    /**
+     * Lista citas paginadas excluyendo un estado.
+     */
+    Page<Cita> findByEstadoCitaIdNotOrderByFechaDesc(Integer estadoCitaId, Pageable pageable);
 }

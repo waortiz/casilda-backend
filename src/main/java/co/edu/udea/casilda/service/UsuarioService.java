@@ -9,6 +9,10 @@ import co.edu.udea.casilda.repository.RoleRepository;
 import co.edu.udea.casilda.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +41,18 @@ public class UsuarioService {
         return usuarioRepository.findAll().stream()
                 .map(this::convertirAResponse)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene usuarios con paginación
+     */
+    @Transactional(readOnly = true)
+    public Page<UsuarioResponse> obtenerPaginados(int page, int size) {
+        log.info("Obteniendo usuarios paginados. page={}, size={}", page, size);
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.max(size, 1);
+        Pageable pageable = PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.DESC, "id"));
+        return usuarioRepository.findAll(pageable).map(this::convertirAResponse);
     }
 
     /**

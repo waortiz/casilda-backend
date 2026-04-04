@@ -14,6 +14,9 @@ import co.edu.udea.casilda.repository.MotivoEstadoCitaRepository;
 import co.edu.udea.casilda.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -45,6 +48,27 @@ public class CitaService {
         return citaRepository.findAll().stream()
                 .map(this::mapToResponse)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CitaResponse> listarCitasPaginadas(int page, int size, Integer idEstadoCita, Integer excluirEstadoCitaId) {
+        log.info("Listando citas paginadas. page={}, size={}, idEstadoCita={}, excluirEstadoCitaId={}",
+                page, size, idEstadoCita, excluirEstadoCitaId);
+
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.max(size, 1);
+        Pageable pageable = PageRequest.of(safePage, safeSize);
+
+        Page<Cita> citas;
+        if (idEstadoCita != null) {
+            citas = citaRepository.findByEstadoCitaIdOrderByFechaDesc(idEstadoCita, pageable);
+        } else if (excluirEstadoCitaId != null) {
+            citas = citaRepository.findByEstadoCitaIdNotOrderByFechaDesc(excluirEstadoCitaId, pageable);
+        } else {
+            citas = citaRepository.findAllByOrderByFechaDesc(pageable);
+        }
+
+        return citas.map(this::mapToResponse);
     }
 
     @Transactional

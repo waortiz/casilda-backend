@@ -7,6 +7,10 @@ import co.edu.udea.casilda.model.entity.*;
 import co.edu.udea.casilda.repository.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
@@ -362,6 +366,30 @@ public class MaestroService {
             .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
             .collect(Collectors.toList());
     }
+
+        /**
+         * Obtiene un catálogo paginado para gestión de sistema.
+         */
+        public Page<MaestroDTO> obtenerCatalogoPaginado(String catalogo, int page, int size) {
+        log.info("Obteniendo catálogo paginado. catalogo={}, page={}, size={}", catalogo, page, size);
+        int safePage = Math.max(page, 0);
+        int safeSize = Math.max(size, 1);
+        Pageable pageable = PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.ASC, "nombre"));
+
+        return switch (catalogo) {
+            case "tipos-solicitud" -> tipoSolicitudRepository.findAll(pageable)
+                .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()));
+            case "campus" -> campusRepository.findAll(pageable)
+                .map(c -> new MaestroDTO(c.getId().longValue(), null, c.getNombre()));
+            case "dependencias" -> dependenciaRepository.findAll(pageable)
+                .map(d -> new MaestroDTO(d.getId().longValue(), null, d.getNombre()));
+            case "facultades" -> facultadRepository.findAll(pageable)
+                .map(f -> new MaestroDTO(f.getId().longValue(), null, f.getNombre()));
+            case "tipos-identificacion" -> tipoIdentificacionRepository.findAll(pageable)
+                .map(t -> new MaestroDTO(t.getId().longValue(), t.getCodigo(), t.getNombre()));
+            default -> throw new IllegalArgumentException("Catálogo no soportado para paginación: " + catalogo);
+        };
+        }
 
     /**
      * Obtiene lista de programas académicos

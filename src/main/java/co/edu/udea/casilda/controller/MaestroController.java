@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -204,6 +205,15 @@ public class MaestroController {
     @Operation(summary = "Obtener lista de tipos de solicitud")
     public ResponseEntity<List<MaestroDTO>> obtenerTiposSolicitud() {
         return ResponseEntity.ok(catalogoService.obtenerTiposSolicitud());
+    }
+
+    @GetMapping("/catalogos/{catalogo}/paginado")
+    @Operation(summary = "Obtener catálogo paginado")
+    public ResponseEntity<Page<MaestroDTO>> obtenerCatalogoPaginado(
+            @PathVariable String catalogo,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(catalogoService.obtenerCatalogoPaginado(catalogo, page, size));
     }
 
     @GetMapping("/programas")
