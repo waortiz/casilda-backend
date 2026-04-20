@@ -37,6 +37,7 @@ public class LineaAlmaService {
     private final TipoReporteAlmaRepository tipoReporteAlmaRepository;
     private final CanalContactoRepository canalContactoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final GrupoProfesionalRepository grupoProfesionalRepository;
     private final TipoServicioRepository tipoServicioRepository;
     private final FormaEntrevistaRepository formaEntrevistaRepository;
     private final IdentidadGeneroRepository identidadGeneroRepository;
@@ -72,8 +73,8 @@ public class LineaAlmaService {
                 .orElseThrow(() -> new ResourceNotFoundException("Canal de contacto no encontrado con ID: " + request.getIdCanalContacto())));
         registro.setQuienRemite(request.getQuienRemite());
         registro.setFechaHoraAtencion(LocalDateTime.now());
-        registro.setPersonaAtiende(usuarioRepository.findById(request.getIdPersonaAtiende())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario atiende no encontrado con ID: " + request.getIdPersonaAtiende())));
+        registro.setPersonaAtiende(grupoProfesionalRepository.findById(request.getIdPersonaAtiende().intValue())
+                .orElseThrow(() -> new ResourceNotFoundException("Grupo profesional no encontrado con ID: " + request.getIdPersonaAtiende())));
         registro.setTipoServicio(tipoServicioRepository.findById(TipoServicioEnum.ATENCION_APH.getId())
                 .orElseThrow(() -> new ResourceNotFoundException("Tipo servicio " + TipoServicioEnum.ATENCION_APH.getNombre()
                         + " no encontrado con ID: " + TipoServicioEnum.ATENCION_APH.getId())));
@@ -244,7 +245,7 @@ public class LineaAlmaService {
                 .canalContacto(registro.getCanalContacto() != null ? registro.getCanalContacto().getNombre() : null)
                 .quienRemite(registro.getQuienRemite())
                 .fechaHoraAtencion(registro.getFechaHoraAtencion())
-                .idPersonaAtiende(registro.getPersonaAtiende() != null ? registro.getPersonaAtiende().getId() : null)
+                .idPersonaAtiende(registro.getPersonaAtiende() != null ? registro.getPersonaAtiende().getId().longValue() : null)
                 .idTipoServicio(registro.getTipoServicio() != null ? registro.getTipoServicio().getId() : null)
                 .tipoServicio(registro.getTipoServicio() != null ? registro.getTipoServicio().getNombre() : null)
                 .idPersonaRegistra(registro.getPersonaRegistra() != null ? registro.getPersonaRegistra().getId() : null)

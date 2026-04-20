@@ -53,7 +53,7 @@ public class RegistroLineaAlma {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idpersonaatiende", nullable = false)
-    private Usuario personaAtiende;
+    private GrupoProfesional personaAtiende;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idtiposervicio", nullable = false)

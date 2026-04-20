@@ -784,18 +784,9 @@ CREATE TABLE resultadotriage (
     CONSTRAINT resultadotriage_pkey PRIMARY KEY (id)
 );
 
--- ---------------------------------------------------------------------------
--- 2. Extender tabla atencion con forma de entrevista
---    (campo requerido también por el componente registro-atencion)
--- ---------------------------------------------------------------------------
-
-ALTER TABLE atencion
-    ADD COLUMN idformaentrevista integer,
-    ADD CONSTRAINT atencion_idformaentrevista_fkey FOREIGN KEY (idformaentrevista)
-        REFERENCES formaentrevista(id) ON DELETE NO ACTION;
 
 -- ---------------------------------------------------------------------------
--- 3. Registro principal de Línea ALMA
+-- 2. Registro principal de Línea ALMA
 --    Entidad raíz independiente del flujo solicitudatencion → cita → atencion.
 --    Cubre los tabs: "Registro de atención de caso", "Datos de la persona",
 --    "Datos complementarios" del componente atencion-pr.
@@ -810,7 +801,7 @@ CREATE TABLE registrolinealma (
     idcanalcontacto integer NOT NULL,        -- WhatsApp, Llamada, Remisión
     quienremite character varying COLLATE pg_catalog."default",   -- libre, solo cuando indirecta
     fechahoraatencion timestamp without time zone NOT NULL,
-    idpersonaatiende bigint NOT NULL,        -- usuario que atiende
+    idpersonaatiende integer NOT NULL,       -- grupo profesional que atiende
     idtiposervicio integer NOT NULL,         -- FK tiposervicio (fijo: Atención APH)
     idpersonaregistra bigint NOT NULL,       -- usuario que registra
     idformaentrevista integer,               -- Presencial, Virtual, Telefónica
@@ -841,7 +832,7 @@ CREATE TABLE registrolinealma (
     CONSTRAINT registrolinealma_idtiposervicio_fkey FOREIGN KEY (idtiposervicio)
         REFERENCES tiposervicio(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idpersonaatiende_fkey FOREIGN KEY (idpersonaatiende)
-        REFERENCES usuario(id) ON DELETE NO ACTION,
+        REFERENCES grupoprofesional(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idpersonaregistra_fkey FOREIGN KEY (idpersonaregistra)
         REFERENCES usuario(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idformaentrevista_fkey FOREIGN KEY (idformaentrevista)
@@ -873,7 +864,7 @@ CREATE TABLE registrolinealma (
 );
 
 -- ---------------------------------------------------------------------------
--- 4. Datos clínicos APH
+-- 3. Datos clínicos APH
 --    Cubre el tab "Atención APH" del componente atencion-pr.
 --    Relación 1:1 con registrolinealma.
 -- ---------------------------------------------------------------------------
@@ -916,7 +907,7 @@ CREATE TABLE atencionaph (
 );
 
 -- ---------------------------------------------------------------------------
--- 5. Remisiones asociadas a un registro Línea ALMA
+-- 4. Remisiones asociadas a un registro Línea ALMA
 --    Cubre el tab "Remision" del componente atencion-pr.
 --    Análoga a remisionatencion pero vinculada a registrolinealma.
 -- ---------------------------------------------------------------------------
@@ -934,7 +925,7 @@ CREATE TABLE remisionregistroalma (
 );
 
 -- ---------------------------------------------------------------------------
--- 6. Seguimiento de contactos de Línea ALMA
+-- 5. Seguimiento de contactos de Línea ALMA
 --    Cubre el tab "Contacto" del componente atencion-pr (en construcción).
 --    Análoga a contactotelefonico pero vinculada a registrolinealma.
 -- ---------------------------------------------------------------------------
