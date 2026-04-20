@@ -49,8 +49,8 @@ public class Caso {
     private OrientacionSexual orientacionSexual;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ididentidadsexual", nullable = false)
-    private IdentidadSexual identidadSexual;
+    @JoinColumn(name = "ididentidadgenero", nullable = false)
+    private IdentidadGenero identidadGenero;
 
     @Column(name = "hacecuantooccurrio", length = 255)
     private String haceCuantoOccurrio;

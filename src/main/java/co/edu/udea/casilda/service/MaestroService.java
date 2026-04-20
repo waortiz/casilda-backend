@@ -42,7 +42,6 @@ public class MaestroService {
     private final VinculoAgresorVictimaRepository vinculoAgresorRepository;
     private final VinculoUdeARepository vinculoUdeARepository;
     private final SubVinculoUdeARepository subVinculoUdeARepository;
-    private final IdentidadSexualRepository identidadSexualRepository;
     private final FormaOcurrenciaRepository formaOcurrenciaRepository;
     private final LugarOcurrenciaRepository lugarOcurrenciaRepository;
     private final ActividadMisionalRepository actividadMisionalRepository;
@@ -60,6 +59,14 @@ public class MaestroService {
     private final EPSRepository epsRepository;
     private final TipoCorreoRepository tipoCorreoRepository;
     private final TipoTelefonoRepository tipoTelefonoRepository;
+    private final TipoReporteAlmaRepository tipoReporteAlmaRepository;
+    private final CanalContactoRepository canalContactoRepository;
+    private final FormaEntrevistaRepository formaEntrevistaRepository;
+    private final CanalAphRepository canalAphRepository;
+    private final ConvenioAphRepository convenioAphRepository;
+    private final AmbitoAphRepository ambitoAphRepository;
+    private final ProtocoloAphRepository protocoloAphRepository;
+    private final ResultadoTriageRepository resultadoTriageRepository;
     private final TipoAsignacionRepository tipoAsignacionRepository;
     private final TipoServicioRepository tipoServicioRepository;
     private final MotivoEstadoCitaRepository motivoEstadoCitaRepository;
@@ -268,16 +275,6 @@ public class MaestroService {
     }
 
     /**
-     * Obtiene lista de identidades sexuales
-     */
-    public List<MaestroDTO> obtenerIdentidadesSexuales() {
-        log.info("Obteniendo identidades sexuales desde la base de datos");
-        return identidadSexualRepository.findAll().stream()
-            .map(i -> new MaestroDTO(i.getId().longValue(), null, i.getNombre()))
-            .collect(Collectors.toList());
-    }
-
-    /**
      * Obtiene lista de formas de ocurrencia
      */
     public List<MaestroDTO> obtenerFormasOcurrencia() {
@@ -479,6 +476,86 @@ public class MaestroService {
         return tipoTelefonoRepository.findAll().stream()
             .map(tt -> new MaestroDTO(tt.getId().longValue(), null, tt.getNombre()))
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de tipos de reporte ALMA.
+     */
+    public List<MaestroDTO> obtenerTiposReporteAlma() {
+        log.info("Obteniendo tipos de reporte ALMA desde la base de datos");
+        return tipoReporteAlmaRepository.findAll().stream()
+                .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de canales de contacto para Línea ALMA.
+     */
+    public List<MaestroDTO> obtenerCanalesContacto() {
+        log.info("Obteniendo canales de contacto desde la base de datos");
+        return canalContactoRepository.findAll().stream()
+                .map(c -> new MaestroDTO(c.getId().longValue(), null, c.getNombre()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de formas de entrevista.
+     */
+    public List<MaestroDTO> obtenerFormasEntrevista() {
+        log.info("Obteniendo formas de entrevista desde la base de datos");
+        return formaEntrevistaRepository.findAll().stream()
+                .map(f -> new MaestroDTO(f.getId().longValue(), null, f.getNombre()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de canales APH.
+     */
+    public List<MaestroDTO> obtenerCanalesAph() {
+        log.info("Obteniendo canales APH desde la base de datos");
+        return canalAphRepository.findAll().stream()
+                .map(c -> new MaestroDTO(c.getId().longValue(), null, c.getNombre()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de convenios APH.
+     */
+    public List<MaestroDTO> obtenerConveniosAph() {
+        log.info("Obteniendo convenios APH desde la base de datos");
+        return convenioAphRepository.findAll().stream()
+                .map(c -> new MaestroDTO(c.getId().longValue(), null, c.getNombre()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de ámbitos APH.
+     */
+    public List<MaestroDTO> obtenerAmbitosAph() {
+        log.info("Obteniendo ámbitos APH desde la base de datos");
+        return ambitoAphRepository.findAll().stream()
+                .map(a -> new MaestroDTO(a.getId().longValue(), null, a.getNombre()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de protocolos APH.
+     */
+    public List<MaestroDTO> obtenerProtocolosAph() {
+        log.info("Obteniendo protocolos APH desde la base de datos");
+        return protocoloAphRepository.findAll().stream()
+                .map(p -> new MaestroDTO(p.getId().longValue(), null, p.getNombre()))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de resultados de triage.
+     */
+    public List<MaestroDTO> obtenerResultadosTriage() {
+        log.info("Obteniendo resultados de triage desde la base de datos");
+        return resultadoTriageRepository.findAll().stream()
+                .map(r -> new MaestroDTO(r.getId().longValue(), null, r.getNombre()))
+                .collect(Collectors.toList());
     }
 
     // ==================== MÉTODOS CRUD PARA MAESTROS ====================

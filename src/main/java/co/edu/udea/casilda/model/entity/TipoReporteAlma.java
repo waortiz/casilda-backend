@@ -9,11 +9,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "identidadsexual")
+@Table(name = "tiporeportealma")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class IdentidadSexual {
+public class TipoReporteAlma {
 
     @Id
     private Integer id;

@@ -72,6 +72,10 @@ public class Atencion {
     private Municipio lugarEntrevista;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idformaentrevista")
+    private FormaEntrevista formaEntrevista;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idregimen", nullable = false)
     private Regimen regimen;
 

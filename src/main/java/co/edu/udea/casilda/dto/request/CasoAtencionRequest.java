@@ -18,7 +18,7 @@ public class CasoAtencionRequest {
     private Integer idOrientacionSexual;
 
     @NotNull
-    private Integer idIdentidadSexual;
+    private Integer idIdentidadGenero;
 
     @NotBlank
     private String tiempoOcurrido;

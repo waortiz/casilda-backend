@@ -200,13 +200,6 @@ CREATE TABLE modalidadviolencia
         ON DELETE NO ACTION
 );
 
-CREATE TABLE identidadsexual
-(
-    id integer NOT NULL,
-    nombre character varying COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT identidadsexual_pkey PRIMARY KEY (id)
-);
-
 CREATE TABLE agresorvictima (
     id bigserial NOT NULL,
     idcaso bigint not null,
@@ -369,7 +362,7 @@ CREATE TABLE caso (
     idsolicitud bigint not null,
     codigo character varying COLLATE pg_catalog."default" UNIQUE NOT NULL,
     idorientacionsexual INT,
-    ididentidadsexual int not null,
+    ididentidadgenero int not null,
     hacecuantooccurrio character varying COLLATE pg_catalog."default",
     idformaocurrencia INT,
     idlugarocurrencia INT,
@@ -390,7 +383,7 @@ CREATE TABLE caso (
     CONSTRAINT caso_pkey PRIMARY KEY (id),
     constraint caso_idsolicitud_fkey FOREIGN KEY (idsolicitud) REFERENCES solicitudatencion(id) ON DELETE NO ACTION,
     constraint caso_idorientacionsexual_fkey FOREIGN KEY (idorientacionsexual) REFERENCES orientacionsexual(id) ON DELETE NO ACTION,
-    constraint caso_ididentidadsexual_fkey FOREIGN KEY (ididentidadsexual) REFERENCES identidadsexual(id) ON DELETE NO ACTION,
+    constraint caso_ididentidadgenero_fkey FOREIGN KEY (ididentidadgenero) REFERENCES identidadgenero(id) ON DELETE NO ACTION,
     constraint caso_idformaocurrencia_fkey FOREIGN KEY (idformaocurrencia) REFERENCES formaocurrencia(id) ON DELETE NO ACTION,
     constraint caso_idlugarocurrencia_fkey FOREIGN KEY (idlugarocurrencia) REFERENCES lugarocurrencia(id) ON DELETE NO ACTION,
     constraint caso_idactivadmisional_fkey FOREIGN KEY (idactivadmisional) REFERENCES actividadmisional(id) ON DELETE NO ACTION,
@@ -721,4 +714,247 @@ CREATE TABLE archivoseguimientoatencion (
     nombre character varying(500) COLLATE pg_catalog."default" NOT NULL,
     constraint archivoseguimientoatencion_pkey PRIMARY KEY (id),
     constraint archivoseguimientoatencion_idseguimientoatencion_fkey FOREIGN KEY (idseguimientoatencion) REFERENCES seguimientoatencion(id) ON DELETE NO ACTION
+);
+
+
+-- ===========================================================================
+-- LÍNEA ALMA — APH (Atención Pre-Hospitalaria)
+-- Sección añadida para soportar el componente atencion-pr
+-- Convención: tablas en minúsculas sin guiones bajos, FKs id<entidad>
+-- ===========================================================================
+
+-- ---------------------------------------------------------------------------
+-- 1. Catálogos específicos de Línea ALMA
+-- ---------------------------------------------------------------------------
+
+-- Tipo de reporte: Directa | Por remisión
+CREATE TABLE tiporeportealma (
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT tiporeportealma_pkey PRIMARY KEY (id)
+);
+
+-- Canal de contacto general: WhatsApp, Llamada, Remisión
+CREATE TABLE canalcontacto (
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT canalcontacto_pkey PRIMARY KEY (id)
+);
+
+-- Forma de entrevista: Presencial, Virtual, Telefónica
+-- Reutilizable también por el flujo estándar de atencion (registro-atencion)
+CREATE TABLE formaentrevista (
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT formaentrevista_pkey PRIMARY KEY (id)
+);
+
+-- Canal APH: canal propio del servicio APH (ej. Línea 106, Consulta externa)
+CREATE TABLE canalaph (
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT canalaph_pkey PRIMARY KEY (id)
+);
+
+-- Convenio APH: entidades convenio bajo las cuales opera el servicio APH
+CREATE TABLE convenioaph (
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT convenioaph_pkey PRIMARY KEY (id)
+);
+
+-- Ámbito APH: contexto en el que se presta la atención (ej. Universitario, Comunitario)
+CREATE TABLE ambitoaph (
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT ambitoaph_pkey PRIMARY KEY (id)
+);
+
+-- Protocolo APH: protocolo clínico aplicado durante la atención
+CREATE TABLE protocoloaph (
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT protocoloaph_pkey PRIMARY KEY (id)
+);
+
+-- Resultado del triage: Alta, Media, Baja
+CREATE TABLE resultadotriage (
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT resultadotriage_pkey PRIMARY KEY (id)
+);
+
+-- ---------------------------------------------------------------------------
+-- 2. Extender tabla atencion con forma de entrevista
+--    (campo requerido también por el componente registro-atencion)
+-- ---------------------------------------------------------------------------
+
+ALTER TABLE atencion
+    ADD COLUMN idformaentrevista integer,
+    ADD CONSTRAINT atencion_idformaentrevista_fkey FOREIGN KEY (idformaentrevista)
+        REFERENCES formaentrevista(id) ON DELETE NO ACTION;
+
+-- ---------------------------------------------------------------------------
+-- 3. Registro principal de Línea ALMA
+--    Entidad raíz independiente del flujo solicitudatencion → cita → atencion.
+--    Cubre los tabs: "Registro de atención de caso", "Datos de la persona",
+--    "Datos complementarios" del componente atencion-pr.
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE registrolinealma (
+    id bigserial NOT NULL,
+    -- Persona atendida
+    idpersona bigint NOT NULL,
+    -- Datos del tab "Registro de atención de caso"
+    idtiporeporte integer NOT NULL,          -- directa / por remisión
+    idcanalcontacto integer NOT NULL,        -- WhatsApp, Llamada, Remisión
+    quienremite character varying COLLATE pg_catalog."default",   -- libre, solo cuando indirecta
+    fechahoraatencion timestamp without time zone NOT NULL,
+    idpersonaatiende bigint NOT NULL,        -- usuario que atiende
+    idtiposervicio integer NOT NULL,         -- FK tiposervicio (fijo: Atención APH)
+    idpersonaregistra bigint NOT NULL,       -- usuario que registra
+    idformaentrevista integer,               -- Presencial, Virtual, Telefónica
+    ididentidadgenero int not null,
+    idorientacionsexual INT,
+    idetnia INT,
+    idciudadresidencia int,
+    direccionresidencia character varying COLLATE pg_catalog."default",
+    -- Datos complementarios (tab "Datos complementarios")
+    idvinculoudea integer,
+    idsubvinculoudea integer,
+    idfacultad integer,
+    idprograma integer,
+    iddependencia integer,
+    idcampus integer,
+    -- Campos de auditoría
+    fechacreacion timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuariocreacion bigint,
+    fechaactualizacion timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuarioactualizacion bigint,
+    CONSTRAINT registrolinealma_pkey PRIMARY KEY (id),
+    CONSTRAINT registrolinealma_idpersona_fkey FOREIGN KEY (idpersona)
+        REFERENCES persona(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idtiporeporte_fkey FOREIGN KEY (idtiporeporte)
+        REFERENCES tiporeportealma(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idcanalcontacto_fkey FOREIGN KEY (idcanalcontacto)
+        REFERENCES canalcontacto(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idtiposervicio_fkey FOREIGN KEY (idtiposervicio)
+        REFERENCES tiposervicio(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idpersonaatiende_fkey FOREIGN KEY (idpersonaatiende)
+        REFERENCES usuario(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idpersonaregistra_fkey FOREIGN KEY (idpersonaregistra)
+        REFERENCES usuario(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idformaentrevista_fkey FOREIGN KEY (idformaentrevista)
+        REFERENCES formaentrevista(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idorientacionsexual_fkey FOREIGN KEY (idorientacionsexual)
+        REFERENCES orientacionsexual(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_ididentidadgenero_fkey FOREIGN KEY (ididentidadgenero)
+        REFERENCES identidadgenero(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idetnia_fkey FOREIGN KEY (idetnia)
+        REFERENCES etnia(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idciudadresidencia_fkey FOREIGN KEY (idciudadresidencia)
+        REFERENCES municipio(id) ON DELETE NO ACTION,    
+    CONSTRAINT registrolinealma_idvinculoudea_fkey FOREIGN KEY (idvinculoudea)
+        REFERENCES vinculoudea(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idsubvinculoudea_fkey FOREIGN KEY (idsubvinculoudea)
+        REFERENCES subvinculoudea(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idfacultad_fkey FOREIGN KEY (idfacultad)
+        REFERENCES facultadescuelainstituto(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idprograma_fkey FOREIGN KEY (idprograma)
+        REFERENCES programa(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_iddependencia_fkey FOREIGN KEY (iddependencia)
+        REFERENCES dependencia(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idcampus_fkey FOREIGN KEY (idcampus)
+        REFERENCES campus(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion)
+        REFERENCES usuario(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion)
+        REFERENCES usuario(id) ON DELETE NO ACTION
+);
+
+-- ---------------------------------------------------------------------------
+-- 4. Datos clínicos APH
+--    Cubre el tab "Atención APH" del componente atencion-pr.
+--    Relación 1:1 con registrolinealma.
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE atencionaph (
+    id bigserial NOT NULL,
+    idregistrolinealma bigint NOT NULL,
+    idcanalaph integer NOT NULL,
+    fechahora timestamp without time zone NOT NULL,   -- aphFecha + aphHora
+    idconvenioaph integer NOT NULL,
+    idambitoaph integer NOT NULL,
+    idprotocoloaph integer NOT NULL,
+    practicotriage boolean NOT NULL DEFAULT FALSE,
+    idresultadotriage integer,                        -- NULL cuando practicotriage = false
+    -- Campo dual: "Nota del APH" si practicotriage=true, "Motivo no realización" si false
+    notaomotivotriage character varying COLLATE pg_catalog."default",
+    aceptapsicologia boolean NOT NULL DEFAULT TRUE,
+    requiereremision boolean NOT NULL DEFAULT FALSE,
+    fechacreacion timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuariocreacion bigint,
+    fechaactualizacion timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuarioactualizacion bigint,
+    CONSTRAINT atencionaph_pkey PRIMARY KEY (id),
+    CONSTRAINT atencionaph_idregistrolinealma_fkey FOREIGN KEY (idregistrolinealma)
+        REFERENCES registrolinealma(id) ON DELETE NO ACTION,
+    CONSTRAINT atencionaph_idcanalaph_fkey FOREIGN KEY (idcanalaph)
+        REFERENCES canalaph(id) ON DELETE NO ACTION,
+    CONSTRAINT atencionaph_idconvenioaph_fkey FOREIGN KEY (idconvenioaph)
+        REFERENCES convenioaph(id) ON DELETE NO ACTION,
+    CONSTRAINT atencionaph_idambitoaph_fkey FOREIGN KEY (idambitoaph)
+        REFERENCES ambitoaph(id) ON DELETE NO ACTION,
+    CONSTRAINT atencionaph_idprotocoloaph_fkey FOREIGN KEY (idprotocoloaph)
+        REFERENCES protocoloaph(id) ON DELETE NO ACTION,
+    CONSTRAINT atencionaph_idresultadotriage_fkey FOREIGN KEY (idresultadotriage)
+        REFERENCES resultadotriage(id) ON DELETE NO ACTION,
+    CONSTRAINT atencionaph_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion)
+        REFERENCES usuario(id) ON DELETE NO ACTION,
+    CONSTRAINT atencionaph_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion)
+        REFERENCES usuario(id) ON DELETE NO ACTION
+);
+
+-- ---------------------------------------------------------------------------
+-- 5. Remisiones asociadas a un registro Línea ALMA
+--    Cubre el tab "Remision" del componente atencion-pr.
+--    Análoga a remisionatencion pero vinculada a registrolinealma.
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE remisionregistroalma (
+    idregistrolinealma bigint NOT NULL,
+    idtiporemision integer NOT NULL,
+    cual character varying COLLATE pg_catalog."default",
+    fecha timestamp without time zone NOT NULL,
+    CONSTRAINT remisionregistroalma_pkey PRIMARY KEY (idregistrolinealma, idtiporemision),
+    CONSTRAINT remisionregistroalma_idregistrolinealma_fkey FOREIGN KEY (idregistrolinealma)
+        REFERENCES registrolinealma(id) ON DELETE NO ACTION,
+    CONSTRAINT remisionregistroalma_idtiporemision_fkey FOREIGN KEY (idtiporemision)
+        REFERENCES tiporemision(id) ON DELETE NO ACTION
+);
+
+-- ---------------------------------------------------------------------------
+-- 6. Seguimiento de contactos de Línea ALMA
+--    Cubre el tab "Contacto" del componente atencion-pr (en construcción).
+--    Análoga a contactotelefonico pero vinculada a registrolinealma.
+-- ---------------------------------------------------------------------------
+
+CREATE TABLE contactolinealma (
+    id bigserial NOT NULL,
+    idregistrolinealma bigint NOT NULL,
+    fecha timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idresultado integer NOT NULL,
+    fechacreacion timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuariocreacion bigint,
+    fechaactualizacion timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuarioactualizacion bigint,
+    CONSTRAINT contactolinealma_pkey PRIMARY KEY (id),
+    CONSTRAINT contactolinealma_idregistrolinealma_fkey FOREIGN KEY (idregistrolinealma)
+        REFERENCES registrolinealma(id) ON DELETE NO ACTION,
+    CONSTRAINT contactolinealma_idresultado_fkey FOREIGN KEY (idresultado)
+        REFERENCES resultadocontactotelefonico(id) ON DELETE NO ACTION,
+    CONSTRAINT contactolinealma_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion)
+        REFERENCES usuario(id) ON DELETE NO ACTION,
+    CONSTRAINT contactolinealma_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion)
+        REFERENCES usuario(id) ON DELETE NO ACTION
 );

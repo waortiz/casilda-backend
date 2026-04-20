@@ -147,12 +147,6 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerSubVinculosUdeA());
     }
 
-    @GetMapping("/identidades-sexuales")
-    @Operation(summary = "Obtener lista de identidades sexuales")
-    public ResponseEntity<List<MaestroDTO>> obtenerIdentidadesSexuales() {
-        return ResponseEntity.ok(catalogoService.obtenerIdentidadesSexuales());
-    }
-
     @GetMapping("/formas-ocurrencia")
     @Operation(summary = "Obtener lista de formas de ocurrencia")
     public ResponseEntity<List<MaestroDTO>> obtenerFormasOcurrencia() {
@@ -262,6 +256,54 @@ public class MaestroController {
     @Operation(summary = "Obtener lista de tipos de teléfono")
     public ResponseEntity<List<MaestroDTO>> obtenerTiposTelefono() {
         return ResponseEntity.ok(catalogoService.obtenerTiposTelefono());
+    }
+
+    @GetMapping("/tipos-reporte-alma")
+    @Operation(summary = "Obtener lista de tipos de reporte ALMA")
+    public ResponseEntity<List<MaestroDTO>> obtenerTiposReporteAlma() {
+        return ResponseEntity.ok(catalogoService.obtenerTiposReporteAlma());
+    }
+
+    @GetMapping("/canales-contacto")
+    @Operation(summary = "Obtener lista de canales de contacto")
+    public ResponseEntity<List<MaestroDTO>> obtenerCanalesContacto() {
+        return ResponseEntity.ok(catalogoService.obtenerCanalesContacto());
+    }
+
+    @GetMapping("/formas-entrevista")
+    @Operation(summary = "Obtener lista de formas de entrevista")
+    public ResponseEntity<List<MaestroDTO>> obtenerFormasEntrevista() {
+        return ResponseEntity.ok(catalogoService.obtenerFormasEntrevista());
+    }
+
+    @GetMapping("/canales-aph")
+    @Operation(summary = "Obtener lista de canales APH")
+    public ResponseEntity<List<MaestroDTO>> obtenerCanalesAph() {
+        return ResponseEntity.ok(catalogoService.obtenerCanalesAph());
+    }
+
+    @GetMapping("/convenios-aph")
+    @Operation(summary = "Obtener lista de convenios APH")
+    public ResponseEntity<List<MaestroDTO>> obtenerConveniosAph() {
+        return ResponseEntity.ok(catalogoService.obtenerConveniosAph());
+    }
+
+    @GetMapping("/ambitos-aph")
+    @Operation(summary = "Obtener lista de ámbitos APH")
+    public ResponseEntity<List<MaestroDTO>> obtenerAmbitosAph() {
+        return ResponseEntity.ok(catalogoService.obtenerAmbitosAph());
+    }
+
+    @GetMapping("/protocolos-aph")
+    @Operation(summary = "Obtener lista de protocolos APH")
+    public ResponseEntity<List<MaestroDTO>> obtenerProtocolosAph() {
+        return ResponseEntity.ok(catalogoService.obtenerProtocolosAph());
+    }
+
+    @GetMapping("/resultados-triage")
+    @Operation(summary = "Obtener lista de resultados de triage")
+    public ResponseEntity<List<MaestroDTO>> obtenerResultadosTriage() {
+        return ResponseEntity.ok(catalogoService.obtenerResultadosTriage());
     }
 
     @GetMapping("/tipos-asignacion")

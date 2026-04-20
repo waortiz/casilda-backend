@@ -137,7 +137,7 @@ public class SolicitudController {
     })
     public ResponseEntity<SolicitudAcompanamientoResponse> actualizarSolicitud(
             @PathVariable Long id,
-            @RequestBody UpdateSolicitudRequest request) {
+                        @Valid @RequestBody UpdateSolicitudRequest request) {
         return ResponseEntity.ok(service.actualizarSolicitud(id, request));
     }
 

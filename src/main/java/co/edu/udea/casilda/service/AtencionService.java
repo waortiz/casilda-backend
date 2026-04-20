@@ -76,7 +76,7 @@ public class AtencionService {
     private final HechoRepository hechoRepository;
     private final EstadoAtencionRepository estadoAtencionRepository;
     private final OrientacionSexualRepository orientacionSexualRepository;
-    private final IdentidadSexualRepository identidadSexualRepository;
+    private final IdentidadGeneroRepository identidadGeneroRepository;
     private final ProgramaRepository programaRepository;
 
     /**
@@ -160,11 +160,11 @@ public class AtencionService {
             caso.setOrientacionSexual(orientacionSexual);
         }
         
-        // Identidad sexual (obligatoria)
-        if (casoRequest.getIdIdentidadSexual() != null) {
-            IdentidadSexual identidadSexual = identidadSexualRepository.findById(casoRequest.getIdIdentidadSexual())
-                    .orElseThrow(() -> new ResourceNotFoundException("Identidad sexual no encontrada con ID: " + casoRequest.getIdIdentidadSexual()));
-            caso.setIdentidadSexual(identidadSexual);
+        // Identidad de género (obligatoria)
+        if (casoRequest.getIdIdentidadGenero() != null) {
+            IdentidadGenero identidadGenero = identidadGeneroRepository.findById(casoRequest.getIdIdentidadGenero())
+                .orElseThrow(() -> new ResourceNotFoundException("Identidad de género no encontrada con ID: " + casoRequest.getIdIdentidadGenero()));
+            caso.setIdentidadGenero(identidadGenero);
         }
         
         // Forma de ocurrencia

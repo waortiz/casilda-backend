@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * DTO Response para solicitud de acompañamiento creada
@@ -31,6 +32,7 @@ public class SolicitudAcompanamientoResponse {
     private String documentoSolicitante;
 
     // Datos del solicitante (completos)
+    private Integer tipoDocumentoId;
     private String tipoDocumento;
     private String numeroDocumento;
     private String fechaNacimiento;
@@ -38,6 +40,7 @@ public class SolicitudAcompanamientoResponse {
     private String segundoNombre;
     private String primerApellido;
     private String segundoApellido;
+    private Integer identidadGeneroId;
     private String identidadGenero;
     private Integer idDepartamentoResidencia;
     private Integer idCiudadResidencia;
@@ -46,6 +49,8 @@ public class SolicitudAcompanamientoResponse {
     private String telefonoAlterno;
     private String correoInstitucional;
     private String correoPersonal;
+    private List<CorreoBusquedaResponse> correos;
+    private List<TelefonoBusquedaResponse> telefonos;
 
     // Datos del remitente (si aplica)
     private String nombreRemitente;
@@ -53,11 +58,16 @@ public class SolicitudAcompanamientoResponse {
     private String remitenteSegundoNombre;
     private String remitentePrimerApellido;
     private String remitenteSegundoApellido;
+    private Integer remitenteCargoId;
     private String remitenteCargo;
+    private Integer remitenteCampusId;
     private String remitenteCampus;
+    private Integer remitenteDependenciaId;
     private String remitenteDependencia;
+    private Integer remitenteFacultadId;
     private String remitenteFacultad;
     private String remitenteFechaSolicitud;
+    private Integer remitenteTipoDocumentoId;
     private String remitenteTipoDocumento;
     private String remitenteNumeroDocumento;
 }

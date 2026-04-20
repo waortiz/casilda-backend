@@ -16,6 +16,8 @@ import java.util.List;
 @Builder
 public class PersonaSearchResponse {
 
+    private Long id;
+
     private String primerNombre;
     private String segundoNombre;
     private String primerApellido;

@@ -499,7 +499,8 @@ INSERT INTO tiposervicio (id, nombre) VALUES
     (1, 'Psicología'),
     (2, 'Asesoría Jurídica'),
     (3, 'Trabajo Social'),
-    (4, 'Dupla Psicosocial')
+    (4, 'Dupla Psicosocial'),
+    (5, 'Atención APH')
 ON CONFLICT (id) DO NOTHING;    
 
 -- Insertar tipos de vínculo con la UDEA (agrupados para el formulario de registro de casos)
@@ -607,15 +608,6 @@ insert into tipoapreciacion (id, nombre, idapreciacion) values
 (8, 'Educativa', 2),
 (9, 'Social', 2),
 (10, 'Otra', 2);
-
-insert into identidadsexual (id, nombre) values
-(1, 'Hombre cisgénero'),
-(2, 'Mujer cisgénero'),
-(3, 'Hombre trans'),
-(4, 'Mujer trans'),
-(5, 'No binario'),
-(6, 'Género fluido'),
-(7, 'Otro');
 
 insert into tiporutaactivacion (id, nombre) values
 (1, 'Interna'),
