@@ -16,4 +16,9 @@ public interface AgresorVictimaRepository extends JpaRepository<AgresorVictima, 
      * Busca el registro de agresor/victima asociado a un caso.
      */
     Optional<AgresorVictima> findByCasoId(Long casoId);
+
+    /**
+     * Elimina el registro de agresor/victima asociado a un caso.
+     */
+    void deleteByCasoId(Long casoId);
 }

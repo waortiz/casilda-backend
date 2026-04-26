@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -36,4 +37,9 @@ public interface CasoRepository extends JpaRepository<Caso, Long> {
      */
     @Query(value = "SELECT COALESCE(MAX(CAST(SUBSTRING(codigo FROM 10) AS INTEGER)), 0) FROM caso WHERE codigo LIKE CONCAT('ACO-', CAST(:year AS VARCHAR), '-%')", nativeQuery = true)
     int findMaxSequentialNumberByYear(@org.springframework.data.repository.query.Param("year") int year);
+
+    /**
+     * Lista los casos asociados a una solicitud.
+     */
+    List<Caso> findBySolicitudAtencionIdOrderByFechaCreacionDesc(Long solicitudId);
 }

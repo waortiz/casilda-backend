@@ -10,10 +10,13 @@ import co.edu.udea.casilda.dto.request.CompromisosAtencionRequest;
 import co.edu.udea.casilda.dto.request.CorreoSolicitanteRequest;
 import co.edu.udea.casilda.dto.request.HechoRequest;
 import co.edu.udea.casilda.dto.request.PersonaAtencionRequest;
+import co.edu.udea.casilda.dto.request.ActualizarOtroCasoRequest;
+import co.edu.udea.casilda.dto.request.RegistroOtroCasoRequest;
 import co.edu.udea.casilda.dto.request.RegistroAtencionCompleteRequest;
 import co.edu.udea.casilda.dto.request.SeguimientoAtencionRequest;
 import co.edu.udea.casilda.dto.request.TelefonoSolicitanteRequest;
 import co.edu.udea.casilda.dto.response.AtencionResponse;
+import co.edu.udea.casilda.dto.response.OtroCasoResponse;
 import co.edu.udea.casilda.exception.ResourceNotFoundException;
 import co.edu.udea.casilda.model.entity.*;
 import co.edu.udea.casilda.repository.*;
@@ -26,8 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.Year;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Servicio para gestión de atenciones
@@ -132,10 +137,91 @@ public class AtencionService {
         if (request.getCompromisos() != null) {
             crearCompromisosAtencion(atencion, request.getCompromisos());
         }
-        
+
+        // Paso 8: Registrar Otros Casos nuevos si existen
+        if (request.getOtrosCasos() != null && !request.getOtrosCasos().isEmpty()) {
+            for (RegistroOtroCasoRequest otroCasoRequest : request.getOtrosCasos()) {
+                registrarOtroCaso(solicitud.getId(), otroCasoRequest);
+            }
+        }
+
+        // Paso 9: Actualizar Otros Casos existentes si existen
+        if (request.getOtrosCasosActualizar() != null && !request.getOtrosCasosActualizar().isEmpty()) {
+            for (ActualizarOtroCasoRequest actualizarRequest : request.getOtrosCasosActualizar()) {
+                RegistroOtroCasoRequest wrapped = new RegistroOtroCasoRequest();
+                wrapped.setCaso(actualizarRequest.getCaso());
+                wrapped.setHechos(actualizarRequest.getHechos());
+                actualizarOtroCaso(actualizarRequest.getIdCaso(), wrapped);
+            }
+        }
+
+        // Paso 10: Eliminar Otros Casos si existen
+        if (request.getOtrosCasosEliminar() != null && !request.getOtrosCasosEliminar().isEmpty()) {
+            for (Long idCaso : request.getOtrosCasosEliminar()) {
+                eliminarOtroCaso(idCaso);
+            }
+        }
+
         log.info("Atención registrada exitosamente con ID: {}", atencion.getId());
         
         return mapToResponse(atencion);
+    }
+
+    @Transactional(readOnly = true)
+    public List<OtroCasoResponse> listarOtrosCasos(Long solicitudId) {
+        log.info("Listando otros casos para solicitud ID: {}", solicitudId);
+
+        solicitudAtencionRepository.findById(solicitudId)
+                .orElseThrow(() -> new ResourceNotFoundException("Solicitud no encontrada con ID: " + solicitudId));
+
+        return casoRepository.findBySolicitudAtencionIdOrderByFechaCreacionDesc(solicitudId).stream()
+                .map(this::mapearOtroCaso)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public OtroCasoResponse registrarOtroCaso(Long solicitudId, RegistroOtroCasoRequest request) {
+        log.info("Creando otro caso para solicitud ID: {}", solicitudId);
+
+        SolicitudAtencion solicitud = solicitudAtencionRepository.findById(solicitudId)
+                .orElseThrow(() -> new ResourceNotFoundException("Solicitud no encontrada con ID: " + solicitudId));
+
+        Usuario usuario = obtenerUsuarioAutenticado();
+        if (usuario == null) {
+            throw new ResourceNotFoundException("Usuario no autenticado");
+        }
+
+        Caso caso = crearCaso(solicitud, request.getCaso(), usuario);
+        guardarAgresorVictima(caso, request.getCaso().getAgresorVictima());
+        guardarHechos(caso, request.getHechos());
+
+        return mapearOtroCaso(caso);
+    }
+
+    @Transactional
+    public OtroCasoResponse actualizarOtroCaso(Long casoId, RegistroOtroCasoRequest request) {
+        log.info("Actualizando otro caso ID: {}", casoId);
+
+        Caso caso = casoRepository.findById(casoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Caso no encontrado con ID: " + casoId));
+
+        actualizarDatosCasoOtro(caso, request.getCaso());
+        guardarAgresorVictima(caso, request.getCaso().getAgresorVictima());
+        guardarHechos(caso, request.getHechos());
+
+        return mapearOtroCaso(caso);
+    }
+
+    @Transactional
+    public void eliminarOtroCaso(Long casoId) {
+        log.info("Eliminando otro caso ID: {}", casoId);
+
+        Caso caso = casoRepository.findById(casoId)
+                .orElseThrow(() -> new ResourceNotFoundException("Caso no encontrado con ID: " + casoId));
+
+        hechoRepository.deleteByCasoId(casoId);
+        agresorVictimaRepository.deleteByCasoId(casoId);
+        casoRepository.delete(caso);
     }
 
     /**
@@ -511,6 +597,175 @@ public class AtencionService {
             log.warn("No fue posible parsear la fecha del hecho '{}', se usará fecha actual", fechaTexto);
             return LocalDateTime.now();
         }
+    }
+
+    private OtroCasoResponse mapearOtroCaso(Caso caso) {
+        List<Hecho> hechos = hechoRepository.findByCasoIdOrderByFechaDesc(caso.getId());
+        String descripcion = hechos.isEmpty() ? "" : hechos.get(0).getDescripcion();
+
+        AgresorVictima agresorVictima = agresorVictimaRepository.findByCasoId(caso.getId()).orElse(null);
+
+        List<Integer> modalidadesPsicologicas = filtrarModalidadesPorTipo(caso, 1);
+        List<Integer> modalidadesFisicas = filtrarModalidadesPorTipo(caso, 2);
+        List<Integer> modalidadesSexuales = filtrarModalidadesPorTipo(caso, 3);
+        List<Integer> modalidadesInstitucionales = filtrarModalidadesPorTipo(caso, 4);
+        List<Integer> modalidadesEconomicas = filtrarModalidadesPorTipo(caso, 5);
+        List<Integer> modalidadesInformaticas = filtrarModalidadesPorTipo(caso, 6);
+        List<Integer> modalidadesPrejuicio = filtrarModalidadesPorTipo(caso, 7);
+
+        return OtroCasoResponse.builder()
+                .idCaso(caso.getId())
+                .id(caso.getCodigo())
+                .tiempoHechos(caso.getHaceCuantoOccurrio())
+                .tipoViolencia(construirTipoViolencia(caso))
+                .subcategoriaViolencia(caso.getModalidadesViolencia().stream()
+                        .map(ModalidadViolenciaCaso::getModalidadViolencia)
+                        .map(ModalidadViolencia::getNombre)
+                        .collect(Collectors.joining(", ")))
+                .descripcion(descripcion)
+
+                .idOrientacionSexual(caso.getOrientacionSexual() != null ? caso.getOrientacionSexual().getId() : null)
+                .idIdentidadGenero(caso.getIdentidadGenero() != null ? caso.getIdentidadGenero().getId() : null)
+                .idFormaOcurrencia(caso.getFormaOcurrencia() != null ? caso.getFormaOcurrencia().getId() : null)
+                .idLugarOcurrencia(caso.getLugarOcurrencia() != null ? caso.getLugarOcurrencia().getId() : null)
+                .violenciaGenero(Boolean.TRUE.equals(caso.getViolenciaBasadaGenero()))
+                .violenciaMisional(Boolean.TRUE.equals(caso.getHechoViolenciaOcurrioActividadesMisionales()))
+                .idActividadMisional(caso.getActividadMisional() != null ? caso.getActividadMisional().getId() : null)
+
+                .modalidadesViolenciaPsicologica(modalidadesPsicologicas)
+                .modalidadesViolenciaFisica(modalidadesFisicas)
+                .modalidadesViolenciaSexual(modalidadesSexuales)
+                .modalidadesViolenciaInstitucional(modalidadesInstitucionales)
+                .modalidadesViolenciaEconomica(modalidadesEconomicas)
+                .modalidadesViolenciaInformatica(modalidadesInformaticas)
+                .modalidadesViolenciaPrejuicio(modalidadesPrejuicio)
+
+                .presuntoPrimerNombre(agresorVictima != null ? agresorVictima.getPrimerNombre() : null)
+                .presuntoSegundoNombre(agresorVictima != null ? agresorVictima.getSegundoNombre() : null)
+                .presuntoPrimerApellido(agresorVictima != null ? agresorVictima.getPrimerApellido() : null)
+                .presuntoSegundoApellido(agresorVictima != null ? agresorVictima.getSegundoApellido() : null)
+                .idVinculoUniversidad(agresorVictima != null && agresorVictima.getVinculoUdeA() != null
+                    ? agresorVictima.getVinculoUdeA().getId()
+                    : null)
+                .idVinculoVictima(agresorVictima != null && agresorVictima.getVinculoAgresorVictima() != null
+                    ? agresorVictima.getVinculoAgresorVictima().getId()
+                    : null)
+                .hechos(hechos.stream()
+                    .map(hecho -> co.edu.udea.casilda.dto.response.HechoOtroCasoResponse.builder()
+                        .fecha(hecho.getFecha() != null
+                            ? hecho.getFecha().format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"))
+                            : null)
+                        .lugar(hecho.getLugar())
+                        .descripcion(hecho.getDescripcion())
+                        .build())
+                    .collect(Collectors.toList()))
+                .build();
+    }
+
+            private List<Integer> filtrarModalidadesPorTipo(Caso caso, int idTipoViolencia) {
+            return caso.getModalidadesViolencia().stream()
+                .map(ModalidadViolenciaCaso::getModalidadViolencia)
+                .filter(modalidad -> modalidad.getTipoViolencia() != null
+                    && modalidad.getTipoViolencia().getId() != null
+                    && modalidad.getTipoViolencia().getId() == idTipoViolencia)
+                .map(ModalidadViolencia::getId)
+                .collect(Collectors.toList());
+            }
+
+            private void actualizarDatosCasoOtro(Caso caso, CasoAtencionRequest casoRequest) {
+            caso.setHaceCuantoOccurrio(casoRequest.getTiempoOcurrido());
+
+            if (casoRequest.getIdOrientacionSexual() != null) {
+                OrientacionSexual orientacionSexual = orientacionSexualRepository.findById(casoRequest.getIdOrientacionSexual())
+                    .orElseThrow(() -> new ResourceNotFoundException("Orientación sexual no encontrada con ID: " + casoRequest.getIdOrientacionSexual()));
+                caso.setOrientacionSexual(orientacionSexual);
+            }
+
+            if (casoRequest.getIdIdentidadGenero() != null) {
+                IdentidadGenero identidadGenero = identidadGeneroRepository.findById(casoRequest.getIdIdentidadGenero())
+                    .orElseThrow(() -> new ResourceNotFoundException("Identidad de género no encontrada con ID: " + casoRequest.getIdIdentidadGenero()));
+                caso.setIdentidadGenero(identidadGenero);
+            }
+
+            if (casoRequest.getIdFormaOcurrencia() != null) {
+                FormaOcurrencia formaOcurrencia = formaOcurrenciaRepository.findById(casoRequest.getIdFormaOcurrencia())
+                    .orElseThrow(() -> new ResourceNotFoundException("Forma de ocurrencia no encontrada con ID: " + casoRequest.getIdFormaOcurrencia()));
+                caso.setFormaOcurrencia(formaOcurrencia);
+            }
+
+            if (casoRequest.getIdLugarOcurrencia() != null) {
+                LugarOcurrencia lugarOcurrencia = lugarOcurrenciaRepository.findById(casoRequest.getIdLugarOcurrencia())
+                    .orElseThrow(() -> new ResourceNotFoundException("Lugar de ocurrencia no encontrado con ID: " + casoRequest.getIdLugarOcurrencia()));
+                caso.setLugarOcurrencia(lugarOcurrencia);
+            }
+
+            caso.setViolenciaBasadaGenero(Boolean.TRUE.equals(casoRequest.getViolenciaGenero()));
+            caso.setHechoViolenciaOcurrioActividadesMisionales(Boolean.TRUE.equals(casoRequest.getViolenciaMisional()));
+
+            if (casoRequest.getIdActividadMisional() != null) {
+                ActividadMisional actividadMisional = actividadMisionalRepository.findById(casoRequest.getIdActividadMisional())
+                    .orElseThrow(() -> new ResourceNotFoundException("Actividad misional no encontrada con ID: " + casoRequest.getIdActividadMisional()));
+                caso.setActividadMisional(actividadMisional);
+            } else {
+                caso.setActividadMisional(null);
+            }
+
+            List<Integer> todosIdsModalidades = new ArrayList<>();
+            if (casoRequest.getModalidadesViolenciaPsicologica() != null)    todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaPsicologica());
+            if (casoRequest.getModalidadesViolenciaFisica() != null)          todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaFisica());
+            if (casoRequest.getModalidadesViolenciaSexual() != null)          todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaSexual());
+            if (casoRequest.getModalidadesViolenciaInstitucional() != null)   todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaInstitucional());
+            if (casoRequest.getModalidadesViolenciaEconomica() != null)       todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaEconomica());
+            if (casoRequest.getModalidadesViolenciaInformatica() != null)     todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaInformatica());
+            if (casoRequest.getModalidadesViolenciaPrejuicio() != null)       todosIdsModalidades.addAll(casoRequest.getModalidadesViolenciaPrejuicio());
+
+            caso.getModalidadesViolencia().clear();
+            for (Integer idModalidad : todosIdsModalidades) {
+                modalidadViolenciaRepository.findById(idModalidad)
+                    .orElseThrow(() -> new ResourceNotFoundException("Modalidad de violencia no encontrada con ID: " + idModalidad));
+                ModalidadViolenciaCaso mvc = new ModalidadViolenciaCaso();
+                mvc.setIdcaso(caso.getId());
+                mvc.setIdmodalidadviolencia(idModalidad);
+                caso.getModalidadesViolencia().add(mvc);
+            }
+
+            caso.setTipoViolenciaPsicologica(casoRequest.getModalidadesViolenciaPsicologica() != null && !casoRequest.getModalidadesViolenciaPsicologica().isEmpty());
+            caso.setTipoViolenciaFisica(casoRequest.getModalidadesViolenciaFisica() != null && !casoRequest.getModalidadesViolenciaFisica().isEmpty());
+            caso.setTipoViolenciaSexual(casoRequest.getModalidadesViolenciaSexual() != null && !casoRequest.getModalidadesViolenciaSexual().isEmpty());
+            caso.setTipoViolenciaInstitucional(casoRequest.getModalidadesViolenciaInstitucional() != null && !casoRequest.getModalidadesViolenciaInstitucional().isEmpty());
+            caso.setTipoViolenciaEconomicaPatrimonial(casoRequest.getModalidadesViolenciaEconomica() != null && !casoRequest.getModalidadesViolenciaEconomica().isEmpty());
+            caso.setTipoViolenciaSexualInformatica(casoRequest.getModalidadesViolenciaInformatica() != null && !casoRequest.getModalidadesViolenciaInformatica().isEmpty());
+            caso.setTipoViolenciaPorPrejuicio(casoRequest.getModalidadesViolenciaPrejuicio() != null && !casoRequest.getModalidadesViolenciaPrejuicio().isEmpty());
+
+            casoRepository.save(caso);
+            }
+
+    private String construirTipoViolencia(Caso caso) {
+        List<String> tipos = new ArrayList<>();
+
+        if (Boolean.TRUE.equals(caso.getTipoViolenciaPsicologica())) {
+            tipos.add("Psicologica");
+        }
+        if (Boolean.TRUE.equals(caso.getTipoViolenciaFisica())) {
+            tipos.add("Fisica");
+        }
+        if (Boolean.TRUE.equals(caso.getTipoViolenciaSexual())) {
+            tipos.add("Sexual");
+        }
+        if (Boolean.TRUE.equals(caso.getTipoViolenciaInstitucional())) {
+            tipos.add("Institucional");
+        }
+        if (Boolean.TRUE.equals(caso.getTipoViolenciaEconomicaPatrimonial())) {
+            tipos.add("Economica/Patrimonial");
+        }
+        if (Boolean.TRUE.equals(caso.getTipoViolenciaSexualInformatica())) {
+            tipos.add("Informatica");
+        }
+        if (Boolean.TRUE.equals(caso.getTipoViolenciaPorPrejuicio())) {
+            tipos.add("Por prejuicio");
+        }
+
+        return String.join(", ", tipos);
     }
 
     /**

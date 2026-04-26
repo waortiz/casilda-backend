@@ -41,4 +41,13 @@ public class RegistroAtencionCompleteRequest {
     
     // --- Compromisos (opcional, si no se persisten antes) ---
     private CompromisosAtencionRequest compromisos;
+
+    // --- Otros Casos nuevos a agregar a la solicitud ---
+    private List<RegistroOtroCasoRequest> otrosCasos;
+
+    // --- Otros Casos existentes a actualizar ---
+    private List<ActualizarOtroCasoRequest> otrosCasosActualizar;
+
+    // --- IDs de Otros Casos a eliminar ---
+    private List<Long> otrosCasosEliminar;
 }
