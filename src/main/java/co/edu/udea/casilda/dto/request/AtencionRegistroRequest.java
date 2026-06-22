@@ -18,7 +18,7 @@ public class AtencionRegistroRequest {
     private Integer idTipoServicio;
 
     @NotNull
-    private Integer idMunicipioEntrevista;
+    private Integer idLugarEntrevista;
 
     @NotNull
     private Integer idRegimen;
@@ -31,4 +31,7 @@ public class AtencionRegistroRequest {
     private String archivoConsentimientoNombre;
     private String archivoConsentimientoTipo;
     private String archivoConsentimientoContenido;
+
+    private String observacionesTelefono;
+    private String observacionesCorreo;
 }

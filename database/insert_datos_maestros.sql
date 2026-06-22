@@ -374,23 +374,14 @@ INSERT INTO vinculoagresorvictima (id, nombre) VALUES
 -- 15. VÍNCULO CON LA UDEA
 -- ============================================================================
 INSERT INTO vinculoudea (id, nombre) VALUES
-(1, 'Estudiante de pregrado'),
-(2, 'Estudiante de posgrado'),
-(3, 'Estudiante de tecnología'),
-(4, 'Estudiante de técnica'),
-(5, 'Docente vinculado'),
-(6, 'Docente ocasional'),
-(7, 'Docente cátedra'),
-(8, 'Docente cátedra 50'),
-(9, 'Personal no docente'),
-(10, 'Prestador de servicios'),
-(11, 'Otro tipo de vínculo: Egresado'),
-(12, 'Otro tipo de vínculo: Jubilado'),
-(13, 'Otro tipo de vínculo: Pensionado'),
-(14, 'Otro tipo de vínculo: Contratista'),
-(15, 'Externo'),
-(16, 'Otro'),
-(17, 'N/A');
+(1, 'Estudiante'),
+(2, 'Personal administrativo'),
+(3, 'Docente'),
+(4, 'Egresado'),
+(5, 'Persona empleada aseo UdeA'),
+(6, 'Contratista Fundación UdeA'),
+(7, 'Contratista CIS'),
+(8, 'Otras');
 
 -- ============================================================================
 -- 18. TIPOS DE SOLICITUD
@@ -692,3 +683,27 @@ insert into estadoatencion (id, nombre) values
 (1, 'Abierto activo'),
 (2, 'Abierto en transición'),
 (3, 'Cerrado');
+
+-- ============================================================================
+-- MEDIO SOLICITUD
+-- ============================================================================
+INSERT INTO mediosolicitud (id, nombre) VALUES
+(1, 'Presencial'),
+(2, 'Virtual');
+
+-- ============================================================================
+-- TIEMPO OCURRIDO UNIDAD
+-- ============================================================================
+CREATE TABLE IF NOT EXISTS tiempoocurridounidad (
+    id integer NOT NULL,
+    nombre character varying NOT NULL,
+    CONSTRAINT tiempoocurridounidad_pkey PRIMARY KEY (id)
+);
+
+INSERT INTO tiempoocurridounidad (id, nombre) VALUES
+(1, 'días'),
+(2, 'semanas'),
+(3, 'meses'),
+(4, 'años')
+ON CONFLICT (id) DO NOTHING;
+

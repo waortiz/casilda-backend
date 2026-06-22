@@ -42,4 +42,10 @@ public interface CasoRepository extends JpaRepository<Caso, Long> {
      * Lista los casos asociados a una solicitud.
      */
     List<Caso> findBySolicitudAtencionIdOrderByFechaCreacionDesc(Long solicitudId);
+
+    /**
+     * Busca los códigos de casos que contengan el año especificado
+     */
+    @Query("SELECT c.codigo FROM Caso c WHERE c.codigo LIKE %:year%")
+    List<String> findCodigosByYear(@org.springframework.data.repository.query.Param("year") String year);
 }

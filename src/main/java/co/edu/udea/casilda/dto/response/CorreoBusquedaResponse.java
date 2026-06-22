@@ -16,5 +16,5 @@ public class CorreoBusquedaResponse {
     private Integer tipoId;
     private String tipo;
     private String correo;
-    private String descripcion;
+    private String observaciones;
 }

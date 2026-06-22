@@ -47,6 +47,10 @@ public class SolicitudAtencion {
     @JoinColumn(name = "idestadosolicitud", nullable = false)
     private EstadoSolicitud estadoSolicitud;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idmediosolicitud")
+    private MedioSolicitud medioSolicitud;
+
     @Column(name = "fechacreacion")
     private LocalDateTime fechaCreacion;
 
@@ -56,6 +60,12 @@ public class SolicitudAtencion {
 
     @Column(name = "fechaactualizacion")
     private LocalDateTime fechaActualizacion;
+
+    @Column(name = "observacionestelefono", length = 500, nullable = true)
+    private String observacionesTelefono;
+
+    @Column(name = "observacionescorreo", length = 500, nullable = true)
+    private String observacionesCorreo;
 
     @OneToMany(mappedBy = "solicitudAtencion", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ContactoTelefonico> contactosTelefonicos = new ArrayList<>();

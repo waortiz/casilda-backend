@@ -36,6 +36,5 @@ public class CorreoPersona {
     @Column(nullable = false, length = 200)
     private String correo;
 
-    @Column(nullable = false)
-    private String descripcion;
+
 }

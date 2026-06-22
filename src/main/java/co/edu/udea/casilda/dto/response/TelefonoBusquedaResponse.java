@@ -16,5 +16,5 @@ public class TelefonoBusquedaResponse {
     private Integer tipoId;
     private String tipo;
     private String telefono;
-    private String descripcion;
+
 }

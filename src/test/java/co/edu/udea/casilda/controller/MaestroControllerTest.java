@@ -31,16 +31,16 @@ class MaestroControllerTest {
     }
 
     @Test
-    void debeRetornarFormasEntrevistaParaCampoFormaYLugarEntrevista() throws Exception {
-        List<MaestroDTO> formasEntrevista = List.of(
+    void debeRetornarLugaresEntrevistaParaCampoLugarEntrevista() throws Exception {
+        List<MaestroDTO> lugaresEntrevista = List.of(
                 MaestroDTO.builder().id(1L).codigo(null).nombre("Presencial").build(),
                 MaestroDTO.builder().id(2L).codigo(null).nombre("Virtual").build(),
                 MaestroDTO.builder().id(3L).codigo(null).nombre("Telefonica").build()
         );
 
-        when(catalogoService.obtenerFormasEntrevista()).thenReturn(formasEntrevista);
+        when(catalogoService.obtenerLugaresEntrevista()).thenReturn(lugaresEntrevista);
 
-        mockMvc.perform(get("/maestros/formas-entrevista"))
+        mockMvc.perform(get("/maestros/lugares-entrevista"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.length()").value(3))

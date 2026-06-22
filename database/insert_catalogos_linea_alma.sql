@@ -16,7 +16,7 @@ INSERT INTO canalcontacto (id, nombre) VALUES
     (3, 'Remisión')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO formaentrevista (id, nombre) VALUES
+INSERT INTO lugarentrevista (id, nombre) VALUES
     (1, 'Presencial'),
     (2, 'Virtual'),
     (3, 'Telefónica')

@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -41,17 +42,19 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SolicitudAcompanamientoService {
 
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
     // Repositorios principales
     private final PersonaRepository personaRepository;
     private final CasoRepository casoRepository;
     private final RemisionRepository remisionRepository;
     private final SolicitudAtencionRepository solicitudAtencionRepository;
     private final EntityManager entityManager;
-    
+
     // Repositorios auxiliares
     private final CorreoPersonaRepository correoPersonaRepository;
     private final TelefonoPersonaRepository telefonoPersonaRepository;
-    
+
     // Repositorios de maestros
     private final TipoIdentificacionRepository tipoIdentificacionRepository;
     private final IdentidadGeneroRepository identidadGeneroRepository;
@@ -73,6 +76,7 @@ public class SolicitudAcompanamientoService {
     private final CitaRepository citaRepository;
     private final ParametroSistemaRepository parametroSistemaRepository;
     private final UsuarioRepository usuarioRepository;
+    private final MedioSolicitudRepository medioSolicitudRepository;
 
     /**
      * Crea una nueva solicitud de acompañamiento usando arquitectura relacional
@@ -110,7 +114,7 @@ public class SolicitudAcompanamientoService {
         log.info("Obteniendo solicitud con ID: {}", id);
         SolicitudAtencion solicitud = solicitudAtencionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Solicitud no encontrada con ID: " + id));
-        
+
         return buildResponse(solicitud, solicitud.getRemision());
     }
 
@@ -129,48 +133,53 @@ public class SolicitudAcompanamientoService {
         if (tipoDocumentoId != null && personaOptional.isEmpty()) {
             Optional<Persona> personaPorDocumento = personaRepository.findByNumeroDocumento(numeroDocumento);
             if (personaPorDocumento.isPresent()) {
-            Persona personaExistente = personaPorDocumento.get();
-            Integer tipoRealId = personaExistente.getTipoIdentificacion() != null
-                ? personaExistente.getTipoIdentificacion().getId()
-                : null;
-            String tipoRealNombre = personaExistente.getTipoIdentificacion() != null
-                ? personaExistente.getTipoIdentificacion().getNombre()
-                : "Sin tipo";
+                Persona personaExistente = personaPorDocumento.get();
+                Integer tipoRealId = personaExistente.getTipoIdentificacion() != null
+                        ? personaExistente.getTipoIdentificacion().getId()
+                        : null;
+                String tipoRealNombre = personaExistente.getTipoIdentificacion() != null
+                        ? personaExistente.getTipoIdentificacion().getNombre()
+                        : "Sin tipo";
 
-            throw new IllegalArgumentException(
-                "El documento " + numeroDocumento + " existe, pero corresponde al tipo de documento "
-                    + tipoRealNombre + " (ID: " + tipoRealId + "). Verifique el tipo seleccionado.");
+                throw new IllegalArgumentException(
+                        "El documento " + numeroDocumento + " existe, pero corresponde al tipo de documento "
+                                + tipoRealNombre + " (ID: " + tipoRealId + "). Verifique el tipo seleccionado.");
             }
         }
 
         Persona persona = personaOptional
-                .orElseThrow(() -> new ResourceNotFoundException("No se encontró persona con documento: " + numeroDocumento));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "No se encontró persona con documento: " + numeroDocumento));
 
         return PersonaSearchResponse.builder()
-            .id(persona.getId())
+                .id(persona.getId())
                 .primerNombre(persona.getPrimerNombre())
                 .segundoNombre(persona.getSegundoNombre())
                 .primerApellido(persona.getPrimerApellido())
                 .segundoApellido(persona.getSegundoApellido())
-                .tipoDocumentoId(persona.getTipoIdentificacion() != null ? persona.getTipoIdentificacion().getId() : null)
+                .tipoDocumentoId(
+                        persona.getTipoIdentificacion() != null ? persona.getTipoIdentificacion().getId() : null)
                 .numeroDocumento(persona.getNumeroDocumento())
-            .fechaNacimiento(persona.getFechaNacimiento() != null ? persona.getFechaNacimiento().toLocalDate().toString() : null)
-                .correos(persona.getCorreos() == null ? List.of() : persona.getCorreos().stream()
-                        .map(c -> CorreoBusquedaResponse.builder()
-                                .tipoId(c.getTipoCorreo() != null ? c.getTipoCorreo().getId() : c.getIdtipo())
-                                .tipo(c.getTipoCorreo() != null ? c.getTipoCorreo().getNombre() : null)
-                                .correo(c.getCorreo())
-                                .descripcion(c.getDescripcion())
-                                .build())
-                        .collect(Collectors.toList()))
-                .telefonos(persona.getTelefonos() == null ? List.of() : persona.getTelefonos().stream()
-                        .map(t -> TelefonoBusquedaResponse.builder()
-                                .tipoId(t.getTipoTelefono() != null ? t.getTipoTelefono().getId() : t.getIdtipo())
-                                .tipo(t.getTipoTelefono() != null ? t.getTipoTelefono().getNombre() : null)
-                                .telefono(t.getTelefono())
-                                .descripcion(t.getDescripcion())
-                                .build())
-                        .collect(Collectors.toList()))
+                .fechaNacimiento(
+                        persona.getFechaNacimiento() != null ? persona.getFechaNacimiento().format(DATE_FORMATTER)
+                                : null)
+                .correos(persona.getCorreos() == null ? List.of()
+                        : persona.getCorreos().stream()
+                                .map(c -> CorreoBusquedaResponse.builder()
+                                        .tipoId(c.getTipoCorreo() != null ? c.getTipoCorreo().getId() : c.getIdtipo())
+                                        .tipo(c.getTipoCorreo() != null ? c.getTipoCorreo().getNombre() : null)
+                                        .correo(c.getCorreo())
+                                        .build())
+                                .collect(Collectors.toList()))
+                .telefonos(persona.getTelefonos() == null ? List.of()
+                        : persona.getTelefonos().stream()
+                                .map(t -> TelefonoBusquedaResponse.builder()
+                                        .tipoId(t.getTipoTelefono() != null ? t.getTipoTelefono().getId()
+                                                : t.getIdtipo())
+                                        .tipo(t.getTipoTelefono() != null ? t.getTipoTelefono().getNombre() : null)
+                                        .telefono(t.getTelefono())
+                                        .build())
+                                .collect(Collectors.toList()))
                 .build();
     }
 
@@ -195,7 +204,8 @@ public class SolicitudAcompanamientoService {
      */
     @Transactional(readOnly = true)
     public Page<SolicitudAcompanamientoResponse> listarPaginadas(int page, int size, Integer idEstadoSolicitud) {
-        log.info("Listando solicitudes paginadas. page={}, size={}, idEstadoSolicitud={}", page, size, idEstadoSolicitud);
+        log.info("Listando solicitudes paginadas. page={}, size={}, idEstadoSolicitud={}", page, size,
+                idEstadoSolicitud);
 
         int safePage = Math.max(page, 0);
         int safeSize = Math.max(size, 1);
@@ -203,7 +213,8 @@ public class SolicitudAcompanamientoService {
 
         Page<SolicitudAtencion> solicitudes = idEstadoSolicitud == null
                 ? solicitudAtencionRepository.findAllByOrderByFechaCreacionDesc(pageable)
-                : solicitudAtencionRepository.findByEstadoSolicitudIdOrderByFechaCreacionDesc(idEstadoSolicitud, pageable);
+                : solicitudAtencionRepository.findByEstadoSolicitudIdOrderByFechaCreacionDesc(idEstadoSolicitud,
+                        pageable);
 
         return solicitudes.map(solicitud -> buildResponse(solicitud, solicitud.getRemision()));
     }
@@ -232,14 +243,15 @@ public class SolicitudAcompanamientoService {
         persona.setPrimerApellido(datos.getPrimerApellido());
         persona.setSegundoApellido(datos.getSegundoApellido());
         persona.setNumeroDocumento(datos.getNumeroDocumento());
-        
+
         // Usar la fecha de nacimiento proporcionada
         persona.setFechaNacimiento(datos.getFechaNacimiento().atStartOfDay());
 
         // Lookup FK a tablas maestras usando IDs
         persona.setTipoIdentificacion(tipoIdentificacionRepository.findById(datos.getTipoDocumentoId())
-                .orElseThrow(() -> new ResourceNotFoundException("TipoIdentificacion no encontrado con ID: " + datos.getTipoDocumentoId())));
-        
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "TipoIdentificacion no encontrado con ID: " + datos.getTipoDocumentoId())));
+
         Persona personaGuardada = personaRepository.save(persona);
 
         // Crear correos
@@ -248,32 +260,36 @@ public class SolicitudAcompanamientoService {
         // Crear teléfonos
         crearTelefonos(personaGuardada, datos);
 
-        // Re-fetchear para que las colecciones correos/teléfonos estén cargadas en memoria
+        // Re-fetchear para que las colecciones correos/teléfonos estén cargadas en
+        // memoria
         return personaRepository.findById(personaGuardada.getId()).orElse(personaGuardada);
     }
 
     /**
      * Crea registros de correos para la persona
-     * Si la lista correos no está vacía, la usa; si no, cae a los campos individuales.
+     * Si la lista correos no está vacía, la usa; si no, cae a los campos
+     * individuales.
      */
     private void crearCorreos(Persona persona, DatosSolicitanteRequest datos) {
         List<TipoCorreo> tiposCorreo = tipoCorreoRepository.findAll();
 
         if (datos.getCorreos() != null && !datos.getCorreos().isEmpty()) {
             for (CorreoSolicitanteRequest req : datos.getCorreos()) {
-                if (req.getCorreo() == null || req.getCorreo().isBlank()) continue;
+                if (req.getCorreo() == null || req.getCorreo().isBlank())
+                    continue;
                 TipoCorreo tipo = tiposCorreo.stream()
                         .filter(t -> t.getId().equals(req.getTipoId()))
                         .findFirst()
                         .orElse(tiposCorreo.stream().findFirst()
-                                .orElseThrow(() -> new ResourceNotFoundException("No hay tipos de correo en la base de datos")));
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                        "No hay tipos de correo en la base de datos")));
                 CorreoPersona correo = new CorreoPersona();
                 correo.setIdpersona(persona.getId());
                 correo.setIdtipo(tipo.getId());
                 correo.setPersona(persona);
                 correo.setTipoCorreo(tipo);
                 correo.setCorreo(req.getCorreo());
-                correo.setDescripcion(req.getDescripcion());
+                // Removed descripcion field as it was deleted from entity
                 correoPersonaRepository.save(correo);
             }
             return;
@@ -283,26 +299,28 @@ public class SolicitudAcompanamientoService {
 
     /**
      * Crea registros de teléfonos para la persona
-     * Si la lista telefonos no está vacía, la usa; si no, cae a los campos individuales.
+     * Si la lista telefonos no está vacía, la usa; si no, cae a los campos
+     * individuales.
      */
     private void crearTelefonos(Persona persona, DatosSolicitanteRequest datos) {
         List<TipoTelefono> tiposTelefono = tipoTelefonoRepository.findAll();
 
         if (datos.getTelefonos() != null && !datos.getTelefonos().isEmpty()) {
             for (TelefonoSolicitanteRequest req : datos.getTelefonos()) {
-                if (req.getTelefono() == null || req.getTelefono().isBlank()) continue;
+                if (req.getTelefono() == null || req.getTelefono().isBlank())
+                    continue;
                 TipoTelefono tipo = tiposTelefono.stream()
                         .filter(t -> t.getId().equals(req.getTipoId()))
                         .findFirst()
                         .orElse(tiposTelefono.stream().findFirst()
-                                .orElseThrow(() -> new ResourceNotFoundException("No hay tipos de teléfono en la base de datos")));
+                                .orElseThrow(() -> new ResourceNotFoundException(
+                                        "No hay tipos de teléfono en la base de datos")));
                 TelefonoPersona telefono = new TelefonoPersona();
                 telefono.setIdpersona(persona.getId());
                 telefono.setIdtipo(tipo.getId());
                 telefono.setPersona(persona);
                 telefono.setTipoTelefono(tipo);
                 telefono.setTelefono(req.getTelefono());
-                telefono.setDescripcion(req.getDescripcion());
                 telefonoPersonaRepository.save(telefono);
             }
             return;
@@ -324,7 +342,8 @@ public class SolicitudAcompanamientoService {
         remitente.setSegundoApellido(datos.getSegundoApellido());
         remitente.setNumeroDocumento(datos.getNumeroDocumento());
         remitente.setTipoIdentificacion(tipoIdentificacionRepository.findById(datos.getTipoDocumentoId())
-                .orElseThrow(() -> new ResourceNotFoundException("TipoIdentificacion no encontrado con ID: " + datos.getTipoDocumentoId())));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "TipoIdentificacion no encontrado con ID: " + datos.getTipoDocumentoId())));
 
         Persona remitenteGuardado = personaRepository.save(remitente);
 
@@ -333,23 +352,26 @@ public class SolicitudAcompanamientoService {
         remision.setRemitente(remitenteGuardado);
         remision.setUsuarioCreacion(usuarioAutenticado);
         remision.setUsuarioActualizacion(usuarioAutenticado);
-        
+
         remision.setCargo(cargoRepository.findById(datos.getCargoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo no encontrado con ID: " + datos.getCargoId())));
-        
+
         if (datos.getDependenciaId() != null) {
             remision.setDependencia(dependenciaRepository.findById(datos.getDependenciaId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Dependencia no encontrada con ID: " + datos.getDependenciaId())));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Dependencia no encontrada con ID: " + datos.getDependenciaId())));
         }
-        
+
         if (datos.getFacultadId() != null) {
             remision.setFacultad(facultadRepository.findById(datos.getFacultadId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Facultad no encontrada con ID: " + datos.getFacultadId())));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Facultad no encontrada con ID: " + datos.getFacultadId())));
         }
-        
+
         if (datos.getCampusId() != null) {
             remision.setCampus(campusRepository.findById(datos.getCampusId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Campus no encontrado con ID: " + datos.getCampusId())));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Campus no encontrado con ID: " + datos.getCampusId())));
         }
 
         return remisionRepository.save(remision);
@@ -358,36 +380,52 @@ public class SolicitudAcompanamientoService {
     /**
      * Crea la solicitud de atención
      */
-    private SolicitudAtencion crearSolicitudAtencion(Remision remision, Persona solicitante, SolicitudAcompanamientoRequest request) {
+    private SolicitudAtencion crearSolicitudAtencion(Remision remision, Persona solicitante,
+            SolicitudAcompanamientoRequest request) {
         SolicitudAtencion solicitud = new SolicitudAtencion();
         Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
-        
+
         // Asociar remisión
         solicitud.setRemision(remision);
         solicitud.setSolicitante(solicitante);
-        
+
         // Establecer identidad de género en la solicitud (no en caso)
-        solicitud.setIdentidadGenero(identidadGeneroRepository.findById(request.getDatosSolicitante().getIdentidadGeneroId())
-                .orElseThrow(() -> new ResourceNotFoundException("IdentidadGenero no encontrada con ID: " + request.getDatosSolicitante().getIdentidadGeneroId())));
-        
+        solicitud.setIdentidadGenero(
+                identidadGeneroRepository.findById(request.getDatosSolicitante().getIdentidadGeneroId())
+                        .orElseThrow(() -> new ResourceNotFoundException("IdentidadGenero no encontrada con ID: "
+                                + request.getDatosSolicitante().getIdentidadGeneroId())));
+
         solicitud.setUsuarioCreacion(usuarioAutenticado);
         solicitud.setUsuarioActualizacion(usuarioAutenticado);
-        
+
         solicitud.setTipoSolicitud(tipoSolicitudRepository.findById(request.getTipoSolicitudId())
-                .orElseThrow(() -> new ResourceNotFoundException("TipoSolicitud no encontrado con ID: " + request.getTipoSolicitudId())));
-        
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "TipoSolicitud no encontrado con ID: " + request.getTipoSolicitudId())));
+
+        // Establecer medio de solicitud
+        if (request.getMedioSolicitudId() != null) {
+            solicitud.setMedioSolicitud(medioSolicitudRepository.findById(request.getMedioSolicitudId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Medio de solicitud no encontrado con ID: " + request.getMedioSolicitudId())));
+        }
+
         // Establecer estado inicial en SIN_ASIGNAR
         solicitud.setEstadoSolicitud(estadoSolicitudRepository.findById(EstadoSolicitud.SIN_ASIGNAR.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("EstadoSolicitud no encontrado con ID: " + EstadoSolicitud.SIN_ASIGNAR.getId())));
-        
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "EstadoSolicitud no encontrado con ID: " + EstadoSolicitud.SIN_ASIGNAR.getId())));
+
+        solicitud.setObservacionesTelefono(request.getObservacionesTelefono());
+        solicitud.setObservacionesCorreo(request.getObservacionesCorreo());
+
         return solicitudAtencionRepository.save(solicitud);
     }
 
     /**
-     * Construye el response DTO completo con todos los campos del componente de consulta
+     * Construye el response DTO completo con todos los campos del componente de
+     * consulta
      */
     private SolicitudAcompanamientoResponse buildResponse(SolicitudAtencion solicitud, Remision remision) {
-       
+
         Persona solicitante = solicitud.getSolicitante();
         if (solicitante == null) {
             // Fallback: si no hay remitente, usar la primera persona disponible
@@ -411,7 +449,8 @@ public class SolicitudAcompanamientoService {
         String correoPersonal = "";
         if (solicitante != null && solicitante.getCorreos() != null) {
             for (CorreoPersona cp : solicitante.getCorreos()) {
-                if (cp.getTipoCorreo() == null || cp.getCorreo() == null) continue;
+                if (cp.getTipoCorreo() == null || cp.getCorreo() == null)
+                    continue;
                 Integer idTipo = cp.getTipoCorreo().getId();
                 if (TipoCorreoEnum.INSTITUCIONAL.getId().equals(idTipo) && correoInstitucional.isEmpty()) {
                     correoInstitucional = cp.getCorreo();
@@ -430,12 +469,15 @@ public class SolicitudAcompanamientoService {
         String telefonoAlterno = "";
         if (solicitante != null && solicitante.getTelefonos() != null) {
             for (TelefonoPersona tp : solicitante.getTelefonos()) {
-                if (tp.getTipoTelefono() == null || tp.getTelefono() == null) continue;
+                if (tp.getTipoTelefono() == null || tp.getTelefono() == null)
+                    continue;
                 Integer idTipo = tp.getTipoTelefono().getId();
-                if ((TipoTelefonoEnum.CELULAR.getId().equals(idTipo) || TipoTelefonoEnum.WHATSAPP.getId().equals(idTipo))
+                if ((TipoTelefonoEnum.CELULAR.getId().equals(idTipo)
+                        || TipoTelefonoEnum.WHATSAPP.getId().equals(idTipo))
                         && celular.isEmpty()) {
                     celular = tp.getTelefono();
-                } else if ((TipoTelefonoEnum.FIJO.getId().equals(idTipo) || TipoTelefonoEnum.OFICINA.getId().equals(idTipo))
+                } else if ((TipoTelefonoEnum.FIJO.getId().equals(idTipo)
+                        || TipoTelefonoEnum.OFICINA.getId().equals(idTipo))
                         && telefonoAlterno.isEmpty()) {
                     telefonoAlterno = tp.getTelefono();
                 } else if (celular.isEmpty()) {
@@ -446,28 +488,29 @@ public class SolicitudAcompanamientoService {
             }
         }
 
-            List<CorreoBusquedaResponse> correos = solicitante != null && solicitante.getCorreos() != null
+        List<CorreoBusquedaResponse> correos = solicitante != null && solicitante.getCorreos() != null
                 ? solicitante.getCorreos().stream()
-                .filter(correo -> tieneTexto(correo.getCorreo()))
-                .map(correo -> CorreoBusquedaResponse.builder()
-                    .tipoId(correo.getTipoCorreo() != null ? correo.getTipoCorreo().getId() : correo.getIdtipo())
-                    .tipo(correo.getTipoCorreo() != null ? correo.getTipoCorreo().getNombre() : null)
-                    .correo(correo.getCorreo())
-                    .descripcion(correo.getDescripcion())
-                    .build())
-                .collect(Collectors.toList())
+                        .filter(correo -> tieneTexto(correo.getCorreo()))
+                        .map(correo -> CorreoBusquedaResponse.builder()
+                                .tipoId(correo.getTipoCorreo() != null ? correo.getTipoCorreo().getId()
+                                        : correo.getIdtipo())
+                                .tipo(correo.getTipoCorreo() != null ? correo.getTipoCorreo().getNombre() : null)
+                                .correo(correo.getCorreo())
+                                .build())
+                        .collect(Collectors.toList())
                 : List.of();
 
-            List<TelefonoBusquedaResponse> telefonos = solicitante != null && solicitante.getTelefonos() != null
+        List<TelefonoBusquedaResponse> telefonos = solicitante != null && solicitante.getTelefonos() != null
                 ? solicitante.getTelefonos().stream()
-                .filter(telefono -> tieneTexto(telefono.getTelefono()))
-                .map(telefono -> TelefonoBusquedaResponse.builder()
-                    .tipoId(telefono.getTipoTelefono() != null ? telefono.getTipoTelefono().getId() : telefono.getIdtipo())
-                    .tipo(telefono.getTipoTelefono() != null ? telefono.getTipoTelefono().getNombre() : null)
-                    .telefono(telefono.getTelefono())
-                    .descripcion(telefono.getDescripcion())
-                    .build())
-                .collect(Collectors.toList())
+                        .filter(telefono -> tieneTexto(telefono.getTelefono()))
+                        .map(telefono -> TelefonoBusquedaResponse.builder()
+                                .tipoId(telefono.getTipoTelefono() != null ? telefono.getTipoTelefono().getId()
+                                        : telefono.getIdtipo())
+                                .tipo(telefono.getTipoTelefono() != null ? telefono.getTipoTelefono().getNombre()
+                                        : null)
+                                .telefono(telefono.getTelefono())
+                                .build())
+                        .collect(Collectors.toList())
                 : List.of();
 
         // Campos del remitente
@@ -484,8 +527,8 @@ public class SolicitudAcompanamientoService {
         Integer remitenteFacultadId = null;
         String remitenteFacultad = "";
         String remitenteFechaSolicitud = remision != null && remision.getFechaCreacion() != null
-            ? remision.getFechaCreacion().toLocalDate().toString()
-            : "";
+                ? remision.getFechaCreacion().format(DATE_FORMATTER)
+                : "";
         Integer remitenteTipoDocumentoId = null;
         String remitenteTipoDocumento = "";
         String remitenteNumeroDocumento = "";
@@ -493,13 +536,25 @@ public class SolicitudAcompanamientoService {
 
         if (remision != null && remitentePersona != null) {
             nombreRemitente = remitentePersona.getNombreCompleto();
-            remitentePrimerNombre = remitentePersona.getPrimerNombre() != null ? remitentePersona.getPrimerNombre() : "";
-            remitenteSegundoNombre = remitentePersona.getSegundoNombre() != null ? remitentePersona.getSegundoNombre() : "";
-            remitentePrimerApellido = remitentePersona.getPrimerApellido() != null ? remitentePersona.getPrimerApellido() : "";
-            remitenteSegundoApellido = remitentePersona.getSegundoApellido() != null ? remitentePersona.getSegundoApellido() : "";
-            remitenteTipoDocumentoId = remitentePersona.getTipoIdentificacion() != null ? remitentePersona.getTipoIdentificacion().getId() : null;
-            remitenteTipoDocumento = remitentePersona.getTipoIdentificacion() != null ? remitentePersona.getTipoIdentificacion().getNombre() : "";
-            remitenteNumeroDocumento = remitentePersona.getNumeroDocumento() != null ? remitentePersona.getNumeroDocumento() : "";
+            remitentePrimerNombre = remitentePersona.getPrimerNombre() != null ? remitentePersona.getPrimerNombre()
+                    : "";
+            remitenteSegundoNombre = remitentePersona.getSegundoNombre() != null ? remitentePersona.getSegundoNombre()
+                    : "";
+            remitentePrimerApellido = remitentePersona.getPrimerApellido() != null
+                    ? remitentePersona.getPrimerApellido()
+                    : "";
+            remitenteSegundoApellido = remitentePersona.getSegundoApellido() != null
+                    ? remitentePersona.getSegundoApellido()
+                    : "";
+            remitenteTipoDocumentoId = remitentePersona.getTipoIdentificacion() != null
+                    ? remitentePersona.getTipoIdentificacion().getId()
+                    : null;
+            remitenteTipoDocumento = remitentePersona.getTipoIdentificacion() != null
+                    ? remitentePersona.getTipoIdentificacion().getNombre()
+                    : "";
+            remitenteNumeroDocumento = remitentePersona.getNumeroDocumento() != null
+                    ? remitentePersona.getNumeroDocumento()
+                    : "";
             remitenteCargoId = remision.getCargo() != null ? remision.getCargo().getId() : null;
             remitenteCargo = remision.getCargo() != null ? remision.getCargo().getNombre() : "";
             remitenteCampusId = remision.getCampus() != null ? remision.getCampus().getId() : null;
@@ -510,31 +565,55 @@ public class SolicitudAcompanamientoService {
             remitenteFacultad = remision.getFacultad() != null ? remision.getFacultad().getNombre() : "";
         }
 
+        Integer medioSolicitudId = solicitud.getMedioSolicitud() != null ? solicitud.getMedioSolicitud().getId() : null;
+        String medioSolicitud = solicitud.getMedioSolicitud() != null ? solicitud.getMedioSolicitud().getNombre() : "";
+
         return SolicitudAcompanamientoResponse.builder()
                 .id(solicitud.getId())
                 .codigo(solicitud.getId().toString()) // No hay código específico para solicitud, usar ID como string
                 .tipoSolicitud(solicitud.getTipoSolicitud().getNombre())
-            .idEstadoSolicitud(solicitud.getEstadoSolicitud() != null ? solicitud.getEstadoSolicitud().getId() : null)
+                .idEstadoSolicitud(
+                        solicitud.getEstadoSolicitud() != null ? solicitud.getEstadoSolicitud().getId() : null)
                 .estado(solicitud.getEstadoSolicitud().getNombre())
                 .fechaCreacion(solicitud.getFechaCreacion())
+                .medioSolicitudId(medioSolicitudId)
+                .medioSolicitud(medioSolicitud)
+                .observacionesTelefono(solicitud.getObservacionesTelefono())
+                .observacionesCorreo(solicitud.getObservacionesCorreo())
                 .profesional(profesionalNombre)
                 // Solicitante resumen
                 .nombreSolicitante(solicitante != null ? solicitante.getNombreCompleto() : "")
                 .documentoSolicitante(solicitante != null ? solicitante.getNumeroDocumento() : "")
                 // Solicitante completo
-                .tipoDocumentoId(solicitante != null && solicitante.getTipoIdentificacion() != null ? solicitante.getTipoIdentificacion().getId() : null)
-                .tipoDocumento(solicitante != null && solicitante.getTipoIdentificacion() != null ? solicitante.getTipoIdentificacion().getNombre() : "")
+                .tipoDocumentoId(solicitante != null && solicitante.getTipoIdentificacion() != null
+                        ? solicitante.getTipoIdentificacion().getId()
+                        : null)
+                .tipoDocumento(solicitante != null && solicitante.getTipoIdentificacion() != null
+                        ? solicitante.getTipoIdentificacion().getNombre()
+                        : "")
                 .numeroDocumento(solicitante != null ? solicitante.getNumeroDocumento() : "")
-                .fechaNacimiento(solicitante != null && solicitante.getFechaNacimiento() != null ? solicitante.getFechaNacimiento().toString() : null)
-                .primerNombre(solicitante != null && solicitante.getPrimerNombre() != null ? solicitante.getPrimerNombre() : "")
-                .segundoNombre(solicitante != null && solicitante.getSegundoNombre() != null ? solicitante.getSegundoNombre() : "")
-                .primerApellido(solicitante != null && solicitante.getPrimerApellido() != null ? solicitante.getPrimerApellido() : "")
-                .segundoApellido(solicitante != null && solicitante.getSegundoApellido() != null ? solicitante.getSegundoApellido() : "")
-                .identidadGeneroId(solicitud.getIdentidadGenero() != null ? solicitud.getIdentidadGenero().getId() : null)
-                .identidadGenero(solicitud.getIdentidadGenero() != null ? solicitud.getIdentidadGenero().getNombre() : "")
-                .idDepartamentoResidencia(null)  // No disponible en Persona
-                .idCiudadResidencia(null)         // No disponible en Persona
-                .direccionResidencia(null)        // No disponible en Persona
+                .fechaNacimiento(solicitante != null && solicitante.getFechaNacimiento() != null
+                        ? solicitante.getFechaNacimiento().format(DATE_FORMATTER)
+                        : null)
+                .primerNombre(
+                        solicitante != null && solicitante.getPrimerNombre() != null ? solicitante.getPrimerNombre()
+                                : "")
+                .segundoNombre(
+                        solicitante != null && solicitante.getSegundoNombre() != null ? solicitante.getSegundoNombre()
+                                : "")
+                .primerApellido(
+                        solicitante != null && solicitante.getPrimerApellido() != null ? solicitante.getPrimerApellido()
+                                : "")
+                .segundoApellido(solicitante != null && solicitante.getSegundoApellido() != null
+                        ? solicitante.getSegundoApellido()
+                        : "")
+                .identidadGeneroId(
+                        solicitud.getIdentidadGenero() != null ? solicitud.getIdentidadGenero().getId() : null)
+                .identidadGenero(
+                        solicitud.getIdentidadGenero() != null ? solicitud.getIdentidadGenero().getNombre() : "")
+                .idDepartamentoResidencia(null) // No disponible en Persona
+                .idCiudadResidencia(null) // No disponible en Persona
+                .direccionResidencia(null) // No disponible en Persona
                 .celular(celular)
                 .telefonoAlterno(telefonoAlterno)
                 .correoInstitucional(correoInstitucional)
@@ -592,6 +671,9 @@ public class SolicitudAcompanamientoService {
         reemplazarCorreosSolicitante(solicitante, req.getCorreos());
         reemplazarTelefonosSolicitante(solicitante, req.getTelefonos());
 
+        solicitud.setObservacionesTelefono(req.getObservacionesTelefono());
+        solicitud.setObservacionesCorreo(req.getObservacionesCorreo());
+
         Remision remision = solicitud.getRemision();
         if (remision != null) {
             actualizarRemitente(remision, req);
@@ -603,7 +685,8 @@ public class SolicitudAcompanamientoService {
             if (remision != null) {
                 remision.setUsuarioActualizacion(usuarioAutenticado);
             }
-            solicitud.getCasos().stream().findFirst().ifPresent(caso -> caso.setUsuarioActualizacion(usuarioAutenticado));
+            solicitud.getCasos().stream().findFirst()
+                    .ifPresent(caso -> caso.setUsuarioActualizacion(usuarioAutenticado));
         }
 
         personaRepository.save(solicitante);
@@ -637,7 +720,8 @@ public class SolicitudAcompanamientoService {
         }
         if (req.getTipoDocumentoId() != null) {
             solicitante.setTipoIdentificacion(tipoIdentificacionRepository.findById(req.getTipoDocumentoId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tipo de documento no encontrado con ID: " + req.getTipoDocumentoId())));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Tipo de documento no encontrado con ID: " + req.getTipoDocumentoId())));
         }
     }
 
@@ -647,7 +731,8 @@ public class SolicitudAcompanamientoService {
         }
 
         solicitud.setIdentidadGenero(identidadGeneroRepository.findById(identidadGeneroId)
-                .orElseThrow(() -> new ResourceNotFoundException("Identidad de género no encontrada con ID: " + identidadGeneroId)));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Identidad de género no encontrada con ID: " + identidadGeneroId)));
     }
 
     private void reemplazarCorreosSolicitante(Persona solicitante, List<UpdateCorreoSolicitudRequest> correos) {
@@ -670,7 +755,7 @@ public class SolicitudAcompanamientoService {
             correoPersona.setPersona(solicitante);
             correoPersona.setTipoCorreo(tipoCorreo);
             correoPersona.setCorreo(req.getCorreo().trim());
-            correoPersona.setDescripcion(req.getDescripcion().trim());
+            // observaciones are stored at SolicitudAtencion level; no per-email description
             solicitante.getCorreos().add(correoPersona);
         }
     }
@@ -695,7 +780,8 @@ public class SolicitudAcompanamientoService {
             telefonoPersona.setPersona(solicitante);
             telefonoPersona.setTipoTelefono(tipoTelefono);
             telefonoPersona.setTelefono(req.getTelefono().trim());
-            telefonoPersona.setDescripcion(req.getDescripcion().trim());
+            // observaciones are stored at SolicitudAtencion level; no per-phone
+            // description.trim());
             solicitante.getTelefonos().add(telefonoPersona);
         }
     }
@@ -723,23 +809,28 @@ public class SolicitudAcompanamientoService {
         }
         if (req.getRemitenteTipoDocumentoId() != null) {
             remitente.setTipoIdentificacion(tipoIdentificacionRepository.findById(req.getRemitenteTipoDocumentoId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tipo de documento no encontrado con ID: " + req.getRemitenteTipoDocumentoId())));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Tipo de documento no encontrado con ID: " + req.getRemitenteTipoDocumentoId())));
         }
         if (req.getRemitenteCargoId() != null) {
             remision.setCargo(cargoRepository.findById(req.getRemitenteCargoId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Cargo no encontrado con ID: " + req.getRemitenteCargoId())));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Cargo no encontrado con ID: " + req.getRemitenteCargoId())));
         }
         if (req.getRemitenteCampusId() != null) {
             remision.setCampus(campusRepository.findById(req.getRemitenteCampusId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Campus no encontrado con ID: " + req.getRemitenteCampusId())));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Campus no encontrado con ID: " + req.getRemitenteCampusId())));
         }
         if (req.getRemitenteDependenciaId() != null) {
             remision.setDependencia(dependenciaRepository.findById(req.getRemitenteDependenciaId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Dependencia no encontrada con ID: " + req.getRemitenteDependenciaId())));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Dependencia no encontrada con ID: " + req.getRemitenteDependenciaId())));
         }
         if (req.getRemitenteFacultadId() != null) {
             remision.setFacultad(facultadRepository.findById(req.getRemitenteFacultadId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Facultad no encontrada con ID: " + req.getRemitenteFacultadId())));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Facultad no encontrada con ID: " + req.getRemitenteFacultadId())));
         }
     }
 
@@ -753,7 +844,8 @@ public class SolicitudAcompanamientoService {
     private TipoCorreo resolverTipoCorreo(UpdateCorreoSolicitudRequest req) {
         if (req.getTipoId() != null) {
             return tipoCorreoRepository.findById(req.getTipoId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tipo de correo no encontrado con ID: " + req.getTipoId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Tipo de correo no encontrado con ID: " + req.getTipoId()));
         }
 
         if (tieneTexto(req.getTipo())) {
@@ -769,7 +861,8 @@ public class SolicitudAcompanamientoService {
     private TipoTelefono resolverTipoTelefono(UpdateTelefonoSolicitudRequest req) {
         if (req.getTipoId() != null) {
             return tipoTelefonoRepository.findById(req.getTipoId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tipo de teléfono no encontrado con ID: " + req.getTipoId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Tipo de teléfono no encontrado con ID: " + req.getTipoId()));
         }
 
         if (tieneTexto(req.getTipo())) {
@@ -782,7 +875,8 @@ public class SolicitudAcompanamientoService {
             return tipoTelefonoRepository.findAll().stream()
                     .filter(tipo -> tipo.getNombre().equalsIgnoreCase(nombreTipo))
                     .findFirst()
-                    .orElseThrow(() -> new ResourceNotFoundException("Tipo de teléfono no encontrado: " + req.getTipo()));
+                    .orElseThrow(
+                            () -> new ResourceNotFoundException("Tipo de teléfono no encontrado: " + req.getTipo()));
         }
 
         throw new ResourceNotFoundException("El tipo de teléfono es obligatorio");
@@ -818,17 +912,20 @@ public class SolicitudAcompanamientoService {
 
         if (req.getGrupoProfesionalId() != null) {
             GrupoProfesional grupo = grupoProfesionalRepository.findById(req.getGrupoProfesionalId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Grupo profesional no encontrado con ID: " + req.getGrupoProfesionalId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Grupo profesional no encontrado con ID: " + req.getGrupoProfesionalId()));
             asignacion.setGrupoProfesional(grupo);
         }
         if (req.getIdTipoAsignacion() != null) {
             TipoAsignacion tipoAsignacion = tipoAsignacionRepository.findById(req.getIdTipoAsignacion())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tipo de asignación no encontrado con ID: " + req.getIdTipoAsignacion()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Tipo de asignación no encontrado con ID: " + req.getIdTipoAsignacion()));
             asignacion.setTipoAsignacion(tipoAsignacion);
         }
         if (req.getIdTipoServicio() != null) {
             TipoServicio tipoServicio = tipoServicioRepository.findById(req.getIdTipoServicio())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tipo de servicio no encontrado con ID: " + req.getIdTipoServicio()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Tipo de servicio no encontrado con ID: " + req.getIdTipoServicio()));
             asignacion.setTipoServicio(tipoServicio);
         }
         asignacionRepository.save(asignacion);
@@ -848,7 +945,8 @@ public class SolicitudAcompanamientoService {
      * Registra un intento de contacto telefonico para una solicitud.
      * Crea una cita automáticamente cuando:
      * - La llamada resulta en "Contesta y se concerta cita" (id=1), o
-     * - El número de llamadas alcanza el máximo configurable (parámetro MAX_LLAMADAS_CONTACTO, defecto 2)
+     * - El número de llamadas alcanza el máximo configurable (parámetro
+     * MAX_LLAMADAS_CONTACTO, defecto 2)
      */
     @Transactional
     public ContactoTelefonicoResponse registrarContacto(Long solicitudId, ContactoTelefonicoRequest req) {
@@ -859,7 +957,8 @@ public class SolicitudAcompanamientoService {
         ResultadoContactoTelefonico resultado = resultadoContactoRepository.findAll().stream()
                 .filter(r -> r.getNombre().equalsIgnoreCase(req.getResultado()))
                 .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Resultado de contacto no encontrado: " + req.getResultado()));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Resultado de contacto no encontrado: " + req.getResultado()));
 
         // Contar llamadas previas para determinar el número de esta llamada
         long llamadasPrevias = contactoTelefonicoRepository.countBySolicitudAtencionId(solicitudId);
@@ -878,21 +977,25 @@ public class SolicitudAcompanamientoService {
         int maxLlamadas = 2;
         Optional<ParametroSistema> param = parametroSistemaRepository.findByClave("MAX_LLAMADAS_CONTACTO");
         if (param.isPresent()) {
-            try { maxLlamadas = Integer.parseInt(param.get().getValor()); } catch (NumberFormatException ignored) {}
+            try {
+                maxLlamadas = Integer.parseInt(param.get().getValor());
+            } catch (NumberFormatException ignored) {
+            }
         }
 
         // Determinar si se debe crear una cita:
         // - Primera llamada exitosa ("Contesta y se concerta cita", id=1), o
         // - Número de llamada alcanza el máximo (asignación unilateral)
         boolean esConcertada = resultado.getId() == 1;
-        boolean esUnilateral  = numeroDeLlamada >= maxLlamadas;
+        boolean esUnilateral = numeroDeLlamada >= maxLlamadas;
         boolean crearCita = esConcertada || esUnilateral;
 
         Long citaId = null;
         String fechaCitaStr = null;
         if (crearCita && req.getFechaCita() != null && !req.getFechaCita().isBlank()
                 && req.getHoraCita() != null && !req.getHoraCita().isBlank()) {
-            log.info("Creando cita para solicitud {} (llamada {}, unilateral={})", solicitudId, numeroDeLlamada, esUnilateral);
+            log.info("Creando cita para solicitud {} (llamada {}, unilateral={})", solicitudId, numeroDeLlamada,
+                    esUnilateral);
             LocalDateTime fechaHoraCita = LocalDateTime.parse(req.getFechaCita() + "T" + req.getHoraCita());
             EstadoCita estadoCreada = estadoCitaRepository.findById(EstadoCitaEnum.CREADA.getId())
                     .orElseThrow(() -> new ResourceNotFoundException("Estado de cita 'Creada' no encontrado"));
@@ -928,8 +1031,8 @@ public class SolicitudAcompanamientoService {
         }
         return contactoTelefonicoRepository.findBySolicitudAtencionIdOrderByFechaCreacionDesc(solicitudId).stream()
                 .map(c -> ContactoTelefonicoResponse.builder()
-                .fecha(c.getFecha() != null ? c.getFecha().toString() : "")
-                .jornada(calcularJornada(c.getFecha()))
+                        .fecha(c.getFecha() != null ? c.getFecha().toString() : "")
+                        .jornada(calcularJornada(c.getFecha()))
                         .resultado(c.getResultado().getNombre())
                         .observacion(c.getObservacion() != null ? c.getObservacion() : "")
                         .build())

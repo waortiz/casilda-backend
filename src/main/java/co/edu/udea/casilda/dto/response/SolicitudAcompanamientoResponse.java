@@ -23,6 +23,12 @@ public class SolicitudAcompanamientoResponse {
     private String estado;
     private LocalDateTime fechaCreacion;
 
+    private Integer medioSolicitudId;
+    private String medioSolicitud;
+
+    private String observacionesTelefono;
+    private String observacionesCorreo;
+
     // Para las tablas del componente de consulta
     private String dependencia;
     private String profesional;

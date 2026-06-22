@@ -33,7 +33,7 @@ public class RegistroLineaAlmaRequest {
     @NotNull
     private Long idPersonaRegistra;
 
-    private Integer idFormaEntrevista;
+    private Integer idLugarEntrevista;
 
     @NotNull
     private Integer idIdentidadGenero;

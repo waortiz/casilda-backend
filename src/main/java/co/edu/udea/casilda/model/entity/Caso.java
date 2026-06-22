@@ -10,7 +10,8 @@ import java.util.List;
 
 /**
  * Entidad Caso - Representa un caso de violencia basada en género.
- * Relaciona a la persona víctima, características del caso y modalidades de violencia.
+ * Relaciona a la persona víctima, características del caso y modalidades de
+ * violencia.
  */
 @Entity
 @Table(name = "caso")
@@ -52,8 +53,12 @@ public class Caso {
     @JoinColumn(name = "ididentidadgenero", nullable = false)
     private IdentidadGenero identidadGenero;
 
-    @Column(name = "hacecuantooccurrio", length = 255)
-    private String haceCuantoOccurrio;
+    @Column(name = "hacecuantooccurrio")
+    private Integer hacecuantooccurrio;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idtiempoocurridounidad")
+    private TiempoOcurridoUnidad tiempoOcurridoUnidad;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idformaocurrencia")

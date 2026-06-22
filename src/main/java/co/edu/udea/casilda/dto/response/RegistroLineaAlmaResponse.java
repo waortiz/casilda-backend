@@ -25,8 +25,8 @@ public class RegistroLineaAlmaResponse {
     private Integer idTipoServicio;
     private String tipoServicio;
     private Long idPersonaRegistra;
-    private Integer idFormaEntrevista;
-    private String formaEntrevista;
+    private Integer idLugarEntrevista;
+    private String lugarEntrevista;
     private Integer idIdentidadGenero;
     private Integer idOrientacionSexual;
     private Integer idEtnia;

@@ -101,7 +101,8 @@ public class MaestroController {
 
     @GetMapping("/departamentos/codigo/{codigoDepartamento}/ciudades")
     @Operation(summary = "Obtener lista de ciudades por codigo de departamento")
-    public ResponseEntity<List<MaestroDTO>> obtenerCiudadesPorCodigoDepartamento(@PathVariable String codigoDepartamento) {
+    public ResponseEntity<List<MaestroDTO>> obtenerCiudadesPorCodigoDepartamento(
+            @PathVariable String codigoDepartamento) {
         return ResponseEntity.ok(catalogoService.obtenerMunicipiosPorCodigoDepartamento(codigoDepartamento));
     }
 
@@ -201,6 +202,18 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerTiposSolicitud());
     }
 
+    @GetMapping("/medio-solicitud")
+    @Operation(summary = "Obtener lista de opciones para medio de solicitud")
+    public ResponseEntity<List<MaestroDTO>> obtenerMedioSolicitud() {
+        return ResponseEntity.ok(catalogoService.obtenerMedioSolicitud());
+    }
+
+    @GetMapping("/tiempos-ocurrido-unidad")
+    @Operation(summary = "Obtener lista de opciones para la unidad del tiempo ocurrido")
+    public ResponseEntity<List<MaestroDTO>> obtenerTiemposOcurridoUnidad() {
+        return ResponseEntity.ok(catalogoService.obtenerTiemposOcurridoUnidad());
+    }
+
     @GetMapping("/catalogos/{catalogo}/paginado")
     @Operation(summary = "Obtener catálogo paginado")
     public ResponseEntity<Page<MaestroDTO>> obtenerCatalogoPaginado(
@@ -270,10 +283,10 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerCanalesContacto());
     }
 
-    @GetMapping("/formas-entrevista")
-    @Operation(summary = "Obtener lista de formas de entrevista")
-    public ResponseEntity<List<MaestroDTO>> obtenerFormasEntrevista() {
-        return ResponseEntity.ok(catalogoService.obtenerFormasEntrevista());
+    @GetMapping("/lugares-entrevista")
+    @Operation(summary = "Obtener lista de lugares de entrevista")
+    public ResponseEntity<List<MaestroDTO>> obtenerLugaresEntrevista() {
+        return ResponseEntity.ok(catalogoService.obtenerLugaresEntrevista());
     }
 
     @GetMapping("/canales-aph")
@@ -332,7 +345,8 @@ public class MaestroController {
 
     @GetMapping("/tipos-apreciacion/{apreciacionId}")
     @Operation(summary = "Obtener lista de tipos de apreciación por apreciación ID")
-    public ResponseEntity<List<MaestroDTO>> obtenerTiposApreciacionPorApreciacionId(@PathVariable Integer apreciacionId) {
+    public ResponseEntity<List<MaestroDTO>> obtenerTiposApreciacionPorApreciacionId(
+            @PathVariable Integer apreciacionId) {
         return ResponseEntity.ok(catalogoService.obtenerTiposApreciacionPorApreciacionId(apreciacionId));
     }
 
@@ -395,7 +409,6 @@ public class MaestroController {
     public ResponseEntity<List<MaestroDTO>> obtenerSeguimientosAtencion() {
         return ResponseEntity.ok(catalogoService.obtenerSeguimientosAtencion());
     }
-
     // ==================== ENDPOINTS CRUD PARA MAESTROS ====================
 
     // TIPOS DE SOLICITUD
@@ -408,7 +421,7 @@ public class MaestroController {
     @PutMapping("/tipos-solicitud/{id}")
     @Operation(summary = "Actualizar un tipo de solicitud existente")
     public ResponseEntity<MaestroDTO> actualizarTipoSolicitud(
-            @PathVariable Integer id, 
+            @PathVariable Integer id,
             @Valid @RequestBody MaestroRequest request) {
         return ResponseEntity.ok(catalogoService.actualizarTipoSolicitud(id, request));
     }
@@ -430,7 +443,7 @@ public class MaestroController {
     @PutMapping("/campus/{id}")
     @Operation(summary = "Actualizar un campus existente")
     public ResponseEntity<MaestroDTO> actualizarCampus(
-            @PathVariable Integer id, 
+            @PathVariable Integer id,
             @Valid @RequestBody MaestroRequest request) {
         return ResponseEntity.ok(catalogoService.actualizarCampus(id, request));
     }
@@ -452,7 +465,7 @@ public class MaestroController {
     @PutMapping("/dependencias/{id}")
     @Operation(summary = "Actualizar una dependencia existente")
     public ResponseEntity<MaestroDTO> actualizarDependencia(
-            @PathVariable Integer id, 
+            @PathVariable Integer id,
             @Valid @RequestBody MaestroRequest request) {
         return ResponseEntity.ok(catalogoService.actualizarDependencia(id, request));
     }
@@ -474,7 +487,7 @@ public class MaestroController {
     @PutMapping("/facultades/{id}")
     @Operation(summary = "Actualizar una facultad existente")
     public ResponseEntity<MaestroDTO> actualizarFacultad(
-            @PathVariable Integer id, 
+            @PathVariable Integer id,
             @Valid @RequestBody MaestroRequest request) {
         return ResponseEntity.ok(catalogoService.actualizarFacultad(id, request));
     }
@@ -496,7 +509,7 @@ public class MaestroController {
     @PutMapping("/tipos-identificacion/{id}")
     @Operation(summary = "Actualizar un tipo de identificación existente")
     public ResponseEntity<MaestroDTO> actualizarTipoIdentificacion(
-            @PathVariable Integer id, 
+            @PathVariable Integer id,
             @Valid @RequestBody MaestroRequest request) {
         return ResponseEntity.ok(catalogoService.actualizarTipoIdentificacion(id, request));
     }

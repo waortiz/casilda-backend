@@ -22,7 +22,7 @@ public class AtencionContextoRequest {
     @NotNull
     private Integer idVinculoUniversidad;
 
-    private Integer idSubVinculoUniversidad;
+    private String otroVinculo;
 
     @NotNull
     private Integer idPrograma;

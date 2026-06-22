@@ -59,9 +59,8 @@ public class Atencion {
     @JoinColumn(name = "idvinculoudea")
     private VinculoUdeA vinculoUdeA;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idsubvinculoudea")
-    private SubVinculoUdeA subVinculoUdeA;
+    @Column(name = "otrovinculo", length = 255)
+    private String otroVinculo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idtiposervicio", nullable = false)
@@ -69,11 +68,7 @@ public class Atencion {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idlugarentrevista", nullable = false)
-    private Municipio lugarEntrevista;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idformaentrevista")
-    private FormaEntrevista formaEntrevista;
+    private LugarEntrevista lugarEntrevista;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idregimen", nullable = false)

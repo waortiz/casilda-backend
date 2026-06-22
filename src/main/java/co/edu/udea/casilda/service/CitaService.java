@@ -40,7 +40,7 @@ public class CitaService {
     private final MotivoEstadoCitaRepository motivoEstadoCitaRepository;
     private final UsuarioRepository usuarioRepository;
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm");
 
     @Transactional(readOnly = true)
     public List<CitaResponse> listarTodasLasCitas() {
@@ -76,6 +76,9 @@ public class CitaService {
         log.info("Reprogramando cita id={}", id);
         Cita cita = citaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Cita no encontrada con ID: " + id));
+        if (cita.getFecha() != null && cita.getFecha().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("No se puede reprogramar una cita cuya fecha ha caducado");
+        }
         LocalDateTime nuevaFecha = LocalDateTime.parse(req.getFechaCita() + "T" + req.getHoraCita());
         cita.setFecha(nuevaFecha);
         EstadoCita estadoReprogramada = estadoCitaRepository.findById(EstadoCitaEnum.REPROGRAMADA.getId())
@@ -183,6 +186,14 @@ public class CitaService {
                 ? (remision.getCampus() != null ? remision.getCampus().getNombre() : null)
                 : null;
 
+        String profesionalNombre = "Sin asignar";
+        if (sa.getAsignaciones() != null && !sa.getAsignaciones().isEmpty()) {
+            Asignacion ultimaAsignacion = sa.getAsignaciones().get(sa.getAsignaciones().size() - 1);
+            if (ultimaAsignacion.getGrupoProfesional() != null) {
+                profesionalNombre = ultimaAsignacion.getGrupoProfesional().getNombre();
+            }
+        }
+
         return CitaResponse.builder()
                 .id(cita.getId())
                 .solicitudId(sa.getId())
@@ -197,6 +208,7 @@ public class CitaService {
                 .observaciones(cita.getObservaciones())
                 .tipoSolicitud(sa.getTipoSolicitud() != null ? sa.getTipoSolicitud().getNombre() : null)
                 .dependencia(dependenciaNombre)
+                .profesional(profesionalNombre)
                 .facultad(facultadNombre)
                 .campus(campusNombre)
                 .identidadGenero(sa.getIdentidadGenero() != null ? sa.getIdentidadGenero().getNombre() : null)

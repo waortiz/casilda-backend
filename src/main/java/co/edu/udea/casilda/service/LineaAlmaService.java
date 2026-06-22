@@ -39,7 +39,7 @@ public class LineaAlmaService {
     private final UsuarioRepository usuarioRepository;
     private final GrupoProfesionalRepository grupoProfesionalRepository;
     private final TipoServicioRepository tipoServicioRepository;
-    private final FormaEntrevistaRepository formaEntrevistaRepository;
+    private final LugarEntrevistaRepository lugarEntrevistaRepository;
     private final IdentidadGeneroRepository identidadGeneroRepository;
     private final OrientacionSexualRepository orientacionSexualRepository;
     private final EtniaRepository etniaRepository;
@@ -81,9 +81,9 @@ public class LineaAlmaService {
         registro.setPersonaRegistra(usuarioRepository.findById(request.getIdPersonaRegistra())
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario registra no encontrado con ID: " + request.getIdPersonaRegistra())));
 
-        if (request.getIdFormaEntrevista() != null) {
-            registro.setFormaEntrevista(formaEntrevistaRepository.findById(request.getIdFormaEntrevista())
-                    .orElseThrow(() -> new ResourceNotFoundException("Forma entrevista no encontrada con ID: " + request.getIdFormaEntrevista())));
+        if (request.getIdLugarEntrevista() != null) {
+            registro.setLugarEntrevista(lugarEntrevistaRepository.findById(request.getIdLugarEntrevista())
+                    .orElseThrow(() -> new ResourceNotFoundException("Lugar entrevista no encontrado con ID: " + request.getIdLugarEntrevista())));
         }
 
         registro.setIdentidadGenero(identidadGeneroRepository.findById(request.getIdIdentidadGenero())
@@ -249,8 +249,8 @@ public class LineaAlmaService {
                 .idTipoServicio(registro.getTipoServicio() != null ? registro.getTipoServicio().getId() : null)
                 .tipoServicio(registro.getTipoServicio() != null ? registro.getTipoServicio().getNombre() : null)
                 .idPersonaRegistra(registro.getPersonaRegistra() != null ? registro.getPersonaRegistra().getId() : null)
-                .idFormaEntrevista(registro.getFormaEntrevista() != null ? registro.getFormaEntrevista().getId() : null)
-                .formaEntrevista(registro.getFormaEntrevista() != null ? registro.getFormaEntrevista().getNombre() : null)
+                .idLugarEntrevista(registro.getLugarEntrevista() != null ? registro.getLugarEntrevista().getId() : null)
+                .lugarEntrevista(registro.getLugarEntrevista() != null ? registro.getLugarEntrevista().getNombre() : null)
                 .idIdentidadGenero(registro.getIdentidadGenero() != null ? registro.getIdentidadGenero().getId() : null)
                 .idOrientacionSexual(registro.getOrientacionSexual() != null ? registro.getOrientacionSexual().getId() : null)
                 .idEtnia(registro.getEtnia() != null ? registro.getEtnia().getId() : null)

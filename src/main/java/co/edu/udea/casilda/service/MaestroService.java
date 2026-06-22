@@ -5,6 +5,7 @@ import co.edu.udea.casilda.dto.response.MaestroDTO;
 import co.edu.udea.casilda.exception.ResourceNotFoundException;
 import co.edu.udea.casilda.model.entity.*;
 import co.edu.udea.casilda.repository.*;
+import co.edu.udea.casilda.model.enums.TipoServicioEnum;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -61,7 +62,7 @@ public class MaestroService {
     private final TipoTelefonoRepository tipoTelefonoRepository;
     private final TipoReporteAlmaRepository tipoReporteAlmaRepository;
     private final CanalContactoRepository canalContactoRepository;
-    private final FormaEntrevistaRepository formaEntrevistaRepository;
+    private final LugarEntrevistaRepository lugarEntrevistaRepository;
     private final CanalAphRepository canalAphRepository;
     private final ConvenioAphRepository convenioAphRepository;
     private final AmbitoAphRepository ambitoAphRepository;
@@ -82,6 +83,8 @@ public class MaestroService {
     private final ActividadRepository actividadRepository;
     private final EstadoSeguimientoRepository estadoSeguimientoRepository;
     private final SeguimientoAtencionRepository seguimientoAtencionRepository;
+    private final MedioSolicitudRepository medioSolicitudRepository;
+    private final TiempoOcurridoUnidadRepository tiempoOcurridoUnidadRepository;
 
     /**
      * Obtiene lista de países
@@ -364,6 +367,26 @@ public class MaestroService {
             .collect(Collectors.toList());
     }
 
+    /**
+     * Obtiene lista de opciones para medio de solicitud
+     */
+    public List<MaestroDTO> obtenerMedioSolicitud() {
+        log.info("Obteniendo opciones de medio de solicitud desde la base de datos");
+        return medioSolicitudRepository.findAll().stream()
+            .map(d -> new MaestroDTO(d.getId().longValue(), null, d.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de opciones para la unidad del tiempo ocurrido
+     */
+    public List<MaestroDTO> obtenerTiemposOcurridoUnidad() {
+        log.info("Obteniendo opciones de unidades de tiempo ocurrido desde la base de datos");
+        return tiempoOcurridoUnidadRepository.findAll().stream()
+            .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
+            .collect(Collectors.toList());
+    }
+
         /**
          * Obtiene un catálogo paginado para gestión de sistema.
          */
@@ -376,6 +399,8 @@ public class MaestroService {
         return switch (catalogo) {
             case "tipos-solicitud" -> tipoSolicitudRepository.findAll(pageable)
                 .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()));
+            case "medio-solicitud" -> medioSolicitudRepository.findAll(pageable)
+                .map(d -> new MaestroDTO(d.getId().longValue(), null, d.getNombre()));
             case "campus" -> campusRepository.findAll(pageable)
                 .map(c -> new MaestroDTO(c.getId().longValue(), null, c.getNombre()));
             case "dependencias" -> dependenciaRepository.findAll(pageable)
@@ -499,11 +524,11 @@ public class MaestroService {
     }
 
     /**
-     * Obtiene lista de formas de entrevista.
+     * Obtiene lista de lugares de entrevista.
      */
-    public List<MaestroDTO> obtenerFormasEntrevista() {
-        log.info("Obteniendo formas de entrevista desde la base de datos");
-        return formaEntrevistaRepository.findAll().stream()
+    public List<MaestroDTO> obtenerLugaresEntrevista() {
+        log.info("Obteniendo lugares de entrevista desde la base de datos");
+        return lugarEntrevistaRepository.findAll().stream()
                 .map(f -> new MaestroDTO(f.getId().longValue(), null, f.getNombre()))
                 .collect(Collectors.toList());
     }
@@ -770,6 +795,7 @@ public class MaestroService {
     public List<MaestroDTO> obtenerTiposServicio() {
         log.info("Obteniendo tipos de servicio desde la base de datos");
         return tipoServicioRepository.findAll().stream()
+            .filter(t -> !t.getId().equals(TipoServicioEnum.ATENCION_APH.getId()))
             .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
             .collect(Collectors.toList());
     }

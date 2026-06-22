@@ -33,6 +33,7 @@ public class CitaResponse {
     // Datos de la solicitud / caso
     private String tipoSolicitud;
     private String dependencia;
+    private String profesional;
     private String facultad;
     private String campus;
     private String identidadGenero;

@@ -46,7 +46,7 @@ public class DatosSolicitanteRequest {
     private String numeroDocumento;
 
     @NotNull(message = "La fecha de nacimiento es obligatoria")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate fechaNacimiento;
 
     @NotNull(message = "La identidad de género es obligatoria")

@@ -22,6 +22,5 @@ public class UpdateTelefonoSolicitudRequest {
     @Pattern(regexp = "^[0-9]{7,15}$", message = "El teléfono debe contener entre 7 y 15 dígitos")
     private String telefono;
 
-    @NotBlank(message = "La descripción del teléfono es obligatoria")
-    private String descripcion;
+
 }

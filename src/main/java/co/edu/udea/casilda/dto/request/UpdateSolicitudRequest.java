@@ -22,7 +22,7 @@ public class UpdateSolicitudRequest {
     private Integer tipoDocumentoId;
     private String numeroDocumento;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "dd/MM/yyyy")
     private LocalDate fechaNacimiento;
 
     private Integer identidadGeneroId;
@@ -43,4 +43,7 @@ public class UpdateSolicitudRequest {
     private Integer remitenteFacultadId;
     private Integer remitenteTipoDocumentoId;
     private String remitenteNumeroDocumento;
+
+    private String observacionesTelefono;
+    private String observacionesCorreo;
 }

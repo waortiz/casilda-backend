@@ -18,6 +18,8 @@ public class OtroCasoResponse {
     private Long idCaso;
     private String id;
     private String tiempoHechos;
+    private Integer tiempoOcurridoValor;
+    private Integer idTiempoOcurridoUnidad;
     private String tipoViolencia;
     private String subcategoriaViolencia;
     private String descripcion;

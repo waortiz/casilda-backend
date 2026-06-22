@@ -64,8 +64,8 @@ public class RegistroLineaAlma {
     private Usuario personaRegistra;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idformaentrevista")
-    private FormaEntrevista formaEntrevista;
+    @JoinColumn(name = "idlugarentrevista")
+    private LugarEntrevista lugarEntrevista;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "ididentidadgenero", nullable = false)

@@ -36,6 +36,5 @@ public class TelefonoPersona {
     @Column(nullable = false, length = 20)
     private String telefono;
 
-    @Column(nullable = false)
-    private String descripcion;
+
 }

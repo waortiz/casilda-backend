@@ -21,7 +21,4 @@ public class CorreoSolicitanteRequest {
     @NotBlank(message = "El correo es obligatorio")
     @Email(message = "El correo debe ser válido")
     private String correo;
-
-    @NotBlank(message = "La descripción del correo es obligatoria")
-    private String descripcion;
 }

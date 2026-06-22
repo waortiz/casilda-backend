@@ -17,6 +17,13 @@ public class SolicitudAcompanamientoRequest {
     @NotNull(message = "El tipo de solicitud es obligatorio")
     private Integer tipoSolicitudId;
 
+    @NotNull(message = "La opción ¿Cómo desea realizar su solicitud? es obligatoria")
+    private Integer medioSolicitudId;
+
+    private String observacionesTelefono;
+
+    private String observacionesCorreo;
+
     @NotNull(message = "Los datos del solicitante son obligatorios")
     @Valid
     private DatosSolicitanteRequest datosSolicitante;

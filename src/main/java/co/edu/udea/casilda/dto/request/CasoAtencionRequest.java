@@ -20,8 +20,11 @@ public class CasoAtencionRequest {
     @NotNull
     private Integer idIdentidadGenero;
 
-    @NotBlank
-    private String tiempoOcurrido;
+    @NotNull
+    private Integer tiempoOcurridoValor;
+
+    @NotNull
+    private Integer idTiempoOcurridoUnidad;
 
     @NotNull
     private Integer idFormaOcurrencia;

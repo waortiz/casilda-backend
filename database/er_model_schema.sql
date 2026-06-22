@@ -106,7 +106,6 @@ CREATE TABLE correopersona (
     idpersona INT NOT NULL,
     idtipo integer not null,
     correo character varying COLLATE pg_catalog."default" NOT NULL,
-    descripcion character varying COLLATE pg_catalog."default" NOT NULL,
     constraint correopersona_idpersona_tipo_fkey UNIQUE (idpersona, idtipo),
     CONSTRAINT correopersona_idpersona_fkey FOREIGN KEY (idpersona) REFERENCES persona(id) ON DELETE NO ACTION,
     CONSTRAINT correopersona_idtipo_fkey FOREIGN KEY (idtipo) REFERENCES tipocorreo(id) ON DELETE NO ACTION
@@ -116,7 +115,6 @@ CREATE TABLE telefonopersona (
     idpersona INT NOT NULL,
     idtipo integer not null,
     telefono character varying COLLATE pg_catalog."default" NOT NULL,
-    descripcion character varying COLLATE pg_catalog."default" NOT NULL,
     constraint telefonopersona_idpersona_tipo_fkey UNIQUE (idpersona, idtipo),
     CONSTRAINT telefonopersona_idpersona_fkey FOREIGN KEY (idpersona) REFERENCES persona(id) ON DELETE NO ACTION,
     CONSTRAINT telefonopersona_idtipo_fkey FOREIGN KEY (idtipo) REFERENCES tipotelefono(id) ON DELETE NO ACTION
@@ -335,6 +333,12 @@ CREATE TABLE remision (
 );
 
 
+CREATE TABLE mediosolicitud (
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT mediosolicitud_pkey PRIMARY KEY (id)
+);
+
 CREATE TABLE solicitudatencion (
     id bigserial NOT NULL,
     idsolicitante bigint not null,
@@ -343,6 +347,9 @@ CREATE TABLE solicitudatencion (
     idusuarioactualizacion bigint,
     idtiposolicitud INT not null,
     idestadosolicitud INT not null,
+    idmediosolicitud INT not null,
+    observacionestelefono character varying COLLATE pg_catalog."default",
+    observacionescorreo character varying COLLATE pg_catalog."default",
     fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     idusuariocreacion bigint,
     fechaactualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -353,7 +360,8 @@ CREATE TABLE solicitudatencion (
     constraint solicitudatencion_idestadosolicitud_fkey FOREIGN KEY (idestadosolicitud) REFERENCES estadosolicitud(id) ON DELETE NO ACTION,
     constraint solicitudatencion_ididentidadgenero_fkey FOREIGN KEY (ididentidadgenero) REFERENCES identidadgenero(id) ON DELETE NO ACTION,
     constraint solicitudatencion_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
-    constraint solicitudatencion_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION
+    constraint solicitudatencion_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION,
+    constraint solicitudatencion_idmediosolicitud_fkey FOREIGN KEY (idmediosolicitud) REFERENCES mediosolicitud(id) ON DELETE NO ACTION
 );
 
 
@@ -363,7 +371,8 @@ CREATE TABLE caso (
     codigo character varying COLLATE pg_catalog."default" UNIQUE NOT NULL,
     idorientacionsexual INT,
     ididentidadgenero int not null,
-    hacecuantooccurrio character varying COLLATE pg_catalog."default",
+    hacecuantooccurrio integer,
+    idtiempoocurridounidad INT,
     idformaocurrencia INT,
     idlugarocurrencia INT,
     violenciabasadagenero boolean,
@@ -387,6 +396,7 @@ CREATE TABLE caso (
     constraint caso_idformaocurrencia_fkey FOREIGN KEY (idformaocurrencia) REFERENCES formaocurrencia(id) ON DELETE NO ACTION,
     constraint caso_idlugarocurrencia_fkey FOREIGN KEY (idlugarocurrencia) REFERENCES lugarocurrencia(id) ON DELETE NO ACTION,
     constraint caso_idactivadmisional_fkey FOREIGN KEY (idactivadmisional) REFERENCES actividadmisional(id) ON DELETE NO ACTION,
+    constraint caso_idtiempoocurridounidad_fkey FOREIGN KEY (idtiempoocurridounidad) REFERENCES tiempoocurridounidad(id) ON DELETE NO ACTION
 );
 
 CREATE TABLE resultadocontactotelefonico (
@@ -520,7 +530,7 @@ CREATE TABLE atencion (
     idfacultad INT,
     idcampus INT,
     idvinculoudea INT,
-    idsubvinculoudea INT,
+    otrovinculo character varying COLLATE pg_catalog."default",
     idtiposervicio int not null,
     idlugarentrevista int not null,
     idregimen int not null,
@@ -542,7 +552,7 @@ CREATE TABLE atencion (
     constraint atencion_idvinculoudea_fkey FOREIGN KEY (idvinculoudea) REFERENCES vinculoudea(id) ON DELETE NO ACTION,
     constraint atencion_idsubvinculoudea_fkey FOREIGN KEY (idsubvinculoudea) REFERENCES subvinculoudea(id) ON DELETE NO ACTION,
     constraint atencion_idtiposervicio_fkey FOREIGN KEY (idtiposervicio) REFERENCES tiposervicio(id) ON DELETE NO ACTION,
-    constraint atencion_idlugarentrevista_fkey FOREIGN KEY (idlugarentrevista) REFERENCES municipio(id) ON DELETE NO ACTION,   
+    constraint atencion_idlugarentrevista_fkey FOREIGN KEY (idlugarentrevista) REFERENCES lugarentrevista(id) ON DELETE NO ACTION,   
     constraint atencion_idregimen_fkey FOREIGN KEY (idregimen) REFERENCES regimen(id) ON DELETE NO ACTION,
     constraint atencion_ideps_fkey FOREIGN KEY (ideps) REFERENCES eps(id) ON DELETE NO ACTION,
     constraint atencion_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
@@ -741,12 +751,12 @@ CREATE TABLE canalcontacto (
     CONSTRAINT canalcontacto_pkey PRIMARY KEY (id)
 );
 
--- Forma de entrevista: Presencial, Virtual, Telefónica
+-- Lugar de entrevista: Presencial, Virtual, Telefónica
 -- Reutilizable también por el flujo estándar de atencion (registro-atencion)
-CREATE TABLE formaentrevista (
+CREATE TABLE lugarentrevista (
     id integer NOT NULL,
     nombre character varying COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT formaentrevista_pkey PRIMARY KEY (id)
+    CONSTRAINT lugarentrevista_pkey PRIMARY KEY (id)
 );
 
 -- Canal APH: canal propio del servicio APH (ej. Línea 106, Consulta externa)
@@ -804,7 +814,7 @@ CREATE TABLE registrolinealma (
     idpersonaatiende integer NOT NULL,       -- grupo profesional que atiende
     idtiposervicio integer NOT NULL,         -- FK tiposervicio (fijo: Atención APH)
     idpersonaregistra bigint NOT NULL,       -- usuario que registra
-    idformaentrevista integer,               -- Presencial, Virtual, Telefónica
+    idlugarentrevista integer,               -- Presencial, Virtual, Telefónica
     ididentidadgenero int not null,
     idorientacionsexual INT,
     idetnia INT,
@@ -835,8 +845,8 @@ CREATE TABLE registrolinealma (
         REFERENCES grupoprofesional(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idpersonaregistra_fkey FOREIGN KEY (idpersonaregistra)
         REFERENCES usuario(id) ON DELETE NO ACTION,
-    CONSTRAINT registrolinealma_idformaentrevista_fkey FOREIGN KEY (idformaentrevista)
-        REFERENCES formaentrevista(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idlugarentrevista_fkey FOREIGN KEY (idlugarentrevista)
+        REFERENCES lugarentrevista(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idorientacionsexual_fkey FOREIGN KEY (idorientacionsexual)
         REFERENCES orientacionsexual(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_ididentidadgenero_fkey FOREIGN KEY (ididentidadgenero)
@@ -948,4 +958,10 @@ CREATE TABLE contactolinealma (
         REFERENCES usuario(id) ON DELETE NO ACTION,
     CONSTRAINT contactolinealma_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion)
         REFERENCES usuario(id) ON DELETE NO ACTION
+);
+
+CREATE TABLE tiempoocurridounidad (
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT tiempoocurridounidad_pkey PRIMARY KEY (id)
 );
