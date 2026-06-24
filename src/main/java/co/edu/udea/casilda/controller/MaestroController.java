@@ -521,4 +521,29 @@ public class MaestroController {
         return ResponseEntity.noContent().build();
     }
 
+    // MEDIDAS DE PROTECCIÓN MAESTROS
+    @GetMapping("/tipos-medida")
+    @Operation(summary = "Obtener lista de tipos de medida de protección")
+    public ResponseEntity<List<MaestroDTO>> obtenerTiposMedida() {
+        return ResponseEntity.ok(catalogoService.obtenerTiposMedida());
+    }
+
+    @GetMapping("/subtipos-medida")
+    @Operation(summary = "Obtener todos los subtipos de medida de protección")
+    public ResponseEntity<List<MaestroDTO>> obtenerSubTiposMedida() {
+        return ResponseEntity.ok(catalogoService.obtenerSubTiposMedida());
+    }
+
+    @GetMapping("/subtipos-medida/{tipoId}")
+    @Operation(summary = "Obtener lista de subtipos de medida de protección por tipo ID")
+    public ResponseEntity<List<MaestroDTO>> obtenerSubTiposMedidaPorTipoId(@PathVariable Integer tipoId) {
+        return ResponseEntity.ok(catalogoService.obtenerSubTiposMedidaPorTipoId(tipoId));
+    }
+
+    @GetMapping("/responsables-medida")
+    @Operation(summary = "Obtener lista de responsables de medida de protección")
+    public ResponseEntity<List<MaestroDTO>> obtenerResponsablesMedida() {
+        return ResponseEntity.ok(catalogoService.obtenerResponsablesMedida());
+    }
+
 }

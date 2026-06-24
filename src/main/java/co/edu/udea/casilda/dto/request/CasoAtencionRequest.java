@@ -14,28 +14,20 @@ import java.util.List;
 @Data
 public class CasoAtencionRequest {
 
-    @NotNull
     private Integer idOrientacionSexual;
 
-    @NotNull
     private Integer idIdentidadGenero;
 
-    @NotNull
     private Integer tiempoOcurridoValor;
 
-    @NotNull
     private Integer idTiempoOcurridoUnidad;
 
-    @NotNull
     private Integer idFormaOcurrencia;
 
-    @NotNull
     private Integer idLugarOcurrencia;
 
-    @NotNull
     private Boolean violenciaGenero;
 
-    @NotNull
     private Boolean violenciaMisional;
 
     private Integer idActividadMisional;
@@ -51,6 +43,5 @@ public class CasoAtencionRequest {
     private List<Integer> modalidadesViolenciaPrejuicio;
 
     @Valid
-    @NotNull
-    private AgresorVictimaRequest agresorVictima;
+    private List<AgresorVictimaRequest> agresores;
 }

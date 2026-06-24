@@ -198,21 +198,6 @@ CREATE TABLE modalidadviolencia
         ON DELETE NO ACTION
 );
 
-CREATE TABLE agresorvictima (
-    id bigserial NOT NULL,
-    idcaso bigint not null,
-    primernombre character varying COLLATE pg_catalog."default" NOT NULL,
-    segundonombre character varying COLLATE pg_catalog."default",
-    primerapellido character varying COLLATE pg_catalog."default" NOT NULL,
-    segundoapellido character varying COLLATE pg_catalog."default",
-    idvinculoudea INT not null,
-    idvinvuloagresorvictima INT not null,
-    CONSTRAINT agresorvictima_pkey PRIMARY KEY (id),
-    constraint agresorvictima_idcaso_fkey FOREIGN KEY (idcaso) REFERENCES caso(id) ON DELETE NO ACTION, 
-    constraint agresorvictima_idvinculoudea_fkey FOREIGN KEY (idvinculoudea) REFERENCES vinculoudea(id) ON DELETE NO ACTION,
-    constraint agresorvictima_idvinvuloagresorvictima_fkey FOREIGN KEY (idvinvuloagresorvictima) REFERENCES vinculoagresorvictima(id) ON DELETE NO ACTION
-);
-
 CREATE TABLE hecho (
     id bigserial NOT NULL,
     idcaso bigint not null,
@@ -726,6 +711,55 @@ CREATE TABLE archivoseguimientoatencion (
     constraint archivoseguimientoatencion_idseguimientoatencion_fkey FOREIGN KEY (idseguimientoatencion) REFERENCES seguimientoatencion(id) ON DELETE NO ACTION
 );
 
+CREATE TABLE IF NOT EXISTS presuntoagresor (
+    id bigserial NOT NULL,
+    idcaso bigint NOT NULL,
+    primernombre character varying(255),
+    segundonombre character varying(255),
+    primerapellido character varying(255),
+    segundoapellido character varying(255),
+    idvinculoudea integer,
+    idvinculoagresorvictima integer,
+    CONSTRAINT presuntoagresor_pkey PRIMARY KEY (id),
+    CONSTRAINT presuntoagresor_idcaso_fkey FOREIGN KEY (idcaso) REFERENCES caso(id) ON DELETE CASCADE,
+    CONSTRAINT presuntoagresor_idvinculoudea_fkey FOREIGN KEY (idvinculoudea) REFERENCES vinculoudea(id),
+    CONSTRAINT presuntoagresor_idvinculoagresorvictima_fkey FOREIGN KEY (idvinculoagresorvictima) REFERENCES vinculoagresorvictima(id)
+);
+
+CREATE TABLE IF NOT EXISTS tipomedida (
+    id serial NOT NULL,
+    nombre character varying(255) NOT NULL,
+    CONSTRAINT tipomedida_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE IF NOT EXISTS subtipomedida (
+    id serial NOT NULL,
+    nombre character varying(255) NOT NULL,
+    idtipomedida integer NOT NULL,
+    CONSTRAINT subtipomedida_pkey PRIMARY KEY (id),
+    CONSTRAINT subtipomedida_idtipomedida_fkey FOREIGN KEY (idtipomedida) REFERENCES tipomedida(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS responsablemedidaproteccion (
+    id serial NOT NULL,
+    nombre character varying(255) NOT NULL,
+    CONSTRAINT responsablemedidaproteccion_pkey PRIMARY KEY (id)
+);
+
+CREATE TABLE medidaproteccion (
+    id bigserial NOT NULL,
+    idatencion bigint NOT NULL,
+    idtipomedida integer NOT NULL,
+    idsubtipomedida integer NOT NULL,
+    idresponsablemedidaproteccion integer NOT NULL,
+    fecharegistro timestamp without time zone NOT NULL,
+    descripcion character varying(1000) NOT NULL,
+    CONSTRAINT medidaproteccion_pkey PRIMARY KEY (id),
+    CONSTRAINT medidaproteccion_idatencion_fkey FOREIGN KEY (idatencion) REFERENCES atencion(id) ON DELETE CASCADE,
+    CONSTRAINT medidaproteccion_idtipomedida_fkey FOREIGN KEY (idtipomedida) REFERENCES tipomedida(id),
+    CONSTRAINT medidaproteccion_idsubtipomedida_fkey FOREIGN KEY (idsubtipomedida) REFERENCES subtipomedida(id),
+    CONSTRAINT medidaproteccion_idresponsable_fkey FOREIGN KEY (idresponsablemedidaproteccion) REFERENCES responsablemedidaproteccion(id)
+);
 
 -- ===========================================================================
 -- LÍNEA ALMA — APH (Atención Pre-Hospitalaria)

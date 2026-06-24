@@ -85,6 +85,10 @@ public class MaestroService {
     private final SeguimientoAtencionRepository seguimientoAtencionRepository;
     private final MedioSolicitudRepository medioSolicitudRepository;
     private final TiempoOcurridoUnidadRepository tiempoOcurridoUnidadRepository;
+    private final TipoMedidaRepository tipoMedidaRepository;
+    private final SubTipoMedidaRepository subTipoMedidaRepository;
+    private final ResponsableMedidaProteccionRepository responsableMedidaProteccionRepository;
+
 
     /**
      * Obtiene lista de países
@@ -940,6 +944,50 @@ public class MaestroService {
         log.info("Obteniendo seguimientos de atencion desde la base de datos");
         return seguimientoAtencionRepository.findAll().stream()
             .map(s -> new MaestroDTO(s.getId(), s.getAtencion().getId().toString(), s.getDescripcion()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de tipos de medida de protección.
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerTiposMedida() {
+        log.info("Obteniendo tipos de medida de protección desde la base de datos");
+        return tipoMedidaRepository.findAll().stream()
+            .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de subtipos de medida de protección por tipo ID.
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerSubTiposMedidaPorTipoId(Integer tipoId) {
+        log.info("Obteniendo subtipos de medida de protección para tipo ID: {}", tipoId);
+        return subTipoMedidaRepository.findByTipoMedidaId(tipoId).stream()
+            .map(s -> new MaestroDTO(s.getId().longValue(), null, s.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de todos los subtipos de medida de protección.
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerSubTiposMedida() {
+        log.info("Obteniendo todos los subtipos de medida de protección desde la base de datos");
+        return subTipoMedidaRepository.findAll().stream()
+            .map(s -> new MaestroDTO(s.getId().longValue(), null, s.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de responsables de medida de protección.
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerResponsablesMedida() {
+        log.info("Obteniendo responsables de medida de protección desde la base de datos");
+        return responsableMedidaProteccionRepository.findAll().stream()
+            .map(r -> new MaestroDTO(r.getId().longValue(), null, r.getNombre()))
             .collect(Collectors.toList());
     }
 }

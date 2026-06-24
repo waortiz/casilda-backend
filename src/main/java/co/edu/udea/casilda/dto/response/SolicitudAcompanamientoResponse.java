@@ -32,6 +32,7 @@ public class SolicitudAcompanamientoResponse {
     // Para las tablas del componente de consulta
     private String dependencia;
     private String profesional;
+    private String tipoAsignacion;
 
     // Datos del solicitante (resumen)
     private String nombreSolicitante;

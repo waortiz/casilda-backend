@@ -63,19 +63,19 @@ public class Atencion {
     private String otroVinculo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idtiposervicio", nullable = false)
+    @JoinColumn(name = "idtiposervicio")
     private TipoServicio tipoServicio;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idlugarentrevista", nullable = false)
+    @JoinColumn(name = "idlugarentrevista")
     private LugarEntrevista lugarEntrevista;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idregimen", nullable = false)
+    @JoinColumn(name = "idregimen")
     private Regimen regimen;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ideps", nullable = false)
+    @JoinColumn(name = "ideps")
     private EPS eps;
 
     @Column(name = "logroacuerdo", nullable = false)

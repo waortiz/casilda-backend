@@ -1,7 +1,6 @@
 package co.edu.udea.casilda.controller;
 
-import co.edu.udea.casilda.dto.request.RegistroAtencionCompleteRequest;
-import co.edu.udea.casilda.dto.request.RegistroOtroCasoRequest;
+import co.edu.udea.casilda.dto.request.*;
 import co.edu.udea.casilda.dto.response.AtencionResponse;
 import co.edu.udea.casilda.dto.response.OtroCasoResponse;
 import co.edu.udea.casilda.service.AtencionService;
@@ -112,5 +111,89 @@ public class AtencionController {
     public ResponseEntity<Void> eliminarOtroCaso(@PathVariable Long casoId) {
         atencionService.eliminarOtroCaso(casoId);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/pestana/0")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> registrarPestana0(@Valid @RequestBody AtencionRegistroRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(atencionService.registrarPestana0(request));
+    }
+
+    @PostMapping("/pestana/1")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> registrarPestana1(@Valid @RequestBody Pestana1Request request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(atencionService.registrarPestana1(request));
+    }
+
+    @PostMapping("/pestana/2")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> registrarPestana2(@Valid @RequestBody Pestana2Request request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(atencionService.registrarPestana2(request));
+    }
+
+    @PostMapping("/pestana/3")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> registrarPestana3(@Valid @RequestBody Pestana3Request request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(atencionService.registrarPestana3(request));
+    }
+
+    @PostMapping("/pestana/4")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> registrarPestana4(@Valid @RequestBody Pestana4Request request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(atencionService.registrarPestana4(request));
+    }
+
+    @PostMapping("/pestana/5")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> registrarPestana5(@Valid @RequestBody Pestana5Request request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(atencionService.registrarPestana5(request));
+    }
+
+    @PostMapping("/pestana/6")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> registrarPestana6(@Valid @RequestBody Pestana6Request request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(atencionService.registrarPestana6(request));
+    }
+
+    @PostMapping("/pestana/7")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> registrarPestana7(@Valid @RequestBody Pestana7Request request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(atencionService.registrarPestana7(request));
+    }
+
+    @PostMapping("/pestana/8")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> registrarPestana8(@Valid @RequestBody Pestana8Request request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(atencionService.registrarPestana8(request));
+    }
+
+    @PostMapping("/pestana/9")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> registrarPestana9(@Valid @RequestBody Pestana9Request request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(atencionService.registrarPestana9(request));
+    }
+
+    @PostMapping("/pestana/10")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> registrarPestana10(@Valid @RequestBody Pestana10Request request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(atencionService.registrarPestana10(request));
+    }
+
+    @PostMapping("/pestana/11")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> registrarPestana11(@Valid @RequestBody Pestana11Request request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(atencionService.registrarPestana11(request));
+    }
+
+    @PostMapping("/pestana/12")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> registrarPestana12(@Valid @RequestBody Pestana12Request request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(atencionService.registrarPestana12(request));
+    }
+
+    @GetMapping("/cita/{citaId}")
+    @SecurityRequirement(name = "bearerAuth")
+    public ResponseEntity<AtencionResponse> obtenerAtencionPorCita(@PathVariable Long citaId) {
+        return ResponseEntity.ok(atencionService.obtenerAtencionPorCita(citaId));
     }
 }

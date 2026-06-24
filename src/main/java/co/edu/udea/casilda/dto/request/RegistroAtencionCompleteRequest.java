@@ -19,17 +19,14 @@ public class RegistroAtencionCompleteRequest {
     
     // --- Contexto de Atención (dependencia, campus, programa, etc.) ---
     @Valid
-    @NotNull
     private AtencionContextoRequest atencionContexto;
     
     // --- Actualización de Persona ---
     @Valid
-    @NotNull
     private PersonaAtencionRequest persona;
     
     // --- Datos del Caso ---
     @Valid
-    @NotNull
     private CasoAtencionRequest caso;
     
     // --- Seguimientos a registrar ---

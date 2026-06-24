@@ -109,7 +109,7 @@ public class Caso {
     private List<ProgramaCaso> programas = new ArrayList<>();
 
     @OneToMany(mappedBy = "caso", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    private List<AgresorVictima> agresoresVictimas = new ArrayList<>();
+    private List<PresuntoAgresor> presuntosAgresores = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

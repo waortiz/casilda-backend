@@ -12,18 +12,16 @@ public class AtencionRegistroRequest {
     @NotNull
     private Long citaId;
 
+    private Long idAtencion;
+
     private Integer idEstadoAtencion;
 
-    @NotNull
     private Integer idTipoServicio;
 
-    @NotNull
     private Integer idLugarEntrevista;
 
-    @NotNull
     private Integer idRegimen;
 
-    @NotNull
     private Integer idEps;
 
     private Boolean logroAcuerdo;

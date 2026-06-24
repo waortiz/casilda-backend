@@ -435,12 +435,16 @@ public class SolicitudAcompanamientoService {
 
         Persona remitentePersona = remision != null ? remision.getRemitente() : null;
 
-        // Grupo profesional asignado (última asignación)
+        // Grupo profesional asignado (última asignación) y Tipo de asignación
         String profesionalNombre = "Sin asignar";
+        String tipoAsignacionNombre = "Sin asignar";
         if (solicitud.getAsignaciones() != null && !solicitud.getAsignaciones().isEmpty()) {
             Asignacion ultimaAsignacion = solicitud.getAsignaciones().get(solicitud.getAsignaciones().size() - 1);
             if (ultimaAsignacion.getGrupoProfesional() != null) {
                 profesionalNombre = ultimaAsignacion.getGrupoProfesional().getNombre();
+            }
+            if (ultimaAsignacion.getTipoAsignacion() != null) {
+                tipoAsignacionNombre = ultimaAsignacion.getTipoAsignacion().getNombre();
             }
         }
 
@@ -581,6 +585,7 @@ public class SolicitudAcompanamientoService {
                 .observacionesTelefono(solicitud.getObservacionesTelefono())
                 .observacionesCorreo(solicitud.getObservacionesCorreo())
                 .profesional(profesionalNombre)
+                .tipoAsignacion(tipoAsignacionNombre)
                 // Solicitante resumen
                 .nombreSolicitante(solicitante != null ? solicitante.getNombreCompleto() : "")
                 .documentoSolicitante(solicitante != null ? solicitante.getNumeroDocumento() : "")

@@ -490,7 +490,7 @@ INSERT INTO tiposervicio (id, nombre) VALUES
     (1, 'Psicología'),
     (2, 'Asesoría Jurídica'),
     (3, 'Trabajo Social'),
-    (4, 'Dupla Psicosocial'),
+    (4, 'Dupla Psicojurídica'),
     (5, 'Atención APH')
 ON CONFLICT (id) DO NOTHING;    
 
@@ -707,3 +707,35 @@ INSERT INTO tiempoocurridounidad (id, nombre) VALUES
 (4, 'años')
 ON CONFLICT (id) DO NOTHING;
 
+-- Seed Data
+INSERT INTO tipomedida (id, nombre) VALUES
+(1, 'Medida de protección académica'),
+(2, 'Medida de protección laboral'),
+(3, 'Medida de protección personal'),
+(4, 'Medida cautelar'),
+(5, 'Otra')
+ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre;
+
+INSERT INTO subtipomedida (id, nombre, idtipomedida) VALUES
+(1, 'Cambio de grupo', 1),
+(2, 'Cambio de horario', 1),
+(3, 'Cambio de docente', 1),
+(4, 'Traslado de programa', 1),
+(5, 'Cambio de área', 2),
+(6, 'Cambio de jornada', 2),
+(7, 'Comisión de servicio', 2),
+(8, 'Acompañamiento institucional', 3),
+(9, 'Restricción de acceso', 3),
+(10, 'Orden de alejamiento', 4),
+(11, 'Prohibición de acercamiento', 4),
+(12, 'Otra', 5)
+ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre, idtipomedida = EXCLUDED.idtipomedida;
+
+INSERT INTO responsablemedidaproteccion (id, nombre) VALUES
+(1, 'Bienestar Universitario'),
+(2, 'Dirección de Personal'),
+(3, 'Decanatura'),
+(4, 'Unidad de Género'),
+(5, 'Dirección de Docencia'),
+(6, 'Otra dependencia')
+ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre;
