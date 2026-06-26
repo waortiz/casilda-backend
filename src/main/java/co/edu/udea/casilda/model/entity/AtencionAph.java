@@ -33,20 +33,8 @@ public class AtencionAph {
     @JoinColumn(name = "idregistrolinealma", nullable = false)
     private RegistroLineaAlma registroLineaAlma;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idcanalaph", nullable = false)
-    private CanalAph canalAph;
-
     @Column(name = "fechahora", nullable = false)
     private LocalDateTime fechaHora;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idconvenioaph", nullable = false)
-    private ConvenioAph convenioAph;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idambitoaph", nullable = false)
-    private AmbitoAph ambitoAph;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idprotocoloaph", nullable = false)
@@ -59,8 +47,11 @@ public class AtencionAph {
     @JoinColumn(name = "idresultadotriage")
     private ResultadoTriage resultadoTriage;
 
-    @Column(name = "notaomotivotriage")
-    private String notaOMotivoTriage;
+    @Column(name = "notaaph")
+    private String notaAph;
+
+    @Column(name = "motivonotriage")
+    private String motivoNoTriage;
 
     @Column(name = "aceptapsicologia", nullable = false)
     private boolean aceptaPsicologia;

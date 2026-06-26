@@ -599,6 +599,14 @@ CREATE TABLE tiporemision (
     constraint tiporemision_pkey PRIMARY KEY (id)
 );
 
+CREATE TABLE instanciaremision (
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    idtiporemision integer NOT NULL,
+    CONSTRAINT instanciaremision_pkey PRIMARY KEY (id),
+    CONSTRAINT fk_instanciaremision_tiporemision FOREIGN KEY (idtiporemision) REFERENCES tiporemision(id) ON DELETE NO ACTION
+);
+
 CREATE TABLE remisionatencion (
     idatencion bigint not null,
     idtiporemision int not null,
@@ -778,6 +786,12 @@ CREATE TABLE tiporeportealma (
     CONSTRAINT tiporeportealma_pkey PRIMARY KEY (id)
 );
 
+CREATE TABLE actorremitente (
+    id integer NOT NULL,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    CONSTRAINT actorremitente_pkey PRIMARY KEY (id)
+);
+
 -- Canal de contacto general: WhatsApp, Llamada, Remisión
 CREATE TABLE canalcontacto (
     id integer NOT NULL,
@@ -792,28 +806,6 @@ CREATE TABLE lugarentrevista (
     nombre character varying COLLATE pg_catalog."default" NOT NULL,
     CONSTRAINT lugarentrevista_pkey PRIMARY KEY (id)
 );
-
--- Canal APH: canal propio del servicio APH (ej. Línea 106, Consulta externa)
-CREATE TABLE canalaph (
-    id integer NOT NULL,
-    nombre character varying COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT canalaph_pkey PRIMARY KEY (id)
-);
-
--- Convenio APH: entidades convenio bajo las cuales opera el servicio APH
-CREATE TABLE convenioaph (
-    id integer NOT NULL,
-    nombre character varying COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT convenioaph_pkey PRIMARY KEY (id)
-);
-
--- Ámbito APH: contexto en el que se presta la atención (ej. Universitario, Comunitario)
-CREATE TABLE ambitoaph (
-    id integer NOT NULL,
-    nombre character varying COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT ambitoaph_pkey PRIMARY KEY (id)
-);
-
 -- Protocolo APH: protocolo clínico aplicado durante la atención
 CREATE TABLE protocoloaph (
     id integer NOT NULL,
@@ -843,7 +835,7 @@ CREATE TABLE registrolinealma (
     -- Datos del tab "Registro de atención de caso"
     idtiporeporte integer NOT NULL,          -- directa / por remisión
     idcanalcontacto integer NOT NULL,        -- WhatsApp, Llamada, Remisión
-    quienremite character varying COLLATE pg_catalog."default",   -- libre, solo cuando indirecta
+    idquienremite integer,                   -- FK actorremitente (solo cuando indirecta)
     fechahoraatencion timestamp without time zone NOT NULL,
     idpersonaatiende integer NOT NULL,       -- grupo profesional que atiende
     idtiposervicio integer NOT NULL,         -- FK tiposervicio (fijo: Atención APH)
@@ -856,7 +848,6 @@ CREATE TABLE registrolinealma (
     direccionresidencia character varying COLLATE pg_catalog."default",
     -- Datos complementarios (tab "Datos complementarios")
     idvinculoudea integer,
-    idsubvinculoudea integer,
     idfacultad integer,
     idprograma integer,
     iddependencia integer,
@@ -871,6 +862,8 @@ CREATE TABLE registrolinealma (
         REFERENCES persona(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idtiporeporte_fkey FOREIGN KEY (idtiporeporte)
         REFERENCES tiporeportealma(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idquienremite_fkey FOREIGN KEY (idquienremite)
+        REFERENCES actorremitente(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idcanalcontacto_fkey FOREIGN KEY (idcanalcontacto)
         REFERENCES canalcontacto(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idtiposervicio_fkey FOREIGN KEY (idtiposervicio)
@@ -891,8 +884,6 @@ CREATE TABLE registrolinealma (
         REFERENCES municipio(id) ON DELETE NO ACTION,    
     CONSTRAINT registrolinealma_idvinculoudea_fkey FOREIGN KEY (idvinculoudea)
         REFERENCES vinculoudea(id) ON DELETE NO ACTION,
-    CONSTRAINT registrolinealma_idsubvinculoudea_fkey FOREIGN KEY (idsubvinculoudea)
-        REFERENCES subvinculoudea(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idfacultad_fkey FOREIGN KEY (idfacultad)
         REFERENCES facultadescuelainstituto(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idprograma_fkey FOREIGN KEY (idprograma)
@@ -916,15 +907,12 @@ CREATE TABLE registrolinealma (
 CREATE TABLE atencionaph (
     id bigserial NOT NULL,
     idregistrolinealma bigint NOT NULL,
-    idcanalaph integer NOT NULL,
     fechahora timestamp without time zone NOT NULL,   -- aphFecha + aphHora
-    idconvenioaph integer NOT NULL,
-    idambitoaph integer NOT NULL,
     idprotocoloaph integer NOT NULL,
     practicotriage boolean NOT NULL DEFAULT FALSE,
     idresultadotriage integer,                        -- NULL cuando practicotriage = false
-    -- Campo dual: "Nota del APH" si practicotriage=true, "Motivo no realización" si false
-    notaomotivotriage character varying COLLATE pg_catalog."default",
+    notaaph character varying COLLATE pg_catalog."default",
+    motivonotriage character varying COLLATE pg_catalog."default",
     aceptapsicologia boolean NOT NULL DEFAULT TRUE,
     requiereremision boolean NOT NULL DEFAULT FALSE,
     fechacreacion timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -934,12 +922,6 @@ CREATE TABLE atencionaph (
     CONSTRAINT atencionaph_pkey PRIMARY KEY (id),
     CONSTRAINT atencionaph_idregistrolinealma_fkey FOREIGN KEY (idregistrolinealma)
         REFERENCES registrolinealma(id) ON DELETE NO ACTION,
-    CONSTRAINT atencionaph_idcanalaph_fkey FOREIGN KEY (idcanalaph)
-        REFERENCES canalaph(id) ON DELETE NO ACTION,
-    CONSTRAINT atencionaph_idconvenioaph_fkey FOREIGN KEY (idconvenioaph)
-        REFERENCES convenioaph(id) ON DELETE NO ACTION,
-    CONSTRAINT atencionaph_idambitoaph_fkey FOREIGN KEY (idambitoaph)
-        REFERENCES ambitoaph(id) ON DELETE NO ACTION,
     CONSTRAINT atencionaph_idprotocoloaph_fkey FOREIGN KEY (idprotocoloaph)
         REFERENCES protocoloaph(id) ON DELETE NO ACTION,
     CONSTRAINT atencionaph_idresultadotriage_fkey FOREIGN KEY (idresultadotriage)

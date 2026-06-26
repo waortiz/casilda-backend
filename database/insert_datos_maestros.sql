@@ -244,7 +244,9 @@ INSERT INTO tipodiscapacidad (id, nombre) VALUES
 (3, 'Intelectual'),
 (4, 'Psíquica o Psicosocial'),
 (5, 'Múltiple o Pluridiscapacidad'),
-(6, 'Orgánica o Visceral');
+(6, 'Orgánica o Visceral'),
+(7, 'Ninguna'),
+(8, 'Otra/s');
 
 -- Insertar los Subtipos (relacionados por el ID del tipo)
 INSERT INTO subtipodiscapacidad (id, nombre, idtipodiscapacidad) VALUES
@@ -374,14 +376,21 @@ INSERT INTO vinculoagresorvictima (id, nombre) VALUES
 -- 15. VÍNCULO CON LA UDEA
 -- ============================================================================
 INSERT INTO vinculoudea (id, nombre) VALUES
-(1, 'Estudiante'),
-(2, 'Personal administrativo'),
-(3, 'Docente'),
+(1, 'Estudiante de Pregrado'),
+(2, 'Personal Administrativo'),
+(3, 'Docente Vinculado'),
 (4, 'Egresado'),
-(5, 'Persona empleada aseo UdeA'),
-(6, 'Contratista Fundación UdeA'),
-(7, 'Contratista CIS'),
-(8, 'Otras');
+(5, 'Docente Ocasional'),
+(6, 'Docente de Cátedra'),
+(7, 'Contratista'),
+(8, 'Otro tipo de vínculo'),
+(9, 'Estudiante de Tecnología'),
+(10, 'Estudiante de Posgrado'),
+(11, 'Docente Cátedra 50'),
+(12, 'Jubilado / Pensionado'),
+(13, 'Prestador de Servicios'),
+(14, 'Externo')
+ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre;
 
 -- ============================================================================
 -- 18. TIPOS DE SOLICITUD

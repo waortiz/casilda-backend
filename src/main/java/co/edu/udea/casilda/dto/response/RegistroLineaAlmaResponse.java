@@ -20,6 +20,7 @@ public class RegistroLineaAlmaResponse {
     private Integer idCanalContacto;
     private String canalContacto;
     private String quienRemite;
+    private Integer idQuienRemite;
     private LocalDateTime fechaHoraAtencion;
     private Long idPersonaAtiende;
     private Integer idTipoServicio;
@@ -33,7 +34,6 @@ public class RegistroLineaAlmaResponse {
     private Integer idCiudadResidencia;
     private String direccionResidencia;
     private Integer idVinculoUdeA;
-    private Integer idSubVinculoUdeA;
     private Integer idFacultad;
     private Integer idPrograma;
     private Integer idDependencia;

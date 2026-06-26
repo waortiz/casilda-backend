@@ -77,4 +77,13 @@ public class LineaAlmaController {
     public ResponseEntity<List<ContactoLineaAlmaResponse>> listarContactos(@PathVariable Long idRegistro) {
         return ResponseEntity.ok(lineaAlmaService.listarContactos(idRegistro));
     }
+
+    @PostMapping("/registros/pestana/{tabIndex}")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Registrar pestaña de Línea ALMA", description = "Registra una pestaña individual de Línea ALMA. **Requiere autenticación.**")
+    public ResponseEntity<RegistroLineaAlmaResponse> registrarPestana(
+            @PathVariable int tabIndex,
+            @Valid @RequestBody RegistroLineaAlmaRequest request) {
+        return ResponseEntity.ok(lineaAlmaService.registrarPestana(tabIndex, request));
+    }
 }

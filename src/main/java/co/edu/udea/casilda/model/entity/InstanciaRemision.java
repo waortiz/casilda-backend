@@ -1,23 +1,23 @@
 package co.edu.udea.casilda.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "ambitoaph")
+@Table(name = "instanciaremision")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AmbitoAph {
-
+public class InstanciaRemision {
     @Id
     private Integer id;
 
     @Column(nullable = false)
     private String nombre;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idtiporemision", nullable = false)
+    private TipoRemision tipoRemision;
 }

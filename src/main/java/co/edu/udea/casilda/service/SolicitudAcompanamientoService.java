@@ -679,6 +679,14 @@ public class SolicitudAcompanamientoService {
         solicitud.setObservacionesTelefono(req.getObservacionesTelefono());
         solicitud.setObservacionesCorreo(req.getObservacionesCorreo());
 
+        if (req.getMedioSolicitudId() != null) {
+            solicitud.setMedioSolicitud(medioSolicitudRepository.findById(req.getMedioSolicitudId())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Medio de solicitud no encontrado con ID: " + req.getMedioSolicitudId())));
+        } else {
+            solicitud.setMedioSolicitud(null);
+        }
+
         Remision remision = solicitud.getRemision();
         if (remision != null) {
             actualizarRemitente(remision, req);
@@ -837,13 +845,6 @@ public class SolicitudAcompanamientoService {
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "Facultad no encontrada con ID: " + req.getRemitenteFacultadId())));
         }
-    }
-
-    private TipoIdentificacion buscarTipoIdentificacionPorNombre(String nombre) {
-        return tipoIdentificacionRepository.findAll().stream()
-                .filter(tipo -> tipo.getNombre().equalsIgnoreCase(nombre.trim()))
-                .findFirst()
-                .orElseThrow(() -> new ResourceNotFoundException("Tipo de documento no encontrado: " + nombre));
     }
 
     private TipoCorreo resolverTipoCorreo(UpdateCorreoSolicitudRequest req) {

@@ -46,4 +46,6 @@ public class UpdateSolicitudRequest {
 
     private String observacionesTelefono;
     private String observacionesCorreo;
+
+    private Integer medioSolicitudId;
 }

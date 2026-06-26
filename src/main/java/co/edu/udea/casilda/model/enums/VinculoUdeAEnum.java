@@ -7,14 +7,20 @@ import lombok.Getter;
  */
 @Getter
 public enum VinculoUdeAEnum {
-    ESTUDIANTE(1, "Estudiante"),
-    PERSONAL_ADMINISTRATIVO(2, "Personal administrativo"),
-    DOCENTE(3, "Docente"),
+    ESTUDIANTE_PREGRADO(1, "Estudiante de Pregrado"),
+    PERSONAL_ADMINISTRATIVO(2, "Personal Administrativo"),
+    DOCENTE_VINCULADO(3, "Docente Vinculado"),
     EGRESADO(4, "Egresado"),
-    PERSONA_EMPLEADA_ASEO_UDEA(5, "Persona empleada aseo UdeA"),
-    CONTRATISTA_FUNDACION_UDEA(6, "Contratista Fundación UdeA"),
-    CONTRATISTA_CIS(7, "Contratista CIS"),
-    OTRAS(8, "Otras");
+    DOCENTE_OCASIONAL(5, "Docente Ocasional"),
+    DOCENTE_DE_CATEDRA(6, "Docente de Cátedra"),
+    CONTRATISTA(7, "Contratista"),
+    OTRO_TIPO_DE_VINCULO(8, "Otro tipo de vínculo"),
+    ESTUDIANTE_DE_TECNOLOGIA(9, "Estudiante de Tecnología"),
+    ESTUDIANTE_DE_POSGRADO(10, "Estudiante de Posgrado"),
+    DOCENTE_CATEDRA_50(11, "Docente Cátedra 50"),
+    JUBILADO_PENSIONADO(12, "Jubilado / Pensionado"),
+    PRESTADOR_DE_SERVICIOS(13, "Prestador de Servicios"),
+    EXTERNO(14, "Externo");
 
     private final Integer id;
     private final String nombre;

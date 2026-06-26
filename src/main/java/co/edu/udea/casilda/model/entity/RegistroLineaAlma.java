@@ -45,8 +45,9 @@ public class RegistroLineaAlma {
     @JoinColumn(name = "idcanalcontacto", nullable = false)
     private CanalContacto canalContacto;
 
-    @Column(name = "quienremite")
-    private String quienRemite;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idquienremite")
+    private ActorRemitente quienRemite;
 
     @Column(name = "fechahoraatencion", nullable = false)
     private LocalDateTime fechaHoraAtencion;
@@ -89,10 +90,6 @@ public class RegistroLineaAlma {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idvinculoudea")
     private VinculoUdeA vinculoUdeA;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idsubvinculoudea")
-    private SubVinculoUdeA subVinculoUdeA;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idfacultad")

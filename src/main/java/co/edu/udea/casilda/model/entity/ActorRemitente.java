@@ -9,11 +9,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "convenioaph")
+@Table(name = "actorremitente")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ConvenioAph {
+public class ActorRemitente {
 
     @Id
     private Integer id;

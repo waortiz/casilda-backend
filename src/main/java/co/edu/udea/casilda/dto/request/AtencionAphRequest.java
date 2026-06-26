@@ -9,16 +9,7 @@ import java.time.LocalDateTime;
 public class AtencionAphRequest {
 
     @NotNull
-    private Integer idCanalAph;
-
-    @NotNull
     private LocalDateTime fechaHora;
-
-    @NotNull
-    private Integer idConvenioAph;
-
-    @NotNull
-    private Integer idAmbitoAph;
 
     @NotNull
     private Integer idProtocoloAph;
@@ -28,7 +19,9 @@ public class AtencionAphRequest {
 
     private Integer idResultadoTriage;
 
-    private String notaOMotivoTriage;
+    private String notaAph;
+
+    private String motivoNoTriage;
 
     @NotNull
     private Boolean aceptaPsicologia;

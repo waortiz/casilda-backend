@@ -10,6 +10,8 @@ import java.util.List;
 @Data
 public class RegistroLineaAlmaRequest {
 
+    private Long id;
+
     @NotNull
     private Long idPersona;
 
@@ -19,7 +21,7 @@ public class RegistroLineaAlmaRequest {
     @NotNull
     private Integer idCanalContacto;
 
-    private String quienRemite;
+    private Integer idQuienRemite;
 
     @NotNull
     private LocalDateTime fechaHoraAtencion;
@@ -43,15 +45,18 @@ public class RegistroLineaAlmaRequest {
     private Integer idCiudadResidencia;
     private String direccionResidencia;
     private Integer idVinculoUdeA;
-    private Integer idSubVinculoUdeA;
     private Integer idFacultad;
     private Integer idPrograma;
     private Integer idDependencia;
     private Integer idCampus;
+    private java.time.LocalDateTime fechaNacimiento;
 
     @Valid
     private AtencionAphRequest atencionAph;
 
     @Valid
     private List<RemisionRegistroAlmaRequest> remisiones;
+
+    @Valid
+    private List<ContactoLineaAlmaRequest> contactos;
 }

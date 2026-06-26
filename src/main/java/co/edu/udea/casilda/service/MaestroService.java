@@ -63,9 +63,6 @@ public class MaestroService {
     private final TipoReporteAlmaRepository tipoReporteAlmaRepository;
     private final CanalContactoRepository canalContactoRepository;
     private final LugarEntrevistaRepository lugarEntrevistaRepository;
-    private final CanalAphRepository canalAphRepository;
-    private final ConvenioAphRepository convenioAphRepository;
-    private final AmbitoAphRepository ambitoAphRepository;
     private final ProtocoloAphRepository protocoloAphRepository;
     private final ResultadoTriageRepository resultadoTriageRepository;
     private final TipoAsignacionRepository tipoAsignacionRepository;
@@ -76,6 +73,7 @@ public class MaestroService {
     private final TipoRutaActivacionRepository tipoRutaActivacionRepository;
     private final RutaActivacionRepository rutaActivacionRepository;
     private final TipoRemisionRepository tipoRemisionRepository;
+    private final InstanciaRemisionRepository instanciaRemisionRepository;
     private final TipoCompromisoRepository tipoCompromisoRepository;
     private final MotivoEstadoSeguimientoRepository motivoEstadoSeguimientoRepository;
     private final TipoSeguimientoRepository tipoSeguimientoRepository;
@@ -88,6 +86,7 @@ public class MaestroService {
     private final TipoMedidaRepository tipoMedidaRepository;
     private final SubTipoMedidaRepository subTipoMedidaRepository;
     private final ResponsableMedidaProteccionRepository responsableMedidaProteccionRepository;
+    private final ActorRemitenteRepository actorRemitenteRepository;
 
 
     /**
@@ -538,35 +537,14 @@ public class MaestroService {
     }
 
     /**
-     * Obtiene lista de canales APH.
+     * Obtiene lista de actores remitentes.
      */
-    public List<MaestroDTO> obtenerCanalesAph() {
-        log.info("Obteniendo canales APH desde la base de datos");
-        return canalAphRepository.findAll().stream()
-                .map(c -> new MaestroDTO(c.getId().longValue(), null, c.getNombre()))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Obtiene lista de convenios APH.
-     */
-    public List<MaestroDTO> obtenerConveniosAph() {
-        log.info("Obteniendo convenios APH desde la base de datos");
-        return convenioAphRepository.findAll().stream()
-                .map(c -> new MaestroDTO(c.getId().longValue(), null, c.getNombre()))
-                .collect(Collectors.toList());
-    }
-
-    /**
-     * Obtiene lista de ámbitos APH.
-     */
-    public List<MaestroDTO> obtenerAmbitosAph() {
-        log.info("Obteniendo ámbitos APH desde la base de datos");
-        return ambitoAphRepository.findAll().stream()
+    public List<MaestroDTO> obtenerActoresRemitentes() {
+        log.info("Obteniendo actores remitentes desde la base de datos");
+        return actorRemitenteRepository.findAll().stream()
                 .map(a -> new MaestroDTO(a.getId().longValue(), null, a.getNombre()))
                 .collect(Collectors.toList());
     }
-
     /**
      * Obtiene lista de protocolos APH.
      */
@@ -867,6 +845,23 @@ public class MaestroService {
         log.info("Obteniendo tipos de remisión desde la base de datos");
         return tipoRemisionRepository.findAll().stream()
             .map(t -> new MaestroDTO(t.getId().longValue(), null, t.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de instancias de remisión
+     */
+    @Transactional(readOnly = true)
+    public List<MaestroDTO> obtenerInstanciasRemision(Integer tipoRemisionId) {
+        log.info("Obteniendo instancias de remisión desde la base de datos para tipo: {}", tipoRemisionId);
+        List<InstanciaRemision> instancias;
+        if (tipoRemisionId != null) {
+            instancias = instanciaRemisionRepository.findByTipoRemisionId(tipoRemisionId);
+        } else {
+            instancias = instanciaRemisionRepository.findAll();
+        }
+        return instancias.stream()
+            .map(i -> new MaestroDTO(i.getId().longValue(), null, i.getNombre()))
             .collect(Collectors.toList());
     }
 

@@ -289,23 +289,6 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerLugaresEntrevista());
     }
 
-    @GetMapping("/canales-aph")
-    @Operation(summary = "Obtener lista de canales APH")
-    public ResponseEntity<List<MaestroDTO>> obtenerCanalesAph() {
-        return ResponseEntity.ok(catalogoService.obtenerCanalesAph());
-    }
-
-    @GetMapping("/convenios-aph")
-    @Operation(summary = "Obtener lista de convenios APH")
-    public ResponseEntity<List<MaestroDTO>> obtenerConveniosAph() {
-        return ResponseEntity.ok(catalogoService.obtenerConveniosAph());
-    }
-
-    @GetMapping("/ambitos-aph")
-    @Operation(summary = "Obtener lista de ámbitos APH")
-    public ResponseEntity<List<MaestroDTO>> obtenerAmbitosAph() {
-        return ResponseEntity.ok(catalogoService.obtenerAmbitosAph());
-    }
 
     @GetMapping("/protocolos-aph")
     @Operation(summary = "Obtener lista de protocolos APH")
@@ -366,6 +349,12 @@ public class MaestroController {
     @Operation(summary = "Obtener lista de tipos de remisión")
     public ResponseEntity<List<MaestroDTO>> obtenerTiposRemision() {
         return ResponseEntity.ok(catalogoService.obtenerTiposRemision());
+    }
+
+    @GetMapping("/instancias-remision")
+    @Operation(summary = "Obtener lista de instancias de remisión por tipo")
+    public ResponseEntity<List<MaestroDTO>> obtenerInstanciasRemision(@RequestParam(required = false) Integer tipoRemisionId) {
+        return ResponseEntity.ok(catalogoService.obtenerInstanciasRemision(tipoRemisionId));
     }
 
     @GetMapping("/tipos-compromiso")
@@ -544,6 +533,12 @@ public class MaestroController {
     @Operation(summary = "Obtener lista de responsables de medida de protección")
     public ResponseEntity<List<MaestroDTO>> obtenerResponsablesMedida() {
         return ResponseEntity.ok(catalogoService.obtenerResponsablesMedida());
+    }
+
+    @GetMapping("/actores-remitentes")
+    @Operation(summary = "Obtener lista de actores remitentes")
+    public ResponseEntity<List<MaestroDTO>> obtenerActoresRemitentes() {
+        return ResponseEntity.ok(catalogoService.obtenerActoresRemitentes());
     }
 
 }

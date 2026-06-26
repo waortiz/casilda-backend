@@ -12,8 +12,7 @@ ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO canalcontacto (id, nombre) VALUES
     (1, 'WhatsApp'),
-    (2, 'Llamada'),
-    (3, 'Remisión')
+    (2, 'Llamada')
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO lugarentrevista (id, nombre) VALUES
@@ -21,26 +20,6 @@ INSERT INTO lugarentrevista (id, nombre) VALUES
     (2, 'Virtual'),
     (3, 'Telefónica')
 ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO canalaph (id, nombre) VALUES
-    (1, 'Línea 106'),
-    (2, 'Consulta externa'),
-    (3, 'Urgencias'),
-    (4, 'Otro')
-ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO convenioaph (id, nombre) VALUES
-    (1, 'UdeA'),
-    (2, 'Colsanitas'),
-    (3, 'Otro')
-ON CONFLICT (id) DO NOTHING;
-
-INSERT INTO ambitoaph (id, nombre) VALUES
-    (1, 'Universitario'),
-    (2, 'Comunitario'),
-    (3, 'Hospitalario')
-ON CONFLICT (id) DO NOTHING;
-
 INSERT INTO protocoloaph (id, nombre) VALUES
     (1, 'Protocolo estándar'),
     (2, 'Protocolo crisis'),
@@ -56,4 +35,10 @@ ON CONFLICT (id) DO NOTHING;
 -- Tipo de servicio requerido por el flujo de Atención PR (Línea ALMA)
 INSERT INTO tiposervicio (id, nombre) VALUES
     (5, 'Atención APH')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO actorremitente (id, nombre) VALUES
+    (1, 'Masculinidades'),
+    (2, 'Bienestar Universitario')
+    (3, 'Otros')
 ON CONFLICT (id) DO NOTHING;
