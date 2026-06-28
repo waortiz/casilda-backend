@@ -11,13 +11,13 @@ import lombok.Data;
 public class AtencionContextoRequest {
 
     @NotNull
-    private Integer idDependencia;
+    private Integer idUnidadAdministrativa;
 
     @NotNull
     private Integer idCampus;
 
     @NotNull
-    private Integer idFacultad;
+    private Integer idUnidadAcademica;
 
     @NotNull
     private Integer idVinculoUniversidad;

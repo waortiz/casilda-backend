@@ -243,10 +243,6 @@ INSERT INTO tipodiscapacidad (id, nombre) VALUES
 (2, 'Sensorial'),
 (3, 'Intelectual'),
 (4, 'Psíquica o Psicosocial'),
-(5, 'Múltiple o Pluridiscapacidad'),
-(6, 'Orgánica o Visceral'),
-(7, 'Ninguna'),
-(8, 'Otra/s');
 
 -- Insertar los Subtipos (relacionados por el ID del tipo)
 INSERT INTO subtipodiscapacidad (id, nombre, idtipodiscapacidad) VALUES
@@ -301,36 +297,30 @@ INSERT INTO campus (id, nombre) VALUES
 (14, 'Campus Medellín');
 
 -- ============================================================================
--- 12. DEPENDENCIAS
+-- 12. UNIDADES ADMINISTRATIVAS
 -- ============================================================================
-INSERT INTO dependencia (id, nombre) VALUES
-(1, 'Dirección de Bienestar Universitario'),
-(2, 'Dirección de Comunicaciones'),
-(3, 'Dirección de Planeación y Desarrollo Institucional'),
-(4, 'Dirección de Posgrado'),
-(5, 'Dirección de Regionalización'),
-(6, 'Dirección de Relaciones Internacionales'),
-(7, 'Dirección Jurídica'),
-(8, 'Rectoría'),
-(9, 'Secretaría General'),
-(10, 'Vicerrectoría Administrativa'),
-(11, 'Vicerrectoría de Docencia'),
-(12, 'Vicerrectoría de Extensión'),
-(13, 'Vicerrectoría de Investigación'),
-(14, 'Vicerrectoría General'),
-(15, 'Publicaciones'),
-(16, 'División de Gestión Documental'),
-(17, 'Admisiones y Registro'),
-(18, 'Sistema de Bibliotecas'),
-(19, 'Escuela de Gobierno'),
-(20, 'Oficina de Auditoría Institucional'),
-(21, 'Talento Humano'),
-(22, 'Seguridad a Personas y Bienes');
+INSERT INTO public.unidadadministrativa (id, nombre) VALUES
+(1, 'Rectoría'),
+(2, 'Secretaría General'),
+(3, 'Vicerrectoría General'),
+(4, 'Vicerrectoría de Docencia'),
+(5, 'Vicerrectoría de Investigación'),
+(6, 'Vicerrectoría de Extensión'),
+(7, 'Vicerrectoría Administrativa'),
+(8, 'Dirección Jurídica'),
+(9, 'Dirección de Bienestar Universitario'),
+(10, 'Dirección de Posgrado'),
+(11, 'Dirección de Regionalización'),
+(12, 'Dirección de Planeación y Desarrollo Institucional'),
+(13, 'Dirección de Relaciones Internacionales'),
+(14, 'Dirección de Comunicaciones'),
+(15, 'Oficina de Auditoría Institucional'),
+(16, 'No Aplica');
 
 -- ============================================================================
--- 13. FACULTADES, ESCUELAS E INSTITUTOS
+-- 13. UNIDAD ACADÉMICA
 -- ============================================================================
-INSERT INTO facultadescuelainstituto (id, nombre) VALUES
+INSERT INTO public.unidadacademica (id, nombre) VALUES
 (1, 'Escuela de Microbiología'),
 (2, 'Escuela de Nutrición y Dietética'),
 (3, 'Escuela de Idiomas'),
@@ -352,10 +342,152 @@ INSERT INTO facultadescuelainstituto (id, nombre) VALUES
 (19, 'Instituto de Estudios Políticos'),
 (20, 'Instituto de Estudios Regionales'),
 (21, 'Instituto de Filosofía'),
-(22, 'Instituto Universitario de Educación Física y Deportes');
+(22, 'Instituto Universitario de Educación Física y Deportes'),
+(23, 'No Aplica');
+
 
 -- ============================================================================
--- 14. VÍNCULO AGRESOR CON VÍCTIMA
+-- 14. PROGRAMAS
+-- ============================================================================
+
+INSERT INTO public.programa (id, nombre, idunidadacademica, aplicapregrado, aplicaposgrado) VALUES
+(1, 'Doctorado en Ciencias Microbiológicas', 1, false, true),
+(2, 'Especialización en Microbiología Clínica', 1, false, true),
+(3, 'Maestría en Microbiología', 1, false, true),
+(4, 'Microbiología Industrial y Ambiental', 1, true, false),    
+(5, 'Microbiología y Bioanálisis', 1, true, false),
+(6, 'Especialización en Alimentación y Nutrición Humana', 2, false, true),
+(7, 'Maestría en Ciencias de la Alimentación y Nutrición', 2, false, true),
+(8, 'Nutrición y Dietética', 2, true, false),
+(9, 'Especialización en Traducción', 3, false, true),
+(10, 'Licenciatura en Lenguas Extranjeras con Énfasis en Inglés', 3, true, false),
+(11, 'Licenciatura en Lenguas Extranjeras con Énfasis en Inglés y Francés', 3, true, false),
+(12, 'Maestría en Enseñanza y Aprendizaje de Idiomas', 3, false, true),
+(13, 'Traducción Inglés- Francés- Español', 3, true, false),
+(14, 'Archivística', 4, true, false),
+(15, 'Bibliotecología', 4, true, false),
+(16, 'Arte Dramático', 5, true, false),
+(17, 'Artes Plásticas', 5, true, false),
+(18, 'Creación Digital', 5, true, false),
+(19, 'Doctorado en Artes', 5, false, true),
+(20, 'Gestión Cultural', 5, true, false),
+(21, 'Licenciatura en Artes Escénicas', 5, true, false),
+(22, 'Licenciatura en Artes Plásticas', 5, true, false),
+(23, 'Licenciatura en Danza', 5, true, false),
+(24, 'Licenciatura en Música', 5, true, false),
+(25, 'Maestría en Dramaturgia y Dirección', 5, false, true),
+(26, 'Maestría en Gestión Cultural', 5, false, true),
+(27, 'Maestría en Historia del Arte', 5, false, true),
+(28, 'Maestría en Músicas de América Latina y el Caribe', 5, false, true),
+(29, 'Música', 5, true, false),
+(30, 'Música y Canto', 5, true, false),
+(31, 'Doctorado en Ciencias Agrarias', 6, false, true),
+(32, 'Especialización en Medicina de Pequeñas Especies', 6, false, true),
+(33, 'Ingeniería Agropecuaria', 6, true, false),
+(34, 'Maestría en Ciencias Animales', 6, false, true),
+(35, 'Medicina Veterinaria', 6, true, false),
+(36, 'Tecnología en Gestión de Insumos Agropecuarios', 6, true, false),
+(37, 'Zootecnia', 6, true, false),
+(38, 'Administración de Empresas', 7, true, false),
+(39, 'Contaduría Pública', 7, true, false),
+(40, 'Doctorado en Ciencias Económicas', 7, false, true),
+(41, 'Economía', 7, true, false),
+(42, 'Especialización en Finanzas', 7, false, true),
+(43, 'Maestría en Administración', 7, false, true),
+(44, 'Maestría en Ciencias Económicas', 7, false, true),
+(45, 'Astronomía', 8, true, false),
+(46, 'Biología', 8, true, false),
+(47, 'Doctorado en Ciencias - Biología', 8, false, true),
+(48, 'Doctorado en Ciencias - Física', 8, false, true),
+(49, 'Doctorado en Ciencias - Química', 8, false, true),
+(50, 'Física', 8, true, false),
+(51, 'Maestría en Matemáticas', 8, false, true),
+(52, 'Matemáticas', 8, true, false),
+(53, 'Química', 8, true, false),
+(54, 'Ciencias Culinarias', 9, true, false),
+(55, 'Ingeniería de Alimentos', 9, true, false),
+(56, 'Química Farmacéutica', 9, true, false),
+(57, 'Tecnología en Regencia de Farmacia', 9, true, false),
+(58, 'Antropología', 10, true, false),
+(59, 'Doctorado en Ciencias Sociales', 10, false, true),
+(60, 'Historia', 10, true, false),
+(61, 'Maestría en Antropología', 10, false, true),
+(62, 'Maestría en Psicología', 10, false, true),
+(63, 'Maestría en Sociología', 10, false, true),
+(64, 'Psicología', 10, true, false),
+(65, 'Sociología', 10, true, false),
+(66, 'Trabajo Social', 10, true, false),
+(67, 'Comunicación Audiovisual y Multimedial', 11, true, false),
+(68, 'Comunicación Social - Periodismo', 11, true, false),
+(69, 'Comunicaciones', 11, true, false),
+(70, 'Creación Digital', 11, true, false),
+(71, 'Español como Lengua Extranjera', 11, true, false),
+(72, 'Filología Hispánica', 11, true, false),
+(73, 'Periodismo', 11, true, false),
+(74, 'Ciencia Política', 12, true, false),
+(75, 'Derecho', 12, true, false),
+(76, 'Doctorado en Derecho', 12, false, true),
+(77, 'Maestría en Derecho', 12, false, true),
+(78, 'Doctorado en Educación', 13, false, true),
+(79, 'Licenciatura en Ciencias Naturales', 13, true, false),
+(80, 'Licenciatura en Ciencias Sociales', 13, true, false),
+(81, 'Licenciatura en Educación Básica Primaria', 13, true, false),
+(82, 'Licenciatura en Educación Especial', 13, true, false),
+(83, 'Licenciatura en Educación Infantil', 13, true, false),
+(84, 'Licenciatura en Física', 13, true, false),
+(85, 'Licenciatura en Literature y Lengua Castellana', 13, true, false),
+(86, 'Licenciatura en Matemáticas', 13, true, false),
+(87, 'Licenciatura en Pedagogía de la Madre Tierra', 13, true, false),
+(88, 'Maestría en Educación', 13, false, true),
+(89, 'Doctorado en Enfermería', 14, false, true),
+(90, 'Enfermería', 14, true, false),
+(91, 'Maestría en Enfermería', 14, false, true),
+(92, 'Bioingeniería', 15, true, false),
+(93, 'Doctorado en Ingeniería', 15, false, true),
+(94, 'Ingeniería Aeroespacial', 15, true, false),
+(95, 'Ingeniería Agroindustrial', 15, true, false),
+(96, 'Ingeniería Ambiental', 15, true, false),
+(97, 'Ingeniería Bioquímica', 15, true, false),
+(98, 'Ingeniería Civil', 15, true, false),
+(99, 'Ingeniería de Materiales', 15, true, false),
+(100, 'Ingeniería de Sistemas', 15, true, false),
+(101, 'Ingeniería de Telecomunicaciones', 15, true, false),
+(102, 'Ingeniería Eléctrica', 15, true, false),
+(103, 'Ingeniería Electrónica', 15, true, false),
+(104, 'Ingeniería en Equipos Biomédicos', 15, true, false),
+(105, 'Ingeniería Energética', 15, true, false),
+(106, 'Ingeniería Industrial', 15, true, false),
+(107, 'Ingeniería Mecánica', 15, true, false),
+(108, 'Ingeniería Oceanográfica', 15, true, false),
+(109, 'Ingeniería Química', 15, true, false),
+(110, 'Ingeniería Sanitaria', 15, true, false),
+(111, 'Ingeniería Urbana', 15, true, false),
+(112, 'Maestría en Ingeniería', 15, false, true),
+(113, 'Doctorado en Ciencias Médicas', 16, false, true),
+(114, 'Especialización en Pediatría', 16, false, true),
+(115, 'Instrumentación Quirúrgica', 16, true, false),
+(116, 'Medicina', 16, true, false),
+(117, 'Técnica Profesional en Atención Prehospitalaria', 16, true, false),
+(118, 'Odontología', 17, true, false),
+(119, 'Administración Ambiental y Sanitaria', 18, true, false),
+(120, 'Administración en Salud', 18, true, false),
+(121, 'Doctorado en Salud Pública', 18, false, true),
+(122, 'Gerencia en Sistemas de Información en Salud', 18, true, false),
+(123, 'Maestría en Salud Pública', 18, false, true),
+(124, 'Tecnología en Administración de Servicios de Salud', 18, true, false),
+(125, 'Tecnología en Saneamiento Ambiental', 18, true, false),
+(126, 'Tecnología en Sistemas de Información en Salud', 18, true, false),
+(127, 'Doctorado en Filosofía', 21, false, true),
+(128, 'Filosofía', 21, true, false),
+(129, 'Licenciatura en Filosofía', 21, true, false),
+(130, 'Maestría en Filosofía', 21, false, true),
+(131, 'Entrenamiento Deportivo', 22, true, false),
+(132, 'Licenciatura en Educación Física', 22, true, false),
+(133, 'Maestría en Ciencias del Deporte', 22, false, true),
+(134, 'No Aplica', 23, true, true);
+
+-- ============================================================================
+-- 15. VÍNCULO AGRESOR CON VÍCTIMA
 -- ============================================================================
 INSERT INTO vinculoagresorvictima (id, nombre) VALUES
 (1, 'Pareja/expareja'),
@@ -373,7 +505,7 @@ INSERT INTO vinculoagresorvictima (id, nombre) VALUES
 (13, 'Otro');
 
 -- ============================================================================
--- 15. VÍNCULO CON LA UDEA
+-- 16. VÍNCULO CON LA UDEA
 -- ============================================================================
 INSERT INTO vinculoudea (id, nombre) VALUES
 (1, 'Estudiante de Pregrado'),
@@ -393,14 +525,14 @@ INSERT INTO vinculoudea (id, nombre) VALUES
 ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre;
 
 -- ============================================================================
--- 18. TIPOS DE SOLICITUD
+-- 17. TIPOS DE SOLICITUD
 -- ============================================================================
 INSERT INTO tiposolicitud (id, nombre) VALUES
 (1, 'Directa'),
 (2, 'Indirecta');
 
 -- ============================================================================
--- 19. CARGOS
+-- 18. CARGOS
 -- ============================================================================
 INSERT INTO cargo (id, nombre) VALUES
 (1, 'Psicóloga'),
@@ -414,7 +546,7 @@ INSERT INTO cargo (id, nombre) VALUES
 (9, 'Otro');
 
 -- ============================================================================
--- 21. RESULTADO CONTACTO TELEFÓNICO
+-- 19. RESULTADO CONTACTO TELEFÓNICO
 -- ============================================================================
 INSERT INTO resultadocontactotelefonico (id, nombre) VALUES
 (1, 'Contesta y se concerta cita'),
@@ -425,7 +557,7 @@ INSERT INTO resultadocontactotelefonico (id, nombre) VALUES
 (6, 'N/A');
 
 -- ============================================================================
--- 22. RÉGIMEN DE SALUD
+-- 20. RÉGIMEN DE SALUD
 -- ============================================================================
 INSERT INTO regimen (id, nombre) VALUES
 (1, 'Contributivo'),
@@ -434,7 +566,7 @@ INSERT INTO regimen (id, nombre) VALUES
 (4, 'No afiliado');
 
 -- ============================================================================
--- 23. EPS (Entidades Promotoras de Salud)
+-- 21. EPS (Entidades Promotoras de Salud)
 -- ============================================================================
 INSERT INTO eps (id, nombre) VALUES
 (1, 'Sura EPS'),
@@ -455,7 +587,7 @@ INSERT INTO eps (id, nombre) VALUES
 (16, 'No tiene');
 
 -- ============================================================================
--- 24. ROLES DE USUARIO
+-- 22. ROLES DE USUARIO
 -- ============================================================================
 INSERT INTO rol (id, nombre) VALUES
 (1, 'Admin'),
@@ -466,20 +598,22 @@ INSERT INTO rol (id, nombre) VALUES
 
 
 -- ============================================================================
--- 25. ESTADOS DE SOLICITUD
+-- 23. ESTADOS DE SOLICITUD
 -- ============================================================================
 insert into estadosolicitud values(1, 'Sin asignar');
 insert into estadosolicitud values(2, 'Asignada');
 
 
 -- ============================================================================
--- 26. ESTADOS DE CITA
+-- 24. ESTADOS DE CITA
 -- ============================================================================
 insert into estadocita values(1, 'Creada');
 insert into estadocita values(2, 'Cancelada');
 insert into estadocita values(3, 'Reprogramada');
 
-
+-- ============================================================================
+-- 25. MOTIVO ESTADO CITA
+-- ============================================================================
 INSERT INTO public.motivoestadocita (id, nombre) VALUES 
     (1, 'Inasistencia injustificada'),
     (2,'Cambio de agenda de la dupla o la profesional'),
@@ -487,14 +621,18 @@ INSERT INTO public.motivoestadocita (id, nombre) VALUES
     (4,'Solicitud de persona a atender'),
     (5,'NA')
 
--- Insertar tipos de asignación
+-- ============================================================================
+-- 26. TIPO ASIGNACIÓN
+-- ============================================================================
 INSERT INTO tipoasignacion (id, nombre) VALUES
     (1, 'Prioritaria'),
     (2, 'Ordinaria'),
     (3, 'Seguimiento')
 ON CONFLICT (id) DO NOTHING;
 
--- Insertar tipos de servicio
+-- ============================================================================
+-- 27. TIPO SERVICIO
+-- ============================================================================
 INSERT INTO tiposervicio (id, nombre) VALUES
     (1, 'Psicología'),
     (2, 'Asesoría Jurídica'),
@@ -503,14 +641,6 @@ INSERT INTO tiposervicio (id, nombre) VALUES
     (5, 'Atención APH')
 ON CONFLICT (id) DO NOTHING;    
 
--- Insertar tipos de vínculo con la UDEA (agrupados para el formulario de registro de casos)
-INSERT INTO subvinculoudea (id, nombre) VALUES
- (1, 'Estudiante Pregrado'),
- (2, 'Docente'),
- (3, 'Administrativo'),
- (4, 'Egresado'),
- (5, 'Contratista'),
- (6, 'Visitante');
 
 INSERT INTO formaocurrencia (id, nombre) VALUES
  (1, 'Individual'),
@@ -703,12 +833,6 @@ INSERT INTO mediosolicitud (id, nombre) VALUES
 -- ============================================================================
 -- TIEMPO OCURRIDO UNIDAD
 -- ============================================================================
-CREATE TABLE IF NOT EXISTS tiempoocurridounidad (
-    id integer NOT NULL,
-    nombre character varying NOT NULL,
-    CONSTRAINT tiempoocurridounidad_pkey PRIMARY KEY (id)
-);
-
 INSERT INTO tiempoocurridounidad (id, nombre) VALUES
 (1, 'días'),
 (2, 'semanas'),
@@ -722,8 +846,7 @@ INSERT INTO tipomedida (id, nombre) VALUES
 (2, 'Medida de protección laboral'),
 (3, 'Medida de protección personal'),
 (4, 'Medida cautelar'),
-(5, 'Otra')
-ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre;
+(5, 'Otra');
 
 INSERT INTO subtipomedida (id, nombre, idtipomedida) VALUES
 (1, 'Cambio de grupo', 1),
@@ -737,8 +860,7 @@ INSERT INTO subtipomedida (id, nombre, idtipomedida) VALUES
 (9, 'Restricción de acceso', 3),
 (10, 'Orden de alejamiento', 4),
 (11, 'Prohibición de acercamiento', 4),
-(12, 'Otra', 5)
-ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre, idtipomedida = EXCLUDED.idtipomedida;
+(12, 'Otra', 5);
 
 INSERT INTO responsablemedidaproteccion (id, nombre) VALUES
 (1, 'Bienestar Universitario'),
@@ -746,5 +868,4 @@ INSERT INTO responsablemedidaproteccion (id, nombre) VALUES
 (3, 'Decanatura'),
 (4, 'Unidad de Género'),
 (5, 'Dirección de Docencia'),
-(6, 'Otra dependencia')
-ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre;
+(6, 'Otra unidad administrativa');

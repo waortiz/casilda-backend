@@ -38,11 +38,10 @@ public class MaestroService {
     private final DepartamentoRepository departamentoRepository;
     private final MunicipioRepository municipioRepository;
     private final CampusRepository campusRepository;
-    private final DependenciaRepository dependenciaRepository;
-    private final FacultadEscuelaInstitutoRepository facultadRepository;
+    private final UnidadAdministrativaRepository unidadAdministrativaRepository;
+    private final UnidadAcademicaRepository unidadAcademicaRepository;
     private final VinculoAgresorVictimaRepository vinculoAgresorRepository;
     private final VinculoUdeARepository vinculoUdeARepository;
-    private final SubVinculoUdeARepository subVinculoUdeARepository;
     private final FormaOcurrenciaRepository formaOcurrenciaRepository;
     private final LugarOcurrenciaRepository lugarOcurrenciaRepository;
     private final ActividadMisionalRepository actividadMisionalRepository;
@@ -231,21 +230,21 @@ public class MaestroService {
     }
 
     /**
-     * Obtiene lista de dependencias
+     * Obtiene lista de unidades administrativas
      */
-    public List<MaestroDTO> obtenerDependencias() {
-        log.info("Obteniendo dependencias desde la base de datos");
-        return dependenciaRepository.findAll().stream()
+    public List<MaestroDTO> obtenerUnidadesAdministrativas() {
+        log.info("Obteniendo unidades administrativas desde la base de datos");
+        return unidadAdministrativaRepository.findAll().stream()
             .map(d -> new MaestroDTO(d.getId().longValue(), null, d.getNombre()))
             .collect(Collectors.toList());
     }
 
     /**
-     * Obtiene lista de facultades/escuelas/institutos
+     * Obtiene lista de unidades académicas/escuelas/institutos
      */
-    public List<MaestroDTO> obtenerFacultades() {
-        log.info("Obteniendo facultades desde la base de datos");
-        return facultadRepository.findAll().stream()
+    public List<MaestroDTO> obtenerUnidadesAcademicas() {
+        log.info("Obteniendo unidades académicas desde la base de datos");
+        return unidadAcademicaRepository.findAll().stream()
             .map(f -> new MaestroDTO(f.getId().longValue(), null, f.getNombre()))
             .collect(Collectors.toList());
     }
@@ -270,15 +269,7 @@ public class MaestroService {
             .collect(Collectors.toList());
     }
 
-    /**
-     * Obtiene lista de sub vínculos Universidad
-     */
-    public List<MaestroDTO> obtenerSubVinculosUdeA() {
-        log.info("Obteniendo sub vínculos Universidad desde la base de datos");
-        return subVinculoUdeARepository.findAll().stream()
-            .map(v -> new MaestroDTO(v.getId().longValue(), null, v.getNombre()))
-            .collect(Collectors.toList());
-    }
+
 
     /**
      * Obtiene lista de formas de ocurrencia
@@ -406,9 +397,9 @@ public class MaestroService {
                 .map(d -> new MaestroDTO(d.getId().longValue(), null, d.getNombre()));
             case "campus" -> campusRepository.findAll(pageable)
                 .map(c -> new MaestroDTO(c.getId().longValue(), null, c.getNombre()));
-            case "dependencias" -> dependenciaRepository.findAll(pageable)
+            case "unidades-administrativas" -> unidadAdministrativaRepository.findAll(pageable)
                 .map(d -> new MaestroDTO(d.getId().longValue(), null, d.getNombre()));
-            case "facultades" -> facultadRepository.findAll(pageable)
+            case "unidades-academicas" -> unidadAcademicaRepository.findAll(pageable)
                 .map(f -> new MaestroDTO(f.getId().longValue(), null, f.getNombre()));
             case "tipos-identificacion" -> tipoIdentificacionRepository.findAll(pageable)
                 .map(t -> new MaestroDTO(t.getId().longValue(), t.getCodigo(), t.getNombre()));
@@ -422,9 +413,24 @@ public class MaestroService {
     public List<MaestroDTO> obtenerProgramas() {
         log.info("Obteniendo programas desde la base de datos");
         return programaRepository.findAll().stream()
-            .map(p -> new MaestroDTO(p.getId().longValue(), p.getCodigo(), p.getNombre()))
+            .map(p -> new MaestroDTO(p.getId().longValue(), null, p.getNombre()))
             .collect(Collectors.toList());
     }
+
+    /**
+     * Obtiene lista de programas académicos filtrados por Unidad Académica y Pregrado/Posgrado
+     */
+    public List<MaestroDTO> obtenerProgramasPorUnidad(Integer unidadAcademicaId, boolean pregrado) {
+        log.info("Obteniendo programas para unidad académica: {}, pregrado: {}", unidadAcademicaId, pregrado);
+        List<Programa> programas = pregrado 
+            ? programaRepository.findByIdunidadacademicaAndAplicapregradoTrue(unidadAcademicaId)
+            : programaRepository.findByIdunidadacademicaAndAplicaposgradoTrue(unidadAcademicaId);
+            
+        return programas.stream()
+            .map(p -> new MaestroDTO(p.getId().longValue(), null, p.getNombre()))
+            .collect(Collectors.toList());
+    }
+
 
     /**
      * Obtiene lista de roles
@@ -644,79 +650,79 @@ public class MaestroService {
     }
 
     /**
-     * Crear una nueva dependencia
+     * Crear una nueva unidad administrativa
      */
     @Transactional
-    public MaestroDTO crearDependencia(MaestroRequest request) {
-        log.info("Creando dependencia: {}", request.getNombre());
-        Dependencia dependencia = new Dependencia();
-        dependencia.setId(request.getId());
-        dependencia.setNombre(request.getNombre());
-        Dependencia saved = dependenciaRepository.save(dependencia);
+    public MaestroDTO crearUnidadAdministrativa(MaestroRequest request) {
+        log.info("Creando unidad administrativa: {}", request.getNombre());
+        UnidadAdministrativa unidadAdministrativa = new UnidadAdministrativa();
+        unidadAdministrativa.setId(request.getId());
+        unidadAdministrativa.setNombre(request.getNombre());
+        UnidadAdministrativa saved = unidadAdministrativaRepository.save(unidadAdministrativa);
         return new MaestroDTO(saved.getId().longValue(), null, saved.getNombre());
     }
 
     /**
-     * Actualizar una dependencia existente
+     * Actualizar una unidad administrativa existente
      */
     @Transactional
-    public MaestroDTO actualizarDependencia(Integer id, MaestroRequest request) {
-        log.info("Actualizando dependencia con id: {}", id);
-        Dependencia dependencia = dependenciaRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Dependencia no encontrada con id: " + id));
-        dependencia.setNombre(request.getNombre());
-        Dependencia updated = dependenciaRepository.save(dependencia);
+    public MaestroDTO actualizarUnidadAdministrativa(Integer id, MaestroRequest request) {
+        log.info("Actualizando unidad administrativa con id: {}", id);
+        UnidadAdministrativa unidadAdministrativa = unidadAdministrativaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Unidad administrativa no encontrada con id: " + id));
+        unidadAdministrativa.setNombre(request.getNombre());
+        UnidadAdministrativa updated = unidadAdministrativaRepository.save(unidadAdministrativa);
         return new MaestroDTO(updated.getId().longValue(), null, updated.getNombre());
     }
 
     /**
-     * Eliminar una dependencia
+     * Eliminar una unidad administrativa
      */
     @Transactional
-    public void eliminarDependencia(Integer id) {
-        log.info("Eliminando dependencia con id: {}", id);
-        if (!dependenciaRepository.existsById(id)) {
-            throw new RuntimeException("Dependencia no encontrada con id: " + id);
+    public void eliminarUnidadAdministrativa(Integer id) {
+        log.info("Eliminando unidad administrativa con id: {}", id);
+        if (!unidadAdministrativaRepository.existsById(id)) {
+            throw new RuntimeException("Unidad administrativa no encontrada con id: " + id);
         }
-        dependenciaRepository.deleteById(id);
+        unidadAdministrativaRepository.deleteById(id);
     }
 
     /**
-     * Crear una nueva facultad
+     * Crear una nueva unidad académica
      */
     @Transactional
-    public MaestroDTO crearFacultad(MaestroRequest request) {
-        log.info("Creando facultad: {}", request.getNombre());
-        FacultadEscuelaInstituto facultad = new FacultadEscuelaInstituto();
-        facultad.setId(request.getId());
-        facultad.setNombre(request.getNombre());
-        FacultadEscuelaInstituto saved = facultadRepository.save(facultad);
+    public MaestroDTO crearUnidadAcademica(MaestroRequest request) {
+        log.info("Creando unidad académica: {}", request.getNombre());
+        UnidadAcademica unidadAcademica = new UnidadAcademica();
+        unidadAcademica.setId(request.getId());
+        unidadAcademica.setNombre(request.getNombre());
+        UnidadAcademica saved = unidadAcademicaRepository.save(unidadAcademica);
         return new MaestroDTO(saved.getId().longValue(), null, saved.getNombre());
     }
 
     /**
-     * Actualizar una facultad existente
+     * Actualizar una unidad académica existente
      */
     @Transactional
-    public MaestroDTO actualizarFacultad(Integer id, MaestroRequest request) {
-        log.info("Actualizando facultad con id: {}", id);
-        FacultadEscuelaInstituto facultad = facultadRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Facultad no encontrada con id: " + id));
-        facultad.setNombre(request.getNombre());
-        FacultadEscuelaInstituto updated = facultadRepository.save(facultad);
+    public MaestroDTO actualizarUnidadAcademica(Integer id, MaestroRequest request) {
+        log.info("Actualizando unidad académica con id: {}", id);
+        UnidadAcademica unidadAcademica = unidadAcademicaRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Unidad académica no encontrada con id: " + id));
+        unidadAcademica.setNombre(request.getNombre());
+        UnidadAcademica updated = unidadAcademicaRepository.save(unidadAcademica);
         return new MaestroDTO(updated.getId().longValue(), null, updated.getNombre());
     }
 
     /**
-     * Eliminar una facultad
+     * Eliminar una unidad académica
      */
     @Transactional
-    public void eliminarFacultad(Integer id) {
-        log.info("Eliminando facultad con id: {}", id);
-        if (!facultadRepository.existsById(id)) {
-            throw new RuntimeException("Facultad no encontrada con id: " + id);
+    public void eliminarUnidadAcademica(Integer id) {
+        log.info("Eliminando unidad académica con id: {}", id);
+        if (!unidadAcademicaRepository.existsById(id)) {
+            throw new RuntimeException("Unidad académica no encontrada con id: " + id);
         }
-        facultadRepository.deleteById(id);
+        unidadAcademicaRepository.deleteById(id);
     }
 
     /**

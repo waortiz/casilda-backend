@@ -44,12 +44,12 @@ public class Atencion {
     private Programa programa;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "iddependencia")
-    private Dependencia dependencia;
+    @JoinColumn(name = "idunidadadministrativa")
+    private UnidadAdministrativa unidadAdministrativa;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idfacultad")
-    private FacultadEscuelaInstituto facultad;
+    @JoinColumn(name = "idunidadacademica")
+    private UnidadAcademica unidadAcademica;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idcampus")

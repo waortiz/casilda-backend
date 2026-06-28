@@ -126,16 +126,16 @@ CREATE TABLE campus (
     CONSTRAINT campus_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE dependencia (
+CREATE TABLE unidadadministrativa (
     id integer NOT NULL,
     nombre character varying COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT dependencia_pkey PRIMARY KEY (id)
+    CONSTRAINT unidadadministrativa_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE facultadescuelainstituto (
+CREATE TABLE unidadacademica (
     id integer NOT NULL,
     nombre character varying COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT facultadescuelainstituto_pkey PRIMARY KEY (id)
+    CONSTRAINT unidadacademica_pkey PRIMARY KEY (id)
 );
 
 
@@ -151,11 +151,10 @@ CREATE TABLE vinculoudea (
     CONSTRAINT vinculoudea_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE subvinculoudea
-(
+CREATE TABLE tiempoocurridounidad (
     id integer NOT NULL,
-    nombre character varying COLLATE pg_catalog."default" NOT NULL,
-    CONSTRAINT subvinculoudea_pkey PRIMARY KEY (id)
+    nombre character varying NOT NULL,
+    CONSTRAINT tiempoocurridounidad_pkey PRIMARY KEY (id)
 );
 
 CREATE TABLE formaocurrencia
@@ -251,12 +250,18 @@ CREATE TABLE estadocita
     CONSTRAINT estadocita_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE programa (
-    id integer,
+CREATE TABLE programa
+(
+    id integer NOT NULL,
     nombre character varying COLLATE pg_catalog."default" NOT NULL,
-    codigo character varying COLLATE pg_catalog."default" UNIQUE NOT NULL,
-    descripcion character varying COLLATE pg_catalog."default" not null,
-    CONSTRAINT programa_pkey PRIMARY KEY (id)
+    idunidadacademica integer NOT NULL,
+    aplicapregrado boolean NOT NULL,
+    aplicaposgrado boolean NOT NULL,
+    CONSTRAINT programa_pkey PRIMARY KEY (id),
+    CONSTRAINT programa_idunidadacademica_fkey FOREIGN KEY (idunidadacademica)
+        REFERENCES public.unidadacademica (id) MATCH SIMPLE
+        ON UPDATE NO ACTION
+        ON DELETE NO ACTION
 );
 
 CREATE TABLE programacaso (
@@ -300,8 +305,8 @@ CREATE TABLE remision (
     id bigserial not null,
     idremitente bigserial not null,
     idcargo INT not null,
-    iddependencia INT not null,
-    idfacultad INT not null,
+    idunidadadministrativa INT not null,
+    idunidadacademica INT not null,
     idcampus INT not null,
     fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     idusuariocreacion bigint,
@@ -310,8 +315,8 @@ CREATE TABLE remision (
     constraint remision_pkey PRIMARY KEY (id),
     constraint remision_idremitente_fkey FOREIGN KEY (idremitente) REFERENCES persona(id) ON DELETE NO ACTION,
     constraint remision_idcargo_fkey FOREIGN KEY (idcargo) REFERENCES cargo(id) ON DELETE NO ACTION,
-    constraint remision_iddependencia_fkey FOREIGN KEY (iddependencia) REFERENCES dependencia(id) ON DELETE NO ACTION,
-    constraint remision_idfacultad_fkey FOREIGN KEY (idfacultad) REFERENCES facultadescuelainstituto(id) ON DELETE NO ACTION,
+    constraint remision_idunidadadministrativa_fkey FOREIGN KEY (idunidadadministrativa) REFERENCES unidadadministrativa(id) ON DELETE NO ACTION,
+    constraint remision_idunidadacademica_fkey FOREIGN KEY (idunidadacademica) REFERENCES unidadacademica(id) ON DELETE NO ACTION,
     constraint remision_idcampus_fkey FOREIGN KEY (idcampus) REFERENCES campus(id) ON DELETE NO ACTION,
     constraint remision_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
     constraint remision_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION
@@ -511,8 +516,8 @@ CREATE TABLE atencion (
     idciudadresidencia int,
     direccionresidencia character varying COLLATE pg_catalog."default",
     idprograma int,
-    iddependencia INT,
-    idfacultad INT,
+    idunidadadministrativa INT,
+    idunidadacademica INT,
     idcampus INT,
     idvinculoudea INT,
     otrovinculo character varying COLLATE pg_catalog."default",
@@ -531,8 +536,8 @@ CREATE TABLE atencion (
     constraint atencion_idetnia_fkey FOREIGN KEY (idetnia) REFERENCES etnia(id) ON DELETE NO ACTION,
     constraint atencion_idciudadresidencia_fkey FOREIGN KEY (idciudadresidencia) REFERENCES municipio(id) ON DELETE NO ACTION,
     constraint atencion_idprograma_fkey FOREIGN KEY (idprograma) REFERENCES programa(id) ON DELETE NO ACTION,
-    constraint atencion_iddependencia_fkey FOREIGN KEY (iddependencia) REFERENCES dependencia(id) ON DELETE NO ACTION,
-    constraint atencion_idfacultad_fkey FOREIGN KEY (idfacultad) REFERENCES facultadescuelainstituto(id) ON DELETE NO ACTION,
+    constraint atencion_idunidadadministrativa_fkey FOREIGN KEY (idunidadadministrativa) REFERENCES unidadadministrativa(id) ON DELETE NO ACTION,
+    constraint atencion_idunidadacademica_fkey FOREIGN KEY (idunidadacademica) REFERENCES unidadacademica(id) ON DELETE NO ACTION,
     constraint atencion_idcampus_fkey FOREIGN KEY (idcampus) REFERENCES campus(id) ON DELETE NO ACTION,
     constraint atencion_idvinculoudea_fkey FOREIGN KEY (idvinculoudea) REFERENCES vinculoudea(id) ON DELETE NO ACTION,
     constraint atencion_idsubvinculoudea_fkey FOREIGN KEY (idsubvinculoudea) REFERENCES subvinculoudea(id) ON DELETE NO ACTION,
@@ -840,7 +845,6 @@ CREATE TABLE registrolinealma (
     idpersonaatiende integer NOT NULL,       -- grupo profesional que atiende
     idtiposervicio integer NOT NULL,         -- FK tiposervicio (fijo: Atención APH)
     idpersonaregistra bigint NOT NULL,       -- usuario que registra
-    idlugarentrevista integer,               -- Presencial, Virtual, Telefónica
     ididentidadgenero int not null,
     idorientacionsexual INT,
     idetnia INT,
@@ -848,9 +852,9 @@ CREATE TABLE registrolinealma (
     direccionresidencia character varying COLLATE pg_catalog."default",
     -- Datos complementarios (tab "Datos complementarios")
     idvinculoudea integer,
-    idfacultad integer,
+    idunidadacademica integer,
     idprograma integer,
-    iddependencia integer,
+    idunidadadministrativa integer,
     idcampus integer,
     -- Campos de auditoría
     fechacreacion timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -872,8 +876,6 @@ CREATE TABLE registrolinealma (
         REFERENCES grupoprofesional(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idpersonaregistra_fkey FOREIGN KEY (idpersonaregistra)
         REFERENCES usuario(id) ON DELETE NO ACTION,
-    CONSTRAINT registrolinealma_idlugarentrevista_fkey FOREIGN KEY (idlugarentrevista)
-        REFERENCES lugarentrevista(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idorientacionsexual_fkey FOREIGN KEY (idorientacionsexual)
         REFERENCES orientacionsexual(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_ididentidadgenero_fkey FOREIGN KEY (ididentidadgenero)
@@ -884,12 +886,12 @@ CREATE TABLE registrolinealma (
         REFERENCES municipio(id) ON DELETE NO ACTION,    
     CONSTRAINT registrolinealma_idvinculoudea_fkey FOREIGN KEY (idvinculoudea)
         REFERENCES vinculoudea(id) ON DELETE NO ACTION,
-    CONSTRAINT registrolinealma_idfacultad_fkey FOREIGN KEY (idfacultad)
-        REFERENCES facultadescuelainstituto(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idunidadacademica_fkey FOREIGN KEY (idunidadacademica)
+        REFERENCES unidadacademica(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idprograma_fkey FOREIGN KEY (idprograma)
         REFERENCES programa(id) ON DELETE NO ACTION,
-    CONSTRAINT registrolinealma_iddependencia_fkey FOREIGN KEY (iddependencia)
-        REFERENCES dependencia(id) ON DELETE NO ACTION,
+    CONSTRAINT registrolinealma_idunidadadministrativa_fkey FOREIGN KEY (idunidadadministrativa)
+        REFERENCES unidadadministrativa(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idcampus_fkey FOREIGN KEY (idcampus)
         REFERENCES campus(id) ON DELETE NO ACTION,
     CONSTRAINT registrolinealma_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion)

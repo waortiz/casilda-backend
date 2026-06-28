@@ -29,12 +29,12 @@ public class Remision {
     private Cargo cargo;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "iddependencia", nullable = false)
-    private Dependencia dependencia;
+    @JoinColumn(name = "idunidadadministrativa", nullable = false)
+    private UnidadAdministrativa unidadAdministrativa;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idfacultad", nullable = false)
-    private FacultadEscuelaInstituto facultad;
+    @JoinColumn(name = "idunidadacademica", nullable = false)
+    private UnidadAcademica unidadAcademica;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idcampus", nullable = false)

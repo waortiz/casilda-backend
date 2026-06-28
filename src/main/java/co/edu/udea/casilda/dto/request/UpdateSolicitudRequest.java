@@ -39,8 +39,8 @@ public class UpdateSolicitudRequest {
     private String remitenteSegundoApellido;
     private Integer remitenteCargoId;
     private Integer remitenteCampusId;
-    private Integer remitenteDependenciaId;
-    private Integer remitenteFacultadId;
+    private Integer remitenteUnidadAdministrativaId;
+    private Integer remitenteUnidadAcademicaId;
     private Integer remitenteTipoDocumentoId;
     private String remitenteNumeroDocumento;
 

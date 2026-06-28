@@ -2,8 +2,13 @@ package co.edu.udea.casilda.service;
 
 import co.edu.udea.casilda.dto.request.AtencionAphRequest;
 import co.edu.udea.casilda.dto.request.ContactoLineaAlmaRequest;
-import co.edu.udea.casilda.dto.request.RegistroLineaAlmaRequest;
 import co.edu.udea.casilda.dto.request.RemisionRegistroAlmaRequest;
+import co.edu.udea.casilda.dto.request.Pestana0LineaAlmaRequest;
+import co.edu.udea.casilda.dto.request.Pestana1LineaAlmaRequest;
+import co.edu.udea.casilda.dto.request.Pestana2LineaAlmaRequest;
+import co.edu.udea.casilda.dto.request.Pestana3LineaAlmaRequest;
+import co.edu.udea.casilda.dto.request.Pestana4LineaAlmaRequest;
+import co.edu.udea.casilda.dto.request.Pestana5LineaAlmaRequest;
 import co.edu.udea.casilda.dto.response.AtencionAphResponse;
 import co.edu.udea.casilda.dto.response.ContactoLineaAlmaResponse;
 import co.edu.udea.casilda.dto.response.RegistroLineaAlmaResponse;
@@ -39,16 +44,15 @@ public class LineaAlmaService {
     private final UsuarioRepository usuarioRepository;
     private final GrupoProfesionalRepository grupoProfesionalRepository;
     private final TipoServicioRepository tipoServicioRepository;
-    private final LugarEntrevistaRepository lugarEntrevistaRepository;
     private final IdentidadGeneroRepository identidadGeneroRepository;
+    private final TipoIdentificacionRepository tipoIdentificacionRepository;
     private final OrientacionSexualRepository orientacionSexualRepository;
     private final EtniaRepository etniaRepository;
     private final MunicipioRepository municipioRepository;
     private final VinculoUdeARepository vinculoUdeARepository;
-    private final SubVinculoUdeARepository subVinculoUdeARepository;
-    private final FacultadEscuelaInstitutoRepository facultadRepository;
+    private final UnidadAcademicaRepository unidadAcademicaRepository;
     private final ProgramaRepository programaRepository;
-    private final DependenciaRepository dependenciaRepository;
+    private final UnidadAdministrativaRepository unidadAdministrativaRepository;
     private final CampusRepository campusRepository;
     private final ProtocoloAphRepository protocoloAphRepository;
     private final ResultadoTriageRepository resultadoTriageRepository;
@@ -56,84 +60,256 @@ public class LineaAlmaService {
     private final ResultadoContactoTelefonicoRepository resultadoContactoTelefonicoRepository;
     private final ActorRemitenteRepository actorRemitenteRepository;
 
-    @Transactional
-    public RegistroLineaAlmaResponse crearRegistro(RegistroLineaAlmaRequest request) {
-        log.info("Creando registro de Línea ALMA para persona ID: {}", request.getIdPersona());
 
+
+    @Transactional
+    public RegistroLineaAlmaResponse registrarPestana0(Pestana0LineaAlmaRequest request) {
+        log.info("Registrando pestaña 0 para registro ID: {}", request.getId());
         Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
 
-        RegistroLineaAlma registro = new RegistroLineaAlma();
-        registro.setPersona(personaRepository.findById(request.getIdPersona())
-                .orElseThrow(() -> new ResourceNotFoundException("Persona no encontrada con ID: " + request.getIdPersona())));
+        RegistroLineaAlma registro;
+        if (request.getId() != null) {
+            registro = registroLineaAlmaRepository.findById(request.getId())
+                    .orElseThrow(
+                            () -> new ResourceNotFoundException("Registro no encontrado con ID: " + request.getId()));
+            registro.setUsuarioActualizacion(usuarioAutenticado);
+        } else {
+            registro = new RegistroLineaAlma();
+            registro.setFechaHoraAtencion(
+                    request.getFechaHoraAtencion() != null ? request.getFechaHoraAtencion() : LocalDateTime.now());
+            registro.setUsuarioCreacion(usuarioAutenticado);
+        }
+
         registro.setTipoReporte(tipoReporteAlmaRepository.findById(request.getIdTipoReporte())
-                .orElseThrow(() -> new ResourceNotFoundException("Tipo reporte ALMA no encontrado con ID: " + request.getIdTipoReporte())));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Tipo reporte ALMA no encontrado con ID: " + request.getIdTipoReporte())));
         registro.setCanalContacto(canalContactoRepository.findById(request.getIdCanalContacto())
-                .orElseThrow(() -> new ResourceNotFoundException("Canal de contacto no encontrado con ID: " + request.getIdCanalContacto())));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Canal de contacto no encontrado con ID: " + request.getIdCanalContacto())));
         if (request.getIdQuienRemite() != null) {
             registro.setQuienRemite(actorRemitenteRepository.findById(request.getIdQuienRemite())
-                    .orElseThrow(() -> new ResourceNotFoundException("Actor remitente no encontrado con ID: " + request.getIdQuienRemite())));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Actor remitente no encontrado con ID: " + request.getIdQuienRemite())));
+        } else {
+            registro.setQuienRemite(null);
         }
-        registro.setFechaHoraAtencion(LocalDateTime.now());
         registro.setPersonaAtiende(grupoProfesionalRepository.findById(request.getIdPersonaAtiende().intValue())
-                .orElseThrow(() -> new ResourceNotFoundException("Grupo profesional no encontrado con ID: " + request.getIdPersonaAtiende())));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Grupo profesional no encontrado con ID: " + request.getIdPersonaAtiende())));
         registro.setTipoServicio(tipoServicioRepository.findById(TipoServicioEnum.ATENCION_APH.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("Tipo servicio " + TipoServicioEnum.ATENCION_APH.getNombre()
-                        + " no encontrado con ID: " + TipoServicioEnum.ATENCION_APH.getId())));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Tipo servicio " + TipoServicioEnum.ATENCION_APH.getNombre()
+                                + " no encontrado con ID: " + TipoServicioEnum.ATENCION_APH.getId())));
         registro.setPersonaRegistra(usuarioRepository.findById(request.getIdPersonaRegistra())
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario registra no encontrado con ID: " + request.getIdPersonaRegistra())));
-
-        if (request.getIdLugarEntrevista() != null) {
-            registro.setLugarEntrevista(lugarEntrevistaRepository.findById(request.getIdLugarEntrevista())
-                    .orElseThrow(() -> new ResourceNotFoundException("Lugar entrevista no encontrado con ID: " + request.getIdLugarEntrevista())));
-        }
-
-        registro.setIdentidadGenero(identidadGeneroRepository.findById(request.getIdIdentidadGenero())
-                .orElseThrow(() -> new ResourceNotFoundException("Identidad de género no encontrada con ID: " + request.getIdIdentidadGenero())));
-
-        if (request.getIdOrientacionSexual() != null) {
-            registro.setOrientacionSexual(orientacionSexualRepository.findById(request.getIdOrientacionSexual())
-                    .orElseThrow(() -> new ResourceNotFoundException("Orientación sexual no encontrada con ID: " + request.getIdOrientacionSexual())));
-        }
-        if (request.getIdEtnia() != null) {
-            registro.setEtnia(etniaRepository.findById(request.getIdEtnia())
-                    .orElseThrow(() -> new ResourceNotFoundException("Etnia no encontrada con ID: " + request.getIdEtnia())));
-        }
-        if (request.getIdCiudadResidencia() != null) {
-            registro.setCiudadResidencia(municipioRepository.findById(request.getIdCiudadResidencia())
-                    .orElseThrow(() -> new ResourceNotFoundException("Municipio no encontrado con ID: " + request.getIdCiudadResidencia())));
-        }
-
-        registro.setDireccionResidencia(request.getDireccionResidencia());
-
-        if (request.getIdVinculoUdeA() != null) {
-            registro.setVinculoUdeA(vinculoUdeARepository.findById(request.getIdVinculoUdeA())
-                    .orElseThrow(() -> new ResourceNotFoundException("Vínculo UdeA no encontrado con ID: " + request.getIdVinculoUdeA())));
-        }
-        if (request.getIdFacultad() != null) {
-            registro.setFacultad(facultadRepository.findById(request.getIdFacultad())
-                    .orElseThrow(() -> new ResourceNotFoundException("Facultad no encontrada con ID: " + request.getIdFacultad())));
-        }
-        if (request.getIdPrograma() != null) {
-            registro.setPrograma(programaRepository.findById(request.getIdPrograma())
-                    .orElseThrow(() -> new ResourceNotFoundException("Programa no encontrado con ID: " + request.getIdPrograma())));
-        }
-        if (request.getIdDependencia() != null) {
-            registro.setDependencia(dependenciaRepository.findById(request.getIdDependencia())
-                    .orElseThrow(() -> new ResourceNotFoundException("Dependencia no encontrada con ID: " + request.getIdDependencia())));
-        }
-        if (request.getIdCampus() != null) {
-            registro.setCampus(campusRepository.findById(request.getIdCampus())
-                    .orElseThrow(() -> new ResourceNotFoundException("Campus no encontrado con ID: " + request.getIdCampus())));
-        }
-
-        registro.setUsuarioCreacion(usuarioAutenticado);
-        registro.setUsuarioActualizacion(usuarioAutenticado);
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Usuario registra no encontrado con ID: " + request.getIdPersonaRegistra())));
 
         registro = registroLineaAlmaRepository.save(registro);
+        return obtenerPorId(registro.getId());
+    }
+
+    @Transactional
+    public RegistroLineaAlmaResponse registrarPestana1(Pestana1LineaAlmaRequest request) {
+        log.info("Registrando pestaña 1 para registro ID: {}", request.getId());
+        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
+
+        Persona persona = null;
+        if (request.getIdPersona() != null && request.getIdPersona() > 0) {
+            persona = personaRepository.findById(request.getIdPersona()).orElse(null);
+        }
+        if (persona == null && request.getNumeroDocumento() != null && !request.getNumeroDocumento().isBlank()) {
+            persona = personaRepository.findByNumeroDocumento(request.getNumeroDocumento().trim()).orElse(null);
+        }
+
+        boolean tieneDatosPersonales = (request.getPrimerNombre() != null && !request.getPrimerNombre().isBlank()) ||
+                (request.getNumeroDocumento() != null && !request.getNumeroDocumento().isBlank());
+        if (persona == null && tieneDatosPersonales) {
+            persona = new Persona();
+            persona.setPrimerNombre(request.getPrimerNombre().trim());
+            persona.setPrimerApellido(
+                    request.getPrimerApellido() != null ? request.getPrimerApellido().trim() : "Temp");
+            persona.setNumeroDocumento(
+                    request.getNumeroDocumento() != null ? request.getNumeroDocumento().trim() : "0");
+            persona.setTipoIdentificacion(request.getIdTipoIdentificacion() != null
+                    ? tipoIdentificacionRepository.findById(request.getIdTipoIdentificacion()).orElse(null)
+                    : tipoIdentificacionRepository.findAll().stream().findFirst().orElse(null));
+            persona.setCiudadNacimiento(request.getIdCiudadNacimiento() != null
+                    ? municipioRepository.findById(request.getIdCiudadNacimiento()).orElse(null)
+                    : municipioRepository.findAll().stream().findFirst().orElse(null));
+            persona = personaRepository.save(persona);
+        }
+
+        if (persona != null) {
+            if (request.getPrimerNombre() != null && !request.getPrimerNombre().isBlank()) {
+                persona.setPrimerNombre(request.getPrimerNombre().trim());
+            }
+            if (request.getSegundoNombre() != null) {
+                persona.setSegundoNombre(request.getSegundoNombre().trim());
+            }
+            if (request.getPrimerApellido() != null && !request.getPrimerApellido().isBlank()) {
+                persona.setPrimerApellido(request.getPrimerApellido().trim());
+            }
+            if (request.getSegundoApellido() != null) {
+                persona.setSegundoApellido(request.getSegundoApellido().trim());
+            }
+            if (request.getNumeroDocumento() != null && !request.getNumeroDocumento().isBlank()) {
+                persona.setNumeroDocumento(request.getNumeroDocumento().trim());
+            }
+            if (request.getIdTipoIdentificacion() != null) {
+                persona.setTipoIdentificacion(
+                        tipoIdentificacionRepository.findById(request.getIdTipoIdentificacion()).orElse(null));
+            }
+            if (request.getIdCiudadNacimiento() != null) {
+                persona.setCiudadNacimiento(municipioRepository.findById(request.getIdCiudadNacimiento()).orElse(null));
+            }
+            personaRepository.save(persona);
+        }
+
+        RegistroLineaAlma registro = registroLineaAlmaRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Registro no encontrado con ID: " + request.getId()));
+        if (persona != null) {
+            registro.setPersona(persona);
+        }
+        registro.setUsuarioActualizacion(usuarioAutenticado);
+
+        if (request.getIdIdentidadGenero() != null) {
+            registro.setIdentidadGenero(identidadGeneroRepository.findById(request.getIdIdentidadGenero())
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Identidad de género no encontrada con ID: " + request.getIdIdentidadGenero())));
+        } else {
+            registro.setIdentidadGenero(null);
+        }
+        if (request.getIdOrientacionSexual() != null) {
+            registro.setOrientacionSexual(
+                    orientacionSexualRepository.findById(request.getIdOrientacionSexual()).orElse(null));
+        } else {
+            registro.setOrientacionSexual(null);
+        }
+        if (request.getIdEtnia() != null) {
+            registro.setEtnia(etniaRepository.findById(request.getIdEtnia()).orElse(null));
+        } else {
+            registro.setEtnia(null);
+        }
+        if (request.getIdCiudadResidencia() != null) {
+            registro.setCiudadResidencia(municipioRepository.findById(request.getIdCiudadResidencia()).orElse(null));
+        } else {
+            registro.setCiudadResidencia(null);
+        }
+        registro.setDireccionResidencia(request.getDireccionResidencia());
+
+        if (request.getFechaNacimiento() != null) {
+            Persona pers = registro.getPersona();
+            if (pers != null) {
+                pers.setFechaNacimiento(request.getFechaNacimiento());
+                personaRepository.save(pers);
+            }
+        }
+
+        registro = registroLineaAlmaRepository.save(registro);
+        return obtenerPorId(registro.getId());
+    }
+
+    @Transactional
+    public RegistroLineaAlmaResponse registrarPestana2(Pestana2LineaAlmaRequest request) {
+        log.info("Registrando pestaña 2 para registro ID: {}", request.getId());
+        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
+
+        RegistroLineaAlma registro = registroLineaAlmaRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Registro no encontrado con ID: " + request.getId()));
+        registro.setUsuarioActualizacion(usuarioAutenticado);
+
+        if (request.getIdVinculoUdeA() != null) {
+            registro.setVinculoUdeA(vinculoUdeARepository.findById(request.getIdVinculoUdeA()).orElse(null));
+        } else {
+            registro.setVinculoUdeA(null);
+        }
+        if (request.getIdUnidadAcademica() != null) {
+            registro.setUnidadAcademica(
+                    unidadAcademicaRepository.findById(request.getIdUnidadAcademica()).orElse(null));
+        } else {
+            registro.setUnidadAcademica(null);
+        }
+        if (request.getIdPrograma() != null) {
+            registro.setPrograma(programaRepository.findById(request.getIdPrograma()).orElse(null));
+        } else {
+            registro.setPrograma(null);
+        }
+        if (request.getIdUnidadAdministrativa() != null) {
+            registro.setUnidadAdministrativa(
+                    unidadAdministrativaRepository.findById(request.getIdUnidadAdministrativa()).orElse(null));
+        } else {
+            registro.setUnidadAdministrativa(null);
+        }
+        if (request.getIdCampus() != null) {
+            registro.setCampus(campusRepository.findById(request.getIdCampus()).orElse(null));
+        } else {
+            registro.setCampus(null);
+        }
+
+        registro = registroLineaAlmaRepository.save(registro);
+        return obtenerPorId(registro.getId());
+    }
+
+    @Transactional
+    public RegistroLineaAlmaResponse registrarPestana3(Pestana3LineaAlmaRequest request) {
+        log.info("Registrando pestaña 3 para registro ID: {}", request.getId());
+        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
+
+        RegistroLineaAlma registro = registroLineaAlmaRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Registro no encontrado con ID: " + request.getId()));
+        registro.setUsuarioActualizacion(usuarioAutenticado);
 
         if (request.getAtencionAph() != null) {
             atencionAphRepository.save(construirAtencionAph(registro, request.getAtencionAph(), usuarioAutenticado));
         }
+
+        registro = registroLineaAlmaRepository.save(registro);
+        return obtenerPorId(registro.getId());
+    }
+
+    @Transactional
+    public RegistroLineaAlmaResponse registrarPestana4(Pestana4LineaAlmaRequest request) {
+        log.info("Registrando pestaña 4 para registro ID: {}", request.getId());
+        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
+
+        RegistroLineaAlma registro = registroLineaAlmaRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Registro no encontrado con ID: " + request.getId()));
+        registro.setUsuarioActualizacion(usuarioAutenticado);
+
+        List<ContactoLineaAlma> existingContactos = contactoLineaAlmaRepository
+                .findByRegistroLineaAlmaIdOrderByFechaCreacionDesc(registro.getId());
+        contactoLineaAlmaRepository.deleteAll(existingContactos);
+
+        if (request.getContactos() != null && !request.getContactos().isEmpty()) {
+            for (ContactoLineaAlmaRequest cReq : request.getContactos()) {
+                ContactoLineaAlma contacto = new ContactoLineaAlma();
+                contacto.setRegistroLineaAlma(registro);
+                contacto.setFecha(cReq.getFecha() != null ? cReq.getFecha() : LocalDateTime.now());
+                contacto.setResultado(resultadoContactoTelefonicoRepository.findById(cReq.getIdResultado())
+                        .orElseThrow(() -> new ResourceNotFoundException(
+                                "Resultado contacto no encontrado con ID: " + cReq.getIdResultado())));
+                contacto.setUsuarioCreacion(usuarioAutenticado);
+                contacto.setUsuarioActualizacion(usuarioAutenticado);
+                contactoLineaAlmaRepository.save(contacto);
+            }
+        }
+
+        registro = registroLineaAlmaRepository.save(registro);
+        return obtenerPorId(registro.getId());
+    }
+
+    @Transactional
+    public RegistroLineaAlmaResponse registrarPestana5(Pestana5LineaAlmaRequest request) {
+        log.info("Registrando pestaña 5 para registro ID: {}", request.getId());
+        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
+
+        RegistroLineaAlma registro = registroLineaAlmaRepository.findById(request.getId())
+                .orElseThrow(() -> new ResourceNotFoundException("Registro no encontrado con ID: " + request.getId()));
+        registro.setUsuarioActualizacion(usuarioAutenticado);
+
+        List<RemisionRegistroAlma> existingRemisiones = remisionRegistroAlmaRepository
+                .findByIdregistrolinealmaOrderByFechaDesc(registro.getId());
+        remisionRegistroAlmaRepository.deleteAll(existingRemisiones);
 
         if (request.getRemisiones() != null && !request.getRemisiones().isEmpty()) {
             for (RemisionRegistroAlmaRequest remisionRequest : request.getRemisiones()) {
@@ -142,179 +318,12 @@ public class LineaAlmaService {
                 remision.setIdtiporemision(remisionRequest.getIdTipoRemision());
                 remision.setRegistroLineaAlma(registro);
                 remision.setTipoRemision(tipoRemisionRepository.findById(remisionRequest.getIdTipoRemision())
-                        .orElseThrow(() -> new ResourceNotFoundException("Tipo remisión no encontrado con ID: " + remisionRequest.getIdTipoRemision())));
+                        .orElseThrow(() -> new ResourceNotFoundException(
+                                "Tipo remisión no encontrado con ID: " + remisionRequest.getIdTipoRemision())));
                 remision.setCual(remisionRequest.getCual());
                 remision.setFecha(remisionRequest.getFecha());
                 remisionRegistroAlmaRepository.save(remision);
             }
-        }
-
-        return obtenerPorId(registro.getId());
-    }
-
-    @Transactional
-    public RegistroLineaAlmaResponse registrarPestana(int tabIndex, RegistroLineaAlmaRequest request) {
-        log.info("Registrando pestaña {} para registro ID: {}", tabIndex, request.getId());
-        Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
-
-        RegistroLineaAlma registro;
-        if (request.getId() != null) {
-            registro = registroLineaAlmaRepository.findById(request.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Registro no encontrado con ID: " + request.getId()));
-        } else {
-            registro = new RegistroLineaAlma();
-            registro.setFechaHoraAtencion(request.getFechaHoraAtencion() != null ? request.getFechaHoraAtencion() : LocalDateTime.now());
-            registro.setUsuarioCreacion(usuarioAutenticado);
-            registro.setPersona(personaRepository.findById(request.getIdPersona())
-                    .orElseThrow(() -> new ResourceNotFoundException("Persona no encontrada con ID: " + request.getIdPersona())));
-            registro.setTipoReporte(tipoReporteAlmaRepository.findById(request.getIdTipoReporte())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tipo reporte ALMA no encontrado con ID: " + request.getIdTipoReporte())));
-            registro.setCanalContacto(canalContactoRepository.findById(request.getIdCanalContacto())
-                    .orElseThrow(() -> new ResourceNotFoundException("Canal de contacto no encontrado con ID: " + request.getIdCanalContacto())));
-            if (request.getIdQuienRemite() != null) {
-                registro.setQuienRemite(actorRemitenteRepository.findById(request.getIdQuienRemite()).orElse(null));
-            }
-            registro.setPersonaAtiende(grupoProfesionalRepository.findById(request.getIdPersonaAtiende().intValue())
-                    .orElseThrow(() -> new ResourceNotFoundException("Grupo profesional no encontrado con ID: " + request.getIdPersonaAtiende())));
-            registro.setTipoServicio(tipoServicioRepository.findById(TipoServicioEnum.ATENCION_APH.getId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Tipo servicio " + TipoServicioEnum.ATENCION_APH.getNombre()
-                            + " no encontrado con ID: " + TipoServicioEnum.ATENCION_APH.getId())));
-            registro.setPersonaRegistra(usuarioRepository.findById(request.getIdPersonaRegistra())
-                    .orElseThrow(() -> new ResourceNotFoundException("Usuario registra no encontrado con ID: " + request.getIdPersonaRegistra())));
-            registro.setIdentidadGenero(identidadGeneroRepository.findById(request.getIdIdentidadGenero())
-                    .orElseThrow(() -> new ResourceNotFoundException("Identidad de género no encontrada con ID: " + request.getIdIdentidadGenero())));
-        }
-
-        registro.setUsuarioActualizacion(usuarioAutenticado);
-
-        switch (tabIndex) {
-            case 0:
-                registro.setPersona(personaRepository.findById(request.getIdPersona())
-                        .orElseThrow(() -> new ResourceNotFoundException("Persona no encontrada con ID: " + request.getIdPersona())));
-                registro.setTipoReporte(tipoReporteAlmaRepository.findById(request.getIdTipoReporte())
-                        .orElseThrow(() -> new ResourceNotFoundException("Tipo reporte ALMA no encontrado con ID: " + request.getIdTipoReporte())));
-                registro.setCanalContacto(canalContactoRepository.findById(request.getIdCanalContacto())
-                        .orElseThrow(() -> new ResourceNotFoundException("Canal de contacto no encontrado con ID: " + request.getIdCanalContacto())));
-                if (request.getIdQuienRemite() != null) {
-                    registro.setQuienRemite(actorRemitenteRepository.findById(request.getIdQuienRemite())
-                            .orElseThrow(() -> new ResourceNotFoundException("Actor remitente no encontrado con ID: " + request.getIdQuienRemite())));
-                } else {
-                    registro.setQuienRemite(null);
-                }
-                registro.setPersonaAtiende(grupoProfesionalRepository.findById(request.getIdPersonaAtiende().intValue())
-                        .orElseThrow(() -> new ResourceNotFoundException("Grupo profesional no encontrado con ID: " + request.getIdPersonaAtiende())));
-                registro.setTipoServicio(tipoServicioRepository.findById(TipoServicioEnum.ATENCION_APH.getId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Tipo servicio " + TipoServicioEnum.ATENCION_APH.getNombre()
-                                + " no encontrado con ID: " + TipoServicioEnum.ATENCION_APH.getId())));
-                registro.setPersonaRegistra(usuarioRepository.findById(request.getIdPersonaRegistra())
-                        .orElseThrow(() -> new ResourceNotFoundException("Usuario registra no encontrado con ID: " + request.getIdPersonaRegistra())));
-                if (registro.getId() == null) {
-                    registro.setIdentidadGenero(identidadGeneroRepository.findById(request.getIdIdentidadGenero())
-                            .orElseThrow(() -> new ResourceNotFoundException("Identidad de género no encontrada con ID: " + request.getIdIdentidadGenero())));
-                }
-                break;
-
-            case 1:
-                registro.setIdentidadGenero(identidadGeneroRepository.findById(request.getIdIdentidadGenero())
-                        .orElseThrow(() -> new ResourceNotFoundException("Identidad de género no encontrada con ID: " + request.getIdIdentidadGenero())));
-                if (request.getIdOrientacionSexual() != null) {
-                    registro.setOrientacionSexual(orientacionSexualRepository.findById(request.getIdOrientacionSexual()).orElse(null));
-                } else {
-                    registro.setOrientacionSexual(null);
-                }
-                if (request.getIdEtnia() != null) {
-                    registro.setEtnia(etniaRepository.findById(request.getIdEtnia()).orElse(null));
-                } else {
-                    registro.setEtnia(null);
-                }
-                if (request.getIdCiudadResidencia() != null) {
-                    registro.setCiudadResidencia(municipioRepository.findById(request.getIdCiudadResidencia()).orElse(null));
-                } else {
-                    registro.setCiudadResidencia(null);
-                }
-                registro.setDireccionResidencia(request.getDireccionResidencia());
-                if (request.getFechaNacimiento() != null) {
-                    Persona pers = registro.getPersona();
-                    if (pers != null) {
-                        pers.setFechaNacimiento(request.getFechaNacimiento());
-                        personaRepository.save(pers);
-                    }
-                }
-                break;
-
-            case 2:
-                if (request.getIdVinculoUdeA() != null) {
-                    registro.setVinculoUdeA(vinculoUdeARepository.findById(request.getIdVinculoUdeA()).orElse(null));
-                } else {
-                    registro.setVinculoUdeA(null);
-                }
-                if (request.getIdFacultad() != null) {
-                    registro.setFacultad(facultadRepository.findById(request.getIdFacultad()).orElse(null));
-                } else {
-                    registro.setFacultad(null);
-                }
-                if (request.getIdPrograma() != null) {
-                    registro.setPrograma(programaRepository.findById(request.getIdPrograma()).orElse(null));
-                } else {
-                    registro.setPrograma(null);
-                }
-                if (request.getIdDependencia() != null) {
-                    registro.setDependencia(dependenciaRepository.findById(request.getIdDependencia()).orElse(null));
-                } else {
-                    registro.setDependencia(null);
-                }
-                if (request.getIdCampus() != null) {
-                    registro.setCampus(campusRepository.findById(request.getIdCampus()).orElse(null));
-                } else {
-                    registro.setCampus(null);
-                }
-                break;
-
-            case 3:
-                if (request.getAtencionAph() != null) {
-                    atencionAphRepository.save(construirAtencionAph(registro, request.getAtencionAph(), usuarioAutenticado));
-                }
-                break;
-
-            case 4:
-                List<ContactoLineaAlma> existingContactos = contactoLineaAlmaRepository.findByRegistroLineaAlmaIdOrderByFechaCreacionDesc(registro.getId());
-                contactoLineaAlmaRepository.deleteAll(existingContactos);
-
-                if (request.getContactos() != null && !request.getContactos().isEmpty()) {
-                    for (ContactoLineaAlmaRequest cReq : request.getContactos()) {
-                        ContactoLineaAlma contacto = new ContactoLineaAlma();
-                        contacto.setRegistroLineaAlma(registro);
-                        contacto.setFecha(cReq.getFecha() != null ? cReq.getFecha() : LocalDateTime.now());
-                        contacto.setResultado(resultadoContactoTelefonicoRepository.findById(cReq.getIdResultado())
-                                .orElseThrow(() -> new ResourceNotFoundException("Resultado contacto no encontrado con ID: " + cReq.getIdResultado())));
-                        contacto.setUsuarioCreacion(usuarioAutenticado);
-                        contacto.setUsuarioActualizacion(usuarioAutenticado);
-                        contactoLineaAlmaRepository.save(contacto);
-                    }
-                }
-                break;
-
-            case 5:
-                List<RemisionRegistroAlma> existingRemisiones = remisionRegistroAlmaRepository.findByIdregistrolinealmaOrderByFechaDesc(registro.getId());
-                remisionRegistroAlmaRepository.deleteAll(existingRemisiones);
-
-                if (request.getRemisiones() != null && !request.getRemisiones().isEmpty()) {
-                    for (RemisionRegistroAlmaRequest remisionRequest : request.getRemisiones()) {
-                        RemisionRegistroAlma remision = new RemisionRegistroAlma();
-                        remision.setIdregistrolinealma(registro.getId());
-                        remision.setIdtiporemision(remisionRequest.getIdTipoRemision());
-                        remision.setRegistroLineaAlma(registro);
-                        remision.setTipoRemision(tipoRemisionRepository.findById(remisionRequest.getIdTipoRemision())
-                                .orElseThrow(() -> new ResourceNotFoundException("Tipo remisión no encontrado con ID: " + remisionRequest.getIdTipoRemision())));
-                        remision.setCual(remisionRequest.getCual());
-                        remision.setFecha(remisionRequest.getFecha());
-                        remisionRegistroAlmaRepository.save(remision);
-                    }
-                }
-                break;
-
-            default:
-                break;
         }
 
         registro = registroLineaAlmaRepository.save(registro);
@@ -326,7 +335,8 @@ public class LineaAlmaService {
         RegistroLineaAlma registro = registroLineaAlmaRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Registro Línea ALMA no encontrado con ID: " + id));
         AtencionAph atencionAph = atencionAphRepository.findByRegistroLineaAlmaId(id).orElse(null);
-        List<RemisionRegistroAlma> remisiones = remisionRegistroAlmaRepository.findByIdregistrolinealmaOrderByFechaDesc(id);
+        List<RemisionRegistroAlma> remisiones = remisionRegistroAlmaRepository
+                .findByIdregistrolinealmaOrderByFechaDesc(id);
         return mapToResponse(registro, atencionAph, remisiones);
     }
 
@@ -335,7 +345,8 @@ public class LineaAlmaService {
         List<RegistroLineaAlmaResponse> response = new ArrayList<>();
         for (RegistroLineaAlma registro : registroLineaAlmaRepository.findAllByOrderByFechaCreacionDesc()) {
             AtencionAph atencionAph = atencionAphRepository.findByRegistroLineaAlmaId(registro.getId()).orElse(null);
-            List<RemisionRegistroAlma> remisiones = remisionRegistroAlmaRepository.findByIdregistrolinealmaOrderByFechaDesc(registro.getId());
+            List<RemisionRegistroAlma> remisiones = remisionRegistroAlmaRepository
+                    .findByIdregistrolinealmaOrderByFechaDesc(registro.getId());
             response.add(mapToResponse(registro, atencionAph, remisiones));
         }
         return response;
@@ -344,7 +355,8 @@ public class LineaAlmaService {
     @Transactional
     public ContactoLineaAlmaResponse registrarContacto(Long idRegistro, ContactoLineaAlmaRequest request) {
         RegistroLineaAlma registro = registroLineaAlmaRepository.findById(idRegistro)
-                .orElseThrow(() -> new ResourceNotFoundException("Registro Línea ALMA no encontrado con ID: " + idRegistro));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Registro Línea ALMA no encontrado con ID: " + idRegistro));
 
         Usuario usuarioAutenticado = obtenerUsuarioAutenticado();
 
@@ -352,7 +364,8 @@ public class LineaAlmaService {
         contacto.setRegistroLineaAlma(registro);
         contacto.setFecha(request.getFecha() != null ? request.getFecha() : LocalDateTime.now());
         contacto.setResultado(resultadoContactoTelefonicoRepository.findById(request.getIdResultado())
-                .orElseThrow(() -> new ResourceNotFoundException("Resultado contacto no encontrado con ID: " + request.getIdResultado())));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Resultado contacto no encontrado con ID: " + request.getIdResultado())));
         contacto.setUsuarioCreacion(usuarioAutenticado);
         contacto.setUsuarioActualizacion(usuarioAutenticado);
 
@@ -363,23 +376,28 @@ public class LineaAlmaService {
     @Transactional(readOnly = true)
     public List<ContactoLineaAlmaResponse> listarContactos(Long idRegistro) {
         registroLineaAlmaRepository.findById(idRegistro)
-                .orElseThrow(() -> new ResourceNotFoundException("Registro Línea ALMA no encontrado con ID: " + idRegistro));
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("Registro Línea ALMA no encontrado con ID: " + idRegistro));
         return contactoLineaAlmaRepository.findByRegistroLineaAlmaIdOrderByFechaCreacionDesc(idRegistro)
                 .stream()
                 .map(this::mapContacto)
                 .toList();
     }
 
-    private AtencionAph construirAtencionAph(RegistroLineaAlma registro, AtencionAphRequest request, Usuario usuarioAutenticado) {
-        AtencionAph atencionAph = atencionAphRepository.findByRegistroLineaAlmaId(registro.getId()).orElse(new AtencionAph());
+    private AtencionAph construirAtencionAph(RegistroLineaAlma registro, AtencionAphRequest request,
+            Usuario usuarioAutenticado) {
+        AtencionAph atencionAph = atencionAphRepository.findByRegistroLineaAlmaId(registro.getId())
+                .orElse(new AtencionAph());
         atencionAph.setRegistroLineaAlma(registro);
         atencionAph.setFechaHora(request.getFechaHora());
         atencionAph.setProtocoloAph(protocoloAphRepository.findById(request.getIdProtocoloAph())
-                .orElseThrow(() -> new ResourceNotFoundException("Protocolo APH no encontrado con ID: " + request.getIdProtocoloAph())));
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Protocolo APH no encontrado con ID: " + request.getIdProtocoloAph())));
         atencionAph.setPracticoTriage(Boolean.TRUE.equals(request.getPracticoTriage()));
         if (request.getIdResultadoTriage() != null) {
             atencionAph.setResultadoTriage(resultadoTriageRepository.findById(request.getIdResultadoTriage())
-                    .orElseThrow(() -> new ResourceNotFoundException("Resultado triage no encontrado con ID: " + request.getIdResultadoTriage())));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Resultado triage no encontrado con ID: " + request.getIdResultadoTriage())));
         } else {
             atencionAph.setResultadoTriage(null);
         }
@@ -395,8 +413,8 @@ public class LineaAlmaService {
     }
 
     private RegistroLineaAlmaResponse mapToResponse(RegistroLineaAlma registro,
-                                                    AtencionAph atencionAph,
-                                                    List<RemisionRegistroAlma> remisiones) {
+            AtencionAph atencionAph,
+            List<RemisionRegistroAlma> remisiones) {
         return RegistroLineaAlmaResponse.builder()
                 .id(registro.getId())
                 .idPersona(registro.getPersona() != null ? registro.getPersona().getId() : null)
@@ -407,28 +425,34 @@ public class LineaAlmaService {
                 .quienRemite(registro.getQuienRemite() != null ? registro.getQuienRemite().getNombre() : null)
                 .idQuienRemite(registro.getQuienRemite() != null ? registro.getQuienRemite().getId() : null)
                 .fechaHoraAtencion(registro.getFechaHoraAtencion())
-                .idPersonaAtiende(registro.getPersonaAtiende() != null ? registro.getPersonaAtiende().getId().longValue() : null)
+                .idPersonaAtiende(
+                        registro.getPersonaAtiende() != null ? registro.getPersonaAtiende().getId().longValue() : null)
                 .idTipoServicio(registro.getTipoServicio() != null ? registro.getTipoServicio().getId() : null)
                 .tipoServicio(registro.getTipoServicio() != null ? registro.getTipoServicio().getNombre() : null)
                 .idPersonaRegistra(registro.getPersonaRegistra() != null ? registro.getPersonaRegistra().getId() : null)
                 .idLugarEntrevista(registro.getLugarEntrevista() != null ? registro.getLugarEntrevista().getId() : null)
-                .lugarEntrevista(registro.getLugarEntrevista() != null ? registro.getLugarEntrevista().getNombre() : null)
+                .lugarEntrevista(
+                        registro.getLugarEntrevista() != null ? registro.getLugarEntrevista().getNombre() : null)
                 .idIdentidadGenero(registro.getIdentidadGenero() != null ? registro.getIdentidadGenero().getId() : null)
-                .idOrientacionSexual(registro.getOrientacionSexual() != null ? registro.getOrientacionSexual().getId() : null)
+                .idOrientacionSexual(
+                        registro.getOrientacionSexual() != null ? registro.getOrientacionSexual().getId() : null)
                 .idEtnia(registro.getEtnia() != null ? registro.getEtnia().getId() : null)
-                .idCiudadResidencia(registro.getCiudadResidencia() != null ? registro.getCiudadResidencia().getId() : null)
+                .idCiudadResidencia(
+                        registro.getCiudadResidencia() != null ? registro.getCiudadResidencia().getId() : null)
                 .direccionResidencia(registro.getDireccionResidencia())
                 .idVinculoUdeA(registro.getVinculoUdeA() != null ? registro.getVinculoUdeA().getId() : null)
-                .idFacultad(registro.getFacultad() != null ? registro.getFacultad().getId() : null)
+                .idUnidadAcademica(registro.getUnidadAcademica() != null ? registro.getUnidadAcademica().getId() : null)
                 .idPrograma(registro.getPrograma() != null ? registro.getPrograma().getId() : null)
-                .idDependencia(registro.getDependencia() != null ? registro.getDependencia().getId() : null)
+                .idUnidadAdministrativa(
+                        registro.getUnidadAdministrativa() != null ? registro.getUnidadAdministrativa().getId() : null)
                 .idCampus(registro.getCampus() != null ? registro.getCampus().getId() : null)
                 .atencionAph(mapAtencionAph(atencionAph))
                 .remisiones(mapRemisiones(remisiones))
                 .fechaCreacion(registro.getFechaCreacion())
                 .idUsuarioCreacion(registro.getUsuarioCreacion() != null ? registro.getUsuarioCreacion().getId() : null)
                 .fechaActualizacion(registro.getFechaActualizacion())
-                .idUsuarioActualizacion(registro.getUsuarioActualizacion() != null ? registro.getUsuarioActualizacion().getId() : null)
+                .idUsuarioActualizacion(
+                        registro.getUsuarioActualizacion() != null ? registro.getUsuarioActualizacion().getId() : null)
                 .build();
     }
 
@@ -442,8 +466,10 @@ public class LineaAlmaService {
                 .idProtocoloAph(atencionAph.getProtocoloAph() != null ? atencionAph.getProtocoloAph().getId() : null)
                 .protocoloAph(atencionAph.getProtocoloAph() != null ? atencionAph.getProtocoloAph().getNombre() : null)
                 .practicoTriage(atencionAph.isPracticoTriage())
-                .idResultadoTriage(atencionAph.getResultadoTriage() != null ? atencionAph.getResultadoTriage().getId() : null)
-                .resultadoTriage(atencionAph.getResultadoTriage() != null ? atencionAph.getResultadoTriage().getNombre() : null)
+                .idResultadoTriage(
+                        atencionAph.getResultadoTriage() != null ? atencionAph.getResultadoTriage().getId() : null)
+                .resultadoTriage(
+                        atencionAph.getResultadoTriage() != null ? atencionAph.getResultadoTriage().getNombre() : null)
                 .notaAph(atencionAph.getNotaAph())
                 .motivoNoTriage(atencionAph.getMotivoNoTriage())
                 .aceptaPsicologia(atencionAph.isAceptaPsicologia())
@@ -455,7 +481,8 @@ public class LineaAlmaService {
         return remisiones.stream()
                 .map(remision -> RemisionRegistroAlmaResponse.builder()
                         .idTipoRemision(remision.getIdtiporemision())
-                        .tipoRemision(remision.getTipoRemision() != null ? remision.getTipoRemision().getNombre() : null)
+                        .tipoRemision(
+                                remision.getTipoRemision() != null ? remision.getTipoRemision().getNombre() : null)
                         .cual(remision.getCual())
                         .fecha(remision.getFecha())
                         .build())
@@ -465,7 +492,8 @@ public class LineaAlmaService {
     private ContactoLineaAlmaResponse mapContacto(ContactoLineaAlma contacto) {
         return ContactoLineaAlmaResponse.builder()
                 .id(contacto.getId())
-                .idRegistroLineaAlma(contacto.getRegistroLineaAlma() != null ? contacto.getRegistroLineaAlma().getId() : null)
+                .idRegistroLineaAlma(
+                        contacto.getRegistroLineaAlma() != null ? contacto.getRegistroLineaAlma().getId() : null)
                 .fecha(contacto.getFecha())
                 .idResultado(contacto.getResultado() != null ? contacto.getResultado().getId() : null)
                 .resultado(contacto.getResultado() != null ? contacto.getResultado().getNombre() : null)

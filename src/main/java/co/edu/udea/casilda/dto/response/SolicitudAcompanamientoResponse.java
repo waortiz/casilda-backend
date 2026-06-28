@@ -30,7 +30,7 @@ public class SolicitudAcompanamientoResponse {
     private String observacionesCorreo;
 
     // Para las tablas del componente de consulta
-    private String dependencia;
+    private String unidadAdministrativa;
     private String profesional;
     private String tipoAsignacion;
 
@@ -69,10 +69,10 @@ public class SolicitudAcompanamientoResponse {
     private String remitenteCargo;
     private Integer remitenteCampusId;
     private String remitenteCampus;
-    private Integer remitenteDependenciaId;
-    private String remitenteDependencia;
-    private Integer remitenteFacultadId;
-    private String remitenteFacultad;
+    private Integer remitenteUnidadAdministrativaId;
+    private String remitenteUnidadAdministrativa;
+    private Integer remitenteUnidadAcademicaId;
+    private String remitenteUnidadAcademica;
     private String remitenteFechaSolicitud;
     private Integer remitenteTipoDocumentoId;
     private String remitenteTipoDocumento;

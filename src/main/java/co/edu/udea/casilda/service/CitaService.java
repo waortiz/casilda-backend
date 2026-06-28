@@ -176,11 +176,11 @@ public class CitaService {
         // Para solicitudes indirectas, los datos de ubicación vienen de la remisión
         boolean esIndirecta = remision != null;
 
-        String dependenciaNombre = esIndirecta
-                ? (remision.getDependencia() != null ? remision.getDependencia().getNombre() : null)
+        String unidadAdministrativaNombre = esIndirecta
+                ? (remision.getUnidadAdministrativa() != null ? remision.getUnidadAdministrativa().getNombre() : null)
                 : null;
-        String facultadNombre = esIndirecta
-                ? (remision.getFacultad() != null ? remision.getFacultad().getNombre() : null)
+        String unidadAcademicaNombre = esIndirecta
+                ? (remision.getUnidadAcademica() != null ? remision.getUnidadAcademica().getNombre() : null)
                 : null;
         String campusNombre = esIndirecta
                 ? (remision.getCampus() != null ? remision.getCampus().getNombre() : null)
@@ -207,9 +207,9 @@ public class CitaService {
                 .motivoEstadoCita(cita.getMotivoEstadoCita() != null ? cita.getMotivoEstadoCita().getNombre() : null)
                 .observaciones(cita.getObservaciones())
                 .tipoSolicitud(sa.getTipoSolicitud() != null ? sa.getTipoSolicitud().getNombre() : null)
-                .dependencia(dependenciaNombre)
+                .unidadAdministrativa(unidadAdministrativaNombre)
                 .profesional(profesionalNombre)
-                .facultad(facultadNombre)
+                .unidadAcademica(unidadAcademicaNombre)
                 .campus(campusNombre)
                 .identidadGenero(sa.getIdentidadGenero() != null ? sa.getIdentidadGenero().getNombre() : null)
                 .celular(celular)

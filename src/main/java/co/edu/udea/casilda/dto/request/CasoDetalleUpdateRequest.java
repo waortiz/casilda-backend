@@ -9,7 +9,7 @@ public class CasoDetalleUpdateRequest {
     private String remitentePrimerApellido;
     private String remitenteSegundoApellido;
     private String cargo;
-    private String dependencia;
+    private String unidadAdministrativa;
     private String facultad;
     private String campus;
     private String pacientePrimerNombre;

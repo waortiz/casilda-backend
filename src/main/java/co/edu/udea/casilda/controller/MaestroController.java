@@ -112,16 +112,16 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerCampus());
     }
 
-    @GetMapping("/dependencias")
-    @Operation(summary = "Obtener lista de dependencias")
-    public ResponseEntity<List<MaestroDTO>> obtenerDependencias() {
-        return ResponseEntity.ok(catalogoService.obtenerDependencias());
+    @GetMapping("/unidades-administrativas")
+    @Operation(summary = "Obtener lista de unidades administrativas")
+    public ResponseEntity<List<MaestroDTO>> obtenerUnidadesAdministrativas() {
+        return ResponseEntity.ok(catalogoService.obtenerUnidadesAdministrativas());
     }
 
-    @GetMapping("/facultades")
-    @Operation(summary = "Obtener lista de facultades/escuelas/institutos")
-    public ResponseEntity<List<MaestroDTO>> obtenerFacultades() {
-        return ResponseEntity.ok(catalogoService.obtenerFacultades());
+    @GetMapping("/unidades-academicas")
+    @Operation(summary = "Obtener lista de unidades académicas/escuelas/institutos")
+    public ResponseEntity<List<MaestroDTO>> obtenerUnidadesAcademicas() {
+        return ResponseEntity.ok(catalogoService.obtenerUnidadesAcademicas());
     }
 
     @GetMapping("/roles")
@@ -142,11 +142,7 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerVinculosUdeA());
     }
 
-    @GetMapping("/subvinculos-udea")
-    @Operation(summary = "Obtener lista de sub vínculos Universidad")
-    public ResponseEntity<List<MaestroDTO>> obtenerSubVinculosUdeA() {
-        return ResponseEntity.ok(catalogoService.obtenerSubVinculosUdeA());
-    }
+
 
     @GetMapping("/formas-ocurrencia")
     @Operation(summary = "Obtener lista de formas de ocurrencia")
@@ -224,10 +220,16 @@ public class MaestroController {
     }
 
     @GetMapping("/programas")
-    @Operation(summary = "Obtener lista de programas académicos")
-    public ResponseEntity<List<MaestroDTO>> obtenerProgramas() {
+    @Operation(summary = "Obtener lista de programas académicos, opcionalmente filtrados por unidad académica y si es pregrado/posgrado")
+    public ResponseEntity<List<MaestroDTO>> obtenerProgramas(
+            @RequestParam(required = false) Integer unidadAcademicaId,
+            @RequestParam(required = false, defaultValue = "true") Boolean pregrado) {
+        if (unidadAcademicaId != null) {
+            return ResponseEntity.ok(catalogoService.obtenerProgramasPorUnidad(unidadAcademicaId, pregrado));
+        }
         return ResponseEntity.ok(catalogoService.obtenerProgramas());
     }
+
 
     @GetMapping("/resultados-contacto-telefonico")
     @Operation(summary = "Obtener lista de resultados de contacto telefónico")
@@ -444,47 +446,47 @@ public class MaestroController {
         return ResponseEntity.noContent().build();
     }
 
-    // DEPENDENCIAS
-    @PostMapping("/dependencias")
-    @Operation(summary = "Crear una nueva dependencia")
-    public ResponseEntity<MaestroDTO> crearDependencia(@Valid @RequestBody MaestroRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(catalogoService.crearDependencia(request));
+    // UNIDADES ADMINISTRATIVAS
+    @PostMapping("/unidades-administrativas")
+    @Operation(summary = "Crear una nueva unidad administrativa")
+    public ResponseEntity<MaestroDTO> crearUnidadAdministrativa(@Valid @RequestBody MaestroRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(catalogoService.crearUnidadAdministrativa(request));
     }
 
-    @PutMapping("/dependencias/{id}")
-    @Operation(summary = "Actualizar una dependencia existente")
-    public ResponseEntity<MaestroDTO> actualizarDependencia(
+    @PutMapping("/unidades-administrativas/{id}")
+    @Operation(summary = "Actualizar una unidad administrativa existente")
+    public ResponseEntity<MaestroDTO> actualizarUnidadAdministrativa(
             @PathVariable Integer id,
             @Valid @RequestBody MaestroRequest request) {
-        return ResponseEntity.ok(catalogoService.actualizarDependencia(id, request));
+        return ResponseEntity.ok(catalogoService.actualizarUnidadAdministrativa(id, request));
     }
 
-    @DeleteMapping("/dependencias/{id}")
-    @Operation(summary = "Eliminar una dependencia")
-    public ResponseEntity<Void> eliminarDependencia(@PathVariable Integer id) {
-        catalogoService.eliminarDependencia(id);
+    @DeleteMapping("/unidades-administrativas/{id}")
+    @Operation(summary = "Eliminar una unidad administrativa")
+    public ResponseEntity<Void> eliminarUnidadAdministrativa(@PathVariable Integer id) {
+        catalogoService.eliminarUnidadAdministrativa(id);
         return ResponseEntity.noContent().build();
     }
 
-    // FACULTADES
-    @PostMapping("/facultades")
-    @Operation(summary = "Crear una nueva facultad/escuela/instituto")
-    public ResponseEntity<MaestroDTO> crearFacultad(@Valid @RequestBody MaestroRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(catalogoService.crearFacultad(request));
+    // UNIDADES ACADÉMICAS
+    @PostMapping("/unidades-academicas")
+    @Operation(summary = "Crear una nueva unidad académica/escuela/instituto")
+    public ResponseEntity<MaestroDTO> crearUnidadAcademica(@Valid @RequestBody MaestroRequest request) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(catalogoService.crearUnidadAcademica(request));
     }
 
-    @PutMapping("/facultades/{id}")
-    @Operation(summary = "Actualizar una facultad existente")
-    public ResponseEntity<MaestroDTO> actualizarFacultad(
+    @PutMapping("/unidades-academicas/{id}")
+    @Operation(summary = "Actualizar una unidad académica existente")
+    public ResponseEntity<MaestroDTO> actualizarUnidadAcademica(
             @PathVariable Integer id,
             @Valid @RequestBody MaestroRequest request) {
-        return ResponseEntity.ok(catalogoService.actualizarFacultad(id, request));
+        return ResponseEntity.ok(catalogoService.actualizarUnidadAcademica(id, request));
     }
 
-    @DeleteMapping("/facultades/{id}")
-    @Operation(summary = "Eliminar una facultad")
-    public ResponseEntity<Void> eliminarFacultad(@PathVariable Integer id) {
-        catalogoService.eliminarFacultad(id);
+    @DeleteMapping("/unidades-academicas/{id}")
+    @Operation(summary = "Eliminar una unidad académica")
+    public ResponseEntity<Void> eliminarUnidadAcademica(@PathVariable Integer id) {
+        catalogoService.eliminarUnidadAcademica(id);
         return ResponseEntity.noContent().build();
     }
 

@@ -35,9 +35,9 @@ public class DatosSolicitanteRequest {
 
     private Integer campusId;
 
-    private Integer dependenciaId;
+    private Integer unidadAdministrativaId;
 
-    private Integer facultadId;
+    private Integer unidadAcademicaId;
 
     @NotNull(message = "El tipo de documento es obligatorio")
     private Integer tipoDocumentoId;

@@ -6,11 +6,11 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "dependencia")
+@Table(name = "unidadacademica")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Dependencia {
+public class UnidadAcademica {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;

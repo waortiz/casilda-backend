@@ -14,11 +14,11 @@ public class CasoResumenResponse {
     private String nombre;
     private String documento;
     private String fecha;
-    private String dependencia;
+    private String unidadAdministrativa;
     private String profesional;
     private String estado;
     private String tipoSolicitud;
-    private String facultad;
+    private String unidadAcademica;
     private String campus;
     private String genero;
     private Integer edad;

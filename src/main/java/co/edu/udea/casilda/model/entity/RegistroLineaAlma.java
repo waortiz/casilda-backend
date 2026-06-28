@@ -34,7 +34,7 @@ public class RegistroLineaAlma {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idpersona", nullable = false)
+    @JoinColumn(name = "idpersona")
     private Persona persona;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -69,7 +69,7 @@ public class RegistroLineaAlma {
     private LugarEntrevista lugarEntrevista;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ididentidadgenero", nullable = false)
+    @JoinColumn(name = "ididentidadgenero")
     private IdentidadGenero identidadGenero;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -92,16 +92,16 @@ public class RegistroLineaAlma {
     private VinculoUdeA vinculoUdeA;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idfacultad")
-    private FacultadEscuelaInstituto facultad;
+    @JoinColumn(name = "idunidadacademica")
+    private UnidadAcademica unidadAcademica;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idprograma")
     private Programa programa;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "iddependencia")
-    private Dependencia dependencia;
+    @JoinColumn(name = "idunidadadministrativa")
+    private UnidadAdministrativa unidadAdministrativa;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idcampus")

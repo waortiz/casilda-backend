@@ -34,9 +34,9 @@ public class RegistroLineaAlmaResponse {
     private Integer idCiudadResidencia;
     private String direccionResidencia;
     private Integer idVinculoUdeA;
-    private Integer idFacultad;
+    private Integer idUnidadAcademica;
     private Integer idPrograma;
-    private Integer idDependencia;
+    private Integer idUnidadAdministrativa;
     private Integer idCampus;
     private AtencionAphResponse atencionAph;
     private List<RemisionRegistroAlmaResponse> remisiones;

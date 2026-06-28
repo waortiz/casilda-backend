@@ -59,8 +59,8 @@ public class SolicitudAcompanamientoService {
     private final TipoIdentificacionRepository tipoIdentificacionRepository;
     private final IdentidadGeneroRepository identidadGeneroRepository;
     private final CampusRepository campusRepository;
-    private final DependenciaRepository dependenciaRepository;
-    private final FacultadEscuelaInstitutoRepository facultadRepository;
+    private final UnidadAdministrativaRepository unidadAdministrativaRepository;
+    private final UnidadAcademicaRepository unidadAcademicaRepository;
     private final TipoSolicitudRepository tipoSolicitudRepository;
     private final EstadoSolicitudRepository estadoSolicitudRepository;
     private final CargoRepository cargoRepository;
@@ -356,16 +356,16 @@ public class SolicitudAcompanamientoService {
         remision.setCargo(cargoRepository.findById(datos.getCargoId())
                 .orElseThrow(() -> new ResourceNotFoundException("Cargo no encontrado con ID: " + datos.getCargoId())));
 
-        if (datos.getDependenciaId() != null) {
-            remision.setDependencia(dependenciaRepository.findById(datos.getDependenciaId())
+        if (datos.getUnidadAdministrativaId() != null) {
+            remision.setUnidadAdministrativa(unidadAdministrativaRepository.findById(datos.getUnidadAdministrativaId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Dependencia no encontrada con ID: " + datos.getDependenciaId())));
+                            "Unidad administrativa no encontrada con ID: " + datos.getUnidadAdministrativaId())));
         }
 
-        if (datos.getFacultadId() != null) {
-            remision.setFacultad(facultadRepository.findById(datos.getFacultadId())
+        if (datos.getUnidadAcademicaId() != null) {
+            remision.setUnidadAcademica(unidadAcademicaRepository.findById(datos.getUnidadAcademicaId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Facultad no encontrada con ID: " + datos.getFacultadId())));
+                            "Unidad académica no encontrada con ID: " + datos.getUnidadAcademicaId())));
         }
 
         if (datos.getCampusId() != null) {
@@ -526,10 +526,10 @@ public class SolicitudAcompanamientoService {
         String remitenteCargo = "";
         Integer remitenteCampusId = null;
         String remitenteCampus = "";
-        Integer remitenteDependenciaId = null;
-        String remitenteDependencia = "";
-        Integer remitenteFacultadId = null;
-        String remitenteFacultad = "";
+        Integer remitenteUnidadAdministrativaId = null;
+        String remitenteUnidadAdministrativa = "";
+        Integer remitenteUnidadAcademicaId = null;
+        String remitenteUnidadAcademica = "";
         String remitenteFechaSolicitud = remision != null && remision.getFechaCreacion() != null
                 ? remision.getFechaCreacion().format(DATE_FORMATTER)
                 : "";
@@ -563,10 +563,10 @@ public class SolicitudAcompanamientoService {
             remitenteCargo = remision.getCargo() != null ? remision.getCargo().getNombre() : "";
             remitenteCampusId = remision.getCampus() != null ? remision.getCampus().getId() : null;
             remitenteCampus = remision.getCampus() != null ? remision.getCampus().getNombre() : "";
-            remitenteDependenciaId = remision.getDependencia() != null ? remision.getDependencia().getId() : null;
-            remitenteDependencia = remision.getDependencia() != null ? remision.getDependencia().getNombre() : "";
-            remitenteFacultadId = remision.getFacultad() != null ? remision.getFacultad().getId() : null;
-            remitenteFacultad = remision.getFacultad() != null ? remision.getFacultad().getNombre() : "";
+            remitenteUnidadAdministrativaId = remision.getUnidadAdministrativa() != null ? remision.getUnidadAdministrativa().getId() : null;
+            remitenteUnidadAdministrativa = remision.getUnidadAdministrativa() != null ? remision.getUnidadAdministrativa().getNombre() : "";
+            remitenteUnidadAcademicaId = remision.getUnidadAcademica() != null ? remision.getUnidadAcademica().getId() : null;
+            remitenteUnidadAcademica = remision.getUnidadAcademica() != null ? remision.getUnidadAcademica().getNombre() : "";
         }
 
         Integer medioSolicitudId = solicitud.getMedioSolicitud() != null ? solicitud.getMedioSolicitud().getId() : null;
@@ -635,10 +635,10 @@ public class SolicitudAcompanamientoService {
                 .remitenteCargo(remitenteCargo)
                 .remitenteCampusId(remitenteCampusId)
                 .remitenteCampus(remitenteCampus)
-                .remitenteDependenciaId(remitenteDependenciaId)
-                .remitenteDependencia(remitenteDependencia)
-                .remitenteFacultadId(remitenteFacultadId)
-                .remitenteFacultad(remitenteFacultad)
+                .remitenteUnidadAdministrativaId(remitenteUnidadAdministrativaId)
+                .remitenteUnidadAdministrativa(remitenteUnidadAdministrativa)
+                .remitenteUnidadAcademicaId(remitenteUnidadAcademicaId)
+                .remitenteUnidadAcademica(remitenteUnidadAcademica)
                 .remitenteFechaSolicitud(remitenteFechaSolicitud)
                 .remitenteTipoDocumentoId(remitenteTipoDocumentoId)
                 .remitenteTipoDocumento(remitenteTipoDocumento)
@@ -835,15 +835,15 @@ public class SolicitudAcompanamientoService {
                     .orElseThrow(() -> new ResourceNotFoundException(
                             "Campus no encontrado con ID: " + req.getRemitenteCampusId())));
         }
-        if (req.getRemitenteDependenciaId() != null) {
-            remision.setDependencia(dependenciaRepository.findById(req.getRemitenteDependenciaId())
+        if (req.getRemitenteUnidadAdministrativaId() != null) {
+            remision.setUnidadAdministrativa(unidadAdministrativaRepository.findById(req.getRemitenteUnidadAdministrativaId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Dependencia no encontrada con ID: " + req.getRemitenteDependenciaId())));
+                            "Unidad administrativa no encontrada con ID: " + req.getRemitenteUnidadAdministrativaId())));
         }
-        if (req.getRemitenteFacultadId() != null) {
-            remision.setFacultad(facultadRepository.findById(req.getRemitenteFacultadId())
+        if (req.getRemitenteUnidadAcademicaId() != null) {
+            remision.setUnidadAcademica(unidadAcademicaRepository.findById(req.getRemitenteUnidadAcademicaId())
                     .orElseThrow(() -> new ResourceNotFoundException(
-                            "Facultad no encontrada con ID: " + req.getRemitenteFacultadId())));
+                            "Unidad académica no encontrada con ID: " + req.getRemitenteUnidadAcademicaId())));
         }
     }
 

@@ -1,7 +1,6 @@
 package co.edu.udea.casilda.controller;
 
 import co.edu.udea.casilda.dto.request.ContactoLineaAlmaRequest;
-import co.edu.udea.casilda.dto.request.RegistroLineaAlmaRequest;
 import co.edu.udea.casilda.dto.response.ContactoLineaAlmaResponse;
 import co.edu.udea.casilda.dto.response.RegistroLineaAlmaResponse;
 import co.edu.udea.casilda.service.LineaAlmaService;
@@ -18,6 +17,13 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import co.edu.udea.casilda.dto.request.Pestana0LineaAlmaRequest;
+import co.edu.udea.casilda.dto.request.Pestana1LineaAlmaRequest;
+import co.edu.udea.casilda.dto.request.Pestana2LineaAlmaRequest;
+import co.edu.udea.casilda.dto.request.Pestana3LineaAlmaRequest;
+import co.edu.udea.casilda.dto.request.Pestana4LineaAlmaRequest;
+import co.edu.udea.casilda.dto.request.Pestana5LineaAlmaRequest;
+
 @RestController
 @RequestMapping("/linea-alma")
 @RequiredArgsConstructor
@@ -25,18 +31,6 @@ import java.util.List;
 public class LineaAlmaController {
 
     private final LineaAlmaService lineaAlmaService;
-
-    @PostMapping("/registros")
-    @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Crear registro Línea ALMA", description = "Crea un registro principal de Línea ALMA con información APH y remisiones. **Requiere autenticación.**")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "Registro creado exitosamente"),
-            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
-            @ApiResponse(responseCode = "404", description = "Algún recurso relacionado no fue encontrado")
-    })
-    public ResponseEntity<RegistroLineaAlmaResponse> crearRegistro(@Valid @RequestBody RegistroLineaAlmaRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(lineaAlmaService.crearRegistro(request));
-    }
 
     @GetMapping("/registros/{id}")
     @SecurityRequirement(name = "bearerAuth")
@@ -78,12 +72,51 @@ public class LineaAlmaController {
         return ResponseEntity.ok(lineaAlmaService.listarContactos(idRegistro));
     }
 
-    @PostMapping("/registros/pestana/{tabIndex}")
+    @PostMapping("/registros/pestana/0")
     @SecurityRequirement(name = "bearerAuth")
-    @Operation(summary = "Registrar pestaña de Línea ALMA", description = "Registra una pestaña individual de Línea ALMA. **Requiere autenticación.**")
-    public ResponseEntity<RegistroLineaAlmaResponse> registrarPestana(
-            @PathVariable int tabIndex,
-            @Valid @RequestBody RegistroLineaAlmaRequest request) {
-        return ResponseEntity.ok(lineaAlmaService.registrarPestana(tabIndex, request));
+    @Operation(summary = "Registrar pestaña 0 (Caso) de Línea ALMA")
+    public ResponseEntity<RegistroLineaAlmaResponse> registrarPestana0(
+            @Valid @RequestBody Pestana0LineaAlmaRequest request) {
+        return ResponseEntity.ok(lineaAlmaService.registrarPestana0(request));
+    }
+
+    @PostMapping("/registros/pestana/1")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Registrar pestaña 1 (Persona) de Línea ALMA")
+    public ResponseEntity<RegistroLineaAlmaResponse> registrarPestana1(
+            @Valid @RequestBody Pestana1LineaAlmaRequest request) {
+        return ResponseEntity.ok(lineaAlmaService.registrarPestana1(request));
+    }
+
+    @PostMapping("/registros/pestana/2")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Registrar pestaña 2 (Complementarios) de Línea ALMA")
+    public ResponseEntity<RegistroLineaAlmaResponse> registrarPestana2(
+            @Valid @RequestBody Pestana2LineaAlmaRequest request) {
+        return ResponseEntity.ok(lineaAlmaService.registrarPestana2(request));
+    }
+
+    @PostMapping("/registros/pestana/3")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Registrar pestaña 3 (APH) de Línea ALMA")
+    public ResponseEntity<RegistroLineaAlmaResponse> registrarPestana3(
+            @Valid @RequestBody Pestana3LineaAlmaRequest request) {
+        return ResponseEntity.ok(lineaAlmaService.registrarPestana3(request));
+    }
+
+    @PostMapping("/registros/pestana/4")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Registrar pestaña 4 (Contactos) de Línea ALMA")
+    public ResponseEntity<RegistroLineaAlmaResponse> registrarPestana4(
+            @Valid @RequestBody Pestana4LineaAlmaRequest request) {
+        return ResponseEntity.ok(lineaAlmaService.registrarPestana4(request));
+    }
+
+    @PostMapping("/registros/pestana/5")
+    @SecurityRequirement(name = "bearerAuth")
+    @Operation(summary = "Registrar pestaña 5 (Remisiones) de Línea ALMA")
+    public ResponseEntity<RegistroLineaAlmaResponse> registrarPestana5(
+            @Valid @RequestBody Pestana5LineaAlmaRequest request) {
+        return ResponseEntity.ok(lineaAlmaService.registrarPestana5(request));
     }
 }

@@ -17,9 +17,13 @@ public class Programa {
     @Column(nullable = false)
     private String nombre;
 
-    @Column(unique = true, nullable = false)
-    private String codigo;
+    @Column(name = "idunidadacademica", nullable = false)
+    private Integer idunidadacademica;
 
-    @Column(nullable = false)
-    private String descripcion;
+    @Column(name = "aplicapregrado", nullable = false)
+    private Boolean aplicapregrado;
+
+    @Column(name = "aplicaposgrado", nullable = false)
+    private Boolean aplicaposgrado;
 }
+

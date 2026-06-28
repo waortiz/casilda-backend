@@ -42,7 +42,7 @@ public class DatosRemitenteRequest {
 
     private Integer campusId;
 
-    private Integer dependenciaId;
+    private Integer unidadAdministrativaId;
 
-    private Integer facultadId;
+    private Integer unidadAcademicaId;
 }
