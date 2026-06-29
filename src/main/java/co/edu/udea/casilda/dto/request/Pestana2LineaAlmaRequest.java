@@ -1,5 +1,7 @@
 package co.edu.udea.casilda.dto.request;
 
+import java.util.List;
+
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
@@ -15,4 +17,7 @@ public class Pestana2LineaAlmaRequest {
     private Integer idPrograma;
     private Integer idUnidadAdministrativa;
     private Integer idCampus;
+
+    private List<CorreoSolicitanteRequest> correos;
+    private List<TelefonoSolicitanteRequest> telefonos;
 }

@@ -4,6 +4,7 @@ import co.edu.udea.casilda.dto.request.*;
 import co.edu.udea.casilda.dto.response.ContactoTelefonicoResponse;
 import co.edu.udea.casilda.dto.response.CorreoBusquedaResponse;
 import co.edu.udea.casilda.dto.response.PersonaSearchResponse;
+import co.edu.udea.casilda.dto.response.DiscapacidadPersonaResponse;
 import co.edu.udea.casilda.dto.response.ProfesionalResponse;
 import co.edu.udea.casilda.dto.response.SolicitudAcompanamientoResponse;
 import co.edu.udea.casilda.dto.response.TelefonoBusquedaResponse;
@@ -178,6 +179,20 @@ public class SolicitudAcompanamientoService {
                                                 : t.getIdtipo())
                                         .tipo(t.getTipoTelefono() != null ? t.getTipoTelefono().getNombre() : null)
                                         .telefono(t.getTelefono())
+                                        .build())
+                                .collect(Collectors.toList()))
+                .sexoId(persona.getSexo() != null ? persona.getSexo().getId() : null)
+                .ciudadNacimientoId(persona.getCiudadNacimiento() != null ? persona.getCiudadNacimiento().getId() : null)
+                .departamentoNacimientoId(persona.getCiudadNacimiento() != null && persona.getCiudadNacimiento().getDepartamento() != null
+                        ? persona.getCiudadNacimiento().getDepartamento().getId() : null)
+                .discapacidades(persona.getDiscapacidades() == null ? List.of()
+                        : persona.getDiscapacidades().stream()
+                                .map(d -> DiscapacidadPersonaResponse.builder()
+                                        .idSubTipoDiscapacidad(d.getIdsubtipodiscapacidad())
+                                        .subTipo(d.getSubTipoDiscapacidad() != null ? d.getSubTipoDiscapacidad().getNombre() : null)
+                                        .tipo(d.getSubTipoDiscapacidad() != null && d.getSubTipoDiscapacidad().getTipo() != null
+                                                ? d.getSubTipoDiscapacidad().getTipo().getNombre() : null)
+                                        .descripcion(d.getDescripcion())
                                         .build())
                                 .collect(Collectors.toList()))
                 .build();

@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import java.time.LocalDateTime;
 
+import java.util.List;
+
 @Data
 public class Pestana1LineaAlmaRequest {
     @NotNull(message = "El ID del registro es obligatorio")
@@ -32,6 +34,7 @@ public class Pestana1LineaAlmaRequest {
     private Integer idCiudadNacimiento;
 
     private LocalDateTime fechaNacimiento;
+    private Integer idSexo;
 
     @NotNull(message = "La identidad de género es obligatoria")
     private Integer idIdentidadGenero;
@@ -40,4 +43,5 @@ public class Pestana1LineaAlmaRequest {
     private Integer idEtnia;
     private Integer idCiudadResidencia;
     private String direccionResidencia;
+    private List<DiscapacidadPersonaRequest> discapacidades;
 }

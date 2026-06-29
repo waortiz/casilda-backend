@@ -29,4 +29,10 @@ public class PersonaSearchResponse {
 
     private List<CorreoBusquedaResponse> correos;
     private List<TelefonoBusquedaResponse> telefonos;
+
+    private Integer sexoId;
+    private Integer ciudadNacimientoId;
+    private Integer departamentoNacimientoId;
+
+    private List<DiscapacidadPersonaResponse> discapacidades;
 }

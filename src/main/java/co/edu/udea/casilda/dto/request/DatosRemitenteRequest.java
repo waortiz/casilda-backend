@@ -1,7 +1,5 @@
 package co.edu.udea.casilda.dto.request;
 
-import java.time.LocalDate;
-
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

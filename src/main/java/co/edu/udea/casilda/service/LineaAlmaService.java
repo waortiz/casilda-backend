@@ -2,7 +2,10 @@ package co.edu.udea.casilda.service;
 
 import co.edu.udea.casilda.dto.request.AtencionAphRequest;
 import co.edu.udea.casilda.dto.request.ContactoLineaAlmaRequest;
+import co.edu.udea.casilda.dto.request.CorreoSolicitanteRequest;
 import co.edu.udea.casilda.dto.request.RemisionRegistroAlmaRequest;
+import co.edu.udea.casilda.dto.request.TelefonoSolicitanteRequest;
+import co.edu.udea.casilda.dto.request.DiscapacidadPersonaRequest;
 import co.edu.udea.casilda.dto.request.Pestana0LineaAlmaRequest;
 import co.edu.udea.casilda.dto.request.Pestana1LineaAlmaRequest;
 import co.edu.udea.casilda.dto.request.Pestana2LineaAlmaRequest;
@@ -39,6 +42,12 @@ public class LineaAlmaService {
     private final ContactoLineaAlmaRepository contactoLineaAlmaRepository;
 
     private final PersonaRepository personaRepository;
+    private final SexoRepository sexoRepository;
+    private final CorreoPersonaRepository correoPersonaRepository;
+    private final TelefonoPersonaRepository telefonoPersonaRepository;
+    private final TipoCorreoRepository tipoCorreoRepository;
+    private final TipoTelefonoRepository tipoTelefonoRepository;
+    private final SubTipoDiscapacidadRepository subTipoDiscapacidadRepository;
     private final TipoReporteAlmaRepository tipoReporteAlmaRepository;
     private final CanalContactoRepository canalContactoRepository;
     private final UsuarioRepository usuarioRepository;
@@ -59,8 +68,6 @@ public class LineaAlmaService {
     private final TipoRemisionRepository tipoRemisionRepository;
     private final ResultadoContactoTelefonicoRepository resultadoContactoTelefonicoRepository;
     private final ActorRemitenteRepository actorRemitenteRepository;
-
-
 
     @Transactional
     public RegistroLineaAlmaResponse registrarPestana0(Pestana0LineaAlmaRequest request) {
@@ -136,6 +143,9 @@ public class LineaAlmaService {
             persona.setCiudadNacimiento(request.getIdCiudadNacimiento() != null
                     ? municipioRepository.findById(request.getIdCiudadNacimiento()).orElse(null)
                     : municipioRepository.findAll().stream().findFirst().orElse(null));
+            if (request.getIdSexo() != null) {
+                persona.setSexo(sexoRepository.findById(request.getIdSexo()).orElse(null));
+            }
             persona = personaRepository.save(persona);
         }
 
@@ -162,6 +172,27 @@ public class LineaAlmaService {
             if (request.getIdCiudadNacimiento() != null) {
                 persona.setCiudadNacimiento(municipioRepository.findById(request.getIdCiudadNacimiento()).orElse(null));
             }
+            if (request.getIdSexo() != null) {
+                persona.setSexo(sexoRepository.findById(request.getIdSexo()).orElse(null));
+            }
+
+            // Update disabilities
+            persona.getDiscapacidades().clear();
+            if (request.getDiscapacidades() != null && !request.getDiscapacidades().isEmpty()) {
+                for (DiscapacidadPersonaRequest req : request.getDiscapacidades()) {
+                    if (req.getIdSubTipoDiscapacidad() == null) continue;
+                    SubTipoDiscapacidad subTipo = subTipoDiscapacidadRepository.findById(req.getIdSubTipoDiscapacidad()).orElse(null);
+                    if (subTipo == null) continue;
+                    DiscapacidadPersona dp = new DiscapacidadPersona();
+                    dp.setIdpersona(persona.getId());
+                    dp.setIdsubtipodiscapacidad(subTipo.getId());
+                    dp.setPersona(persona);
+                    dp.setSubTipoDiscapacidad(subTipo);
+                    dp.setDescripcion(req.getDescripcion() != null ? req.getDescripcion().trim() : "");
+                    persona.getDiscapacidades().add(dp);
+                }
+            }
+
             personaRepository.save(persona);
         }
 
@@ -244,6 +275,59 @@ public class LineaAlmaService {
             registro.setCampus(campusRepository.findById(request.getIdCampus()).orElse(null));
         } else {
             registro.setCampus(null);
+        }
+
+        Persona persona = registro.getPersona();
+        if (persona != null) {
+            // Update correos
+            List<CorreoPersona> existingCorreos = correoPersonaRepository.findByIdpersona(persona.getId());
+            correoPersonaRepository.deleteAll(existingCorreos);
+
+            if (request.getCorreos() != null && !request.getCorreos().isEmpty()) {
+                List<TipoCorreo> tiposCorreo = tipoCorreoRepository.findAll();
+                for (CorreoSolicitanteRequest req : request.getCorreos()) {
+                    if (req.getCorreo() == null || req.getCorreo().isBlank())
+                        continue;
+                    TipoCorreo tipo = tiposCorreo.stream()
+                            .filter(t -> t.getId().equals(req.getTipoId()))
+                            .findFirst()
+                            .orElse(tiposCorreo.stream().findFirst().orElse(null));
+                    if (tipo == null)
+                        continue;
+                    CorreoPersona correo = new CorreoPersona();
+                    correo.setIdpersona(persona.getId());
+                    correo.setIdtipo(tipo.getId());
+                    correo.setPersona(persona);
+                    correo.setTipoCorreo(tipo);
+                    correo.setCorreo(req.getCorreo());
+                    correoPersonaRepository.save(correo);
+                }
+            }
+
+            // Update telefonos
+            List<TelefonoPersona> existingTelefonos = telefonoPersonaRepository.findByIdpersona(persona.getId());
+            telefonoPersonaRepository.deleteAll(existingTelefonos);
+
+            if (request.getTelefonos() != null && !request.getTelefonos().isEmpty()) {
+                List<TipoTelefono> tiposTelefono = tipoTelefonoRepository.findAll();
+                for (TelefonoSolicitanteRequest req : request.getTelefonos()) {
+                    if (req.getTelefono() == null || req.getTelefono().isBlank())
+                        continue;
+                    TipoTelefono tipo = tiposTelefono.stream()
+                            .filter(t -> t.getId().equals(req.getTipoId()))
+                            .findFirst()
+                            .orElse(tiposTelefono.stream().findFirst().orElse(null));
+                    if (tipo == null)
+                        continue;
+                    TelefonoPersona telefono = new TelefonoPersona();
+                    telefono.setIdpersona(persona.getId());
+                    telefono.setIdtipo(tipo.getId());
+                    telefono.setPersona(persona);
+                    telefono.setTipoTelefono(tipo);
+                    telefono.setTelefono(req.getTelefono());
+                    telefonoPersonaRepository.save(telefono);
+                }
+            }
         }
 
         registro = registroLineaAlmaRepository.save(registro);
