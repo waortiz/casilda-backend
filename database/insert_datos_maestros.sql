@@ -516,12 +516,11 @@ INSERT INTO vinculoudea (id, nombre) VALUES
 (6, 'Docente de Cátedra'),
 (7, 'Contratista'),
 (8, 'Otro tipo de vínculo'),
-(9, 'Estudiante de Tecnología'),
-(10, 'Estudiante de Posgrado'),
-(11, 'Docente Cátedra 50'),
-(12, 'Jubilado / Pensionado'),
-(13, 'Prestador de Servicios'),
-(14, 'Externo')
+(9, 'Estudiante de Posgrado'),
+(10, 'Docente Cátedra 50'),
+(11, 'Jubilado / Pensionado'),
+(12, 'Prestador de Servicios'),
+(13, 'Externo')
 ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre;
 
 -- ============================================================================

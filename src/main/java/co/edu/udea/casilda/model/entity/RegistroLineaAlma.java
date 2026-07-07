@@ -130,6 +130,12 @@ public class RegistroLineaAlma {
     @OneToMany(mappedBy = "registroLineaAlma", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ContactoLineaAlma> contactos = new ArrayList<>();
 
+    @Column(name = "observacionescorreo", length = 500, nullable = true)
+    private String observacionesCorreo;
+
+    @Column(name = "observacionestelefono", length = 500, nullable = true)
+    private String observacionesTelefono;
+
     @PrePersist
     protected void onCreate() {
         if (fechaCreacion == null) {

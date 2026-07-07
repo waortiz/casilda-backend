@@ -44,4 +44,6 @@ public class RegistroLineaAlmaResponse {
     private Long idUsuarioCreacion;
     private LocalDateTime fechaActualizacion;
     private Long idUsuarioActualizacion;
+    private String observacionesCorreo;
+    private String observacionesTelefono;
 }

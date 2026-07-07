@@ -20,4 +20,7 @@ public class Pestana2LineaAlmaRequest {
 
     private List<CorreoSolicitanteRequest> correos;
     private List<TelefonoSolicitanteRequest> telefonos;
+
+    private String observacionesCorreo;
+    private String observacionesTelefono;
 }

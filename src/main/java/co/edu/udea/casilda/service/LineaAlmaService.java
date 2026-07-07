@@ -330,6 +330,9 @@ public class LineaAlmaService {
             }
         }
 
+        registro.setObservacionesCorreo(request.getObservacionesCorreo());
+        registro.setObservacionesTelefono(request.getObservacionesTelefono());
+
         registro = registroLineaAlmaRepository.save(registro);
         return obtenerPorId(registro.getId());
     }
@@ -537,6 +540,8 @@ public class LineaAlmaService {
                 .fechaActualizacion(registro.getFechaActualizacion())
                 .idUsuarioActualizacion(
                         registro.getUsuarioActualizacion() != null ? registro.getUsuarioActualizacion().getId() : null)
+                .observacionesCorreo(registro.getObservacionesCorreo())
+                .observacionesTelefono(registro.getObservacionesTelefono())
                 .build();
     }
 
