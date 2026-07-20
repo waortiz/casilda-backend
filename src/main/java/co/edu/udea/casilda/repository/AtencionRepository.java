@@ -10,5 +10,6 @@ import java.util.Optional;
  */
 @Repository
 public interface AtencionRepository extends JpaRepository<Atencion, Long> {
-    Optional<Atencion> findByCitaId(Long citaId);
+    Optional<Atencion> findByCasoCitaId(Long citaId);
+    Optional<Atencion> findByCasoId(Long casoId);
 }

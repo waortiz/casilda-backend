@@ -25,42 +25,8 @@ public class Atencion {
     private EstadoAtencion estadoAtencion;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idcita", nullable = false)
-    private Cita cita;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idetnia")
-    private Etnia etnia;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idciudadresidencia")
-    private Municipio ciudadResidencia;
-
-    @Column(name = "direccionresidencia", length = 500)
-    private String direccionResidencia;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idprograma")
-    private Programa programa;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idunidadadministrativa")
-    private UnidadAdministrativa unidadAdministrativa;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idunidadacademica")
-    private UnidadAcademica unidadAcademica;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idcampus")
-    private Campus campus;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idvinculoudea")
-    private VinculoUdeA vinculoUdeA;
-
-    @Column(name = "otrovinculo", length = 255)
-    private String otroVinculo;
+    @JoinColumn(name = "idcaso", nullable = false)
+    private Caso caso;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idtiposervicio")
@@ -69,14 +35,6 @@ public class Atencion {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idlugarentrevista")
     private LugarEntrevista lugarEntrevista;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idregimen")
-    private Regimen regimen;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ideps")
-    private EPS eps;
 
     @Column(name = "logroacuerdo", nullable = false)
     private boolean logroAcuerdo;

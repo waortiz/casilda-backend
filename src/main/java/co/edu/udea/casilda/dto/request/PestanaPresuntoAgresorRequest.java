@@ -4,8 +4,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class Pestana5Request {
-    private Long citaId;
-    private Long idAtencion;
+public class PestanaPresuntoAgresorRequest {
     private List<AgresorVictimaRequest> agresores;
+    private Long idCaso;
 }

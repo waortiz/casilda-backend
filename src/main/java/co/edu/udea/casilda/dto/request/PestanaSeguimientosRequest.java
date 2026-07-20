@@ -4,8 +4,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class Pestana9Request {
-    private Long citaId;
+public class PestanaSeguimientosRequest {
     private Long idAtencion;
-    private List<MedidaProteccionRequest> medidas;
+    private List<SeguimientoAtencionRequest> seguimientos;
 }

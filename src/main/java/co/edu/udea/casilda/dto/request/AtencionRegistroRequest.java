@@ -10,7 +10,7 @@ import lombok.Data;
 public class AtencionRegistroRequest {
 
     @NotNull
-    private Long citaId;
+    private Long casoId;
 
     private Long idAtencion;
 

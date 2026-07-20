@@ -1,12 +1,14 @@
 package co.edu.udea.casilda.dto.request;
 
 import lombok.Data;
+import java.util.List;
 
 @Data
-public class Pestana1Request {
+public class PestanaDatosPersonaRequest {
     private Long citaId;
-    private Long idAtencion;
+    private Long idCaso;
     private PersonaAtencionRequest persona;
     private Integer idRegimen;
     private Integer idEps;
+    private List<DiscapacidadPersonaRequest> discapacidades;
 }

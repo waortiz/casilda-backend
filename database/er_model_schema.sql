@@ -103,19 +103,21 @@ CREATE TABLE discapacidadpersona (
 );
 
 CREATE TABLE correopersona (
+    id bigserial NOT NULL,
     idpersona INT NOT NULL,
     idtipo integer not null,
     correo character varying COLLATE pg_catalog."default" NOT NULL,
-    constraint correopersona_idpersona_tipo_fkey UNIQUE (idpersona, idtipo),
+    CONSTRAINT correopersona_pkey PRIMARY KEY (id),
     CONSTRAINT correopersona_idpersona_fkey FOREIGN KEY (idpersona) REFERENCES persona(id) ON DELETE NO ACTION,
     CONSTRAINT correopersona_idtipo_fkey FOREIGN KEY (idtipo) REFERENCES tipocorreo(id) ON DELETE NO ACTION
 );
 
 CREATE TABLE telefonopersona (
+    id bigserial not null,
     idpersona INT NOT NULL,
     idtipo integer not null,
     telefono character varying COLLATE pg_catalog."default" NOT NULL,
-    constraint telefonopersona_idpersona_tipo_fkey UNIQUE (idpersona, idtipo),
+    CONSTRAINT telefonopersona_pkey PRIMARY KEY (id),
     CONSTRAINT telefonopersona_idpersona_fkey FOREIGN KEY (idpersona) REFERENCES persona(id) ON DELETE NO ACTION,
     CONSTRAINT telefonopersona_idtipo_fkey FOREIGN KEY (idtipo) REFERENCES tipotelefono(id) ON DELETE NO ACTION
 );
@@ -291,10 +293,6 @@ CREATE TABLE usuario (
     constraint usuario_idrol_fkey FOREIGN KEY (idrol) REFERENCES rol(id) ON DELETE NO ACTION
 );
 
-ALTER TABLE caso
-    ADD CONSTRAINT caso_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
-    ADD CONSTRAINT caso_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION;
-
 CREATE TABLE cargo (
     id int NOT NULL,
     nombre character varying COLLATE pg_catalog."default" NOT NULL,
@@ -355,15 +353,54 @@ CREATE TABLE solicitudatencion (
 );
 
 
+CREATE TABLE cita (
+    id bigserial NOT NULL,
+    idsolicitudatencion bigint not null,
+    fecha timestamp without time zone NOT NULL,
+    idestadocita INT not null,
+    idmotivoestadocita int,
+    observaciones character varying COLLATE pg_catalog."default",
+    fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuariocreacion bigint,
+    fechaactualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    idusuarioactualizacion bigint,
+    constraint cita_pkey PRIMARY KEY (id),
+    constraint cita_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION,
+    constraint cita_idestadocita_fkey FOREIGN KEY (idestadocita) REFERENCES estadocita(id) ON DELETE NO ACTION,
+    constraint cita_idmotivoestadocita_fkey FOREIGN KEY (idmotivoestadocita) REFERENCES motivoestadocita(id) ON DELETE NO ACTION,
+    constraint cita_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
+    constraint cita_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION
+);
+
+CREATE TABLE estadocaso (
+    id int not null,
+    nombre character varying COLLATE pg_catalog."default" NOT NULL,
+    constraint estadocaso_pkey PRIMARY KEY (id)
+);
+
 CREATE TABLE caso (
     id bigserial NOT NULL,
-    idsolicitud bigint not null,
+    idcita bigint not null,
     codigo character varying COLLATE pg_catalog."default" UNIQUE NOT NULL,
-    idorientacionsexual INT,
+
+    idregimen int not null,
+    ideps int not null,
+    idciudadresidencia int,
+    direccionresidencia character varying COLLATE pg_catalog."default",
     ididentidadgenero int not null,
+    idorientacionsexual INT,
+    idetnia INT,
+    idvinculoudea INT,
+    otrovinculo character varying COLLATE pg_catalog."default",
+    idprograma int,
+    idunidadacademica INT,
+    idunidadadministrativa INT,
+    idcampus INT,
+
     hacecuantooccurrio integer,
     idtiempoocurridounidad INT,
     idformaocurrencia INT,
+    idciudadhechos INT,
     idlugarocurrencia INT,
     violenciabasadagenero boolean,
     hechoviolenciaocurrioactividadesmisionales boolean,
@@ -375,18 +412,31 @@ CREATE TABLE caso (
     tipoviolenciaeconomicapatrimonial boolean,
     tipoviolenciasexualinformatica boolean,
     tipoviolenciaporprejuicio boolean,
+    
+    idestadocaso int,
+
     fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     idusuariocreacion bigint,
     fechaactualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     idusuarioactualizacion bigint,
+
     CONSTRAINT caso_pkey PRIMARY KEY (id),
-    constraint caso_idsolicitud_fkey FOREIGN KEY (idsolicitud) REFERENCES solicitudatencion(id) ON DELETE NO ACTION,
+    constraint caso_idcita_fkey FOREIGN KEY (idcita) REFERENCES cita(id) ON DELETE NO ACTION,
+    constraint caso_idvinculoudea_fkey FOREIGN KEY (idvinculoudea) REFERENCES vinculoudea(id) ON DELETE NO ACTION,
+    constraint caso_idprograma_fkey FOREIGN KEY (idprograma) REFERENCES programa(id) ON DELETE NO ACTION,
+    constraint caso_idunidadacademica_fkey FOREIGN KEY (idunidadacademica) REFERENCES unidadacademica(id) ON DELETE NO ACTION,
+    constraint caso_idunidadadministrativa_fkey FOREIGN KEY (idunidadadministrativa) REFERENCES unidadadministrativa(id) ON DELETE NO ACTION,
+    constraint caso_idcampus_fkey FOREIGN KEY (idcampus) REFERENCES campus(id) ON DELETE NO ACTION,
     constraint caso_idorientacionsexual_fkey FOREIGN KEY (idorientacionsexual) REFERENCES orientacionsexual(id) ON DELETE NO ACTION,
     constraint caso_ididentidadgenero_fkey FOREIGN KEY (ididentidadgenero) REFERENCES identidadgenero(id) ON DELETE NO ACTION,
+    constraint caso_idciudadhechos_fkey FOREIGN KEY (idciudadhechos) REFERENCES ciudad(id) ON DELETE NO ACTION,
     constraint caso_idformaocurrencia_fkey FOREIGN KEY (idformaocurrencia) REFERENCES formaocurrencia(id) ON DELETE NO ACTION,
     constraint caso_idlugarocurrencia_fkey FOREIGN KEY (idlugarocurrencia) REFERENCES lugarocurrencia(id) ON DELETE NO ACTION,
     constraint caso_idactivadmisional_fkey FOREIGN KEY (idactivadmisional) REFERENCES actividadmisional(id) ON DELETE NO ACTION,
-    constraint caso_idtiempoocurridounidad_fkey FOREIGN KEY (idtiempoocurridounidad) REFERENCES tiempoocurridounidad(id) ON DELETE NO ACTION
+    constraint caso_idtiempoocurridounidad_fkey FOREIGN KEY (idtiempoocurridounidad) REFERENCES tiempoocurridounidad(id) ON DELETE NO ACTION,
+    constraint caso_idestadocaso_fkey FOREIGN KEY  (idestadocaso) REFERENCES estadocaso(id) ON DELETE NO ACTION, 
+    CONSTRAINT caso_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
+    CONSTRAINT caso_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION
 );
 
 CREATE TABLE resultadocontactotelefonico (
@@ -483,25 +533,6 @@ CREATE TABLE motivoestadocita (
     constraint motivoestadocita_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE cita (
-    id bigserial NOT NULL,
-    idsolicitudatencion bigint not null,
-    fecha timestamp without time zone NOT NULL,
-    idestadocita INT not null,
-    idmotivoestadocita int,
-    observaciones character varying COLLATE pg_catalog."default",
-    fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    idusuariocreacion bigint,
-    fechaactualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    idusuarioactualizacion bigint,
-    constraint cita_pkey PRIMARY KEY (id),
-    constraint cita_idsolicitudatencion_fkey FOREIGN KEY (idsolicitudatencion) REFERENCES solicitudatencion(id) ON DELETE NO ACTION,
-    constraint cita_idestadocita_fkey FOREIGN KEY (idestadocita) REFERENCES estadocita(id) ON DELETE NO ACTION,
-    constraint cita_idmotivoestadocita_fkey FOREIGN KEY (idmotivoestadocita) REFERENCES motivoestadocita(id) ON DELETE NO ACTION,
-    constraint cita_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
-    constraint cita_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION
-);
-
 CREATE TABLE estadoatencion (
     id int not null,
     nombre character varying COLLATE pg_catalog."default" NOT NULL,
@@ -511,40 +542,19 @@ CREATE TABLE estadoatencion (
 CREATE TABLE atencion (
     id bigserial NOT NULL,
     idestadoatencion int not null,
-    idcita bigint not null,
-    idetnia INT,
-    idciudadresidencia int,
-    direccionresidencia character varying COLLATE pg_catalog."default",
-    idprograma int,
-    idunidadadministrativa INT,
-    idunidadacademica INT,
-    idcampus INT,
-    idvinculoudea INT,
-    otrovinculo character varying COLLATE pg_catalog."default",
+    idcaso bigint not null,
     idtiposervicio int not null,
     idlugarentrevista int not null,
-    idregimen int not null,
-    ideps int not null,
     logroacuerdo boolean NOT NULL,
     fechacreacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     idusuariocreacion bigint,
     fechaactualizacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     idusuarioactualizacion bigint,
     constraint atencion_pkey PRIMARY KEY (id),
-    constraint atencion_idcita_fkey FOREIGN KEY (idcita) REFERENCES cita(id) ON DELETE NO ACTION,
+    constraint atencion_idcaso_fkey FOREIGN KEY (idcaso) REFERENCES caso(id) ON DELETE NO ACTION,
     constraint atencion_idestadoatencion_fkey FOREIGN KEY (idestadoatencion) REFERENCES estadoatencion(id) ON DELETE NO ACTION,
-    constraint atencion_idetnia_fkey FOREIGN KEY (idetnia) REFERENCES etnia(id) ON DELETE NO ACTION,
-    constraint atencion_idciudadresidencia_fkey FOREIGN KEY (idciudadresidencia) REFERENCES municipio(id) ON DELETE NO ACTION,
-    constraint atencion_idprograma_fkey FOREIGN KEY (idprograma) REFERENCES programa(id) ON DELETE NO ACTION,
-    constraint atencion_idunidadadministrativa_fkey FOREIGN KEY (idunidadadministrativa) REFERENCES unidadadministrativa(id) ON DELETE NO ACTION,
-    constraint atencion_idunidadacademica_fkey FOREIGN KEY (idunidadacademica) REFERENCES unidadacademica(id) ON DELETE NO ACTION,
-    constraint atencion_idcampus_fkey FOREIGN KEY (idcampus) REFERENCES campus(id) ON DELETE NO ACTION,
-    constraint atencion_idvinculoudea_fkey FOREIGN KEY (idvinculoudea) REFERENCES vinculoudea(id) ON DELETE NO ACTION,
-    constraint atencion_idsubvinculoudea_fkey FOREIGN KEY (idsubvinculoudea) REFERENCES subvinculoudea(id) ON DELETE NO ACTION,
     constraint atencion_idtiposervicio_fkey FOREIGN KEY (idtiposervicio) REFERENCES tiposervicio(id) ON DELETE NO ACTION,
     constraint atencion_idlugarentrevista_fkey FOREIGN KEY (idlugarentrevista) REFERENCES lugarentrevista(id) ON DELETE NO ACTION,   
-    constraint atencion_idregimen_fkey FOREIGN KEY (idregimen) REFERENCES regimen(id) ON DELETE NO ACTION,
-    constraint atencion_ideps_fkey FOREIGN KEY (ideps) REFERENCES eps(id) ON DELETE NO ACTION,
     constraint atencion_idusuariocreacion_fkey FOREIGN KEY (idusuariocreacion) REFERENCES usuario(id) ON DELETE NO ACTION,
     constraint atencion_idusuarioactualizacion_fkey FOREIGN KEY (idusuarioactualizacion) REFERENCES usuario(id) ON DELETE NO ACTION
 );
@@ -724,7 +734,7 @@ CREATE TABLE archivoseguimientoatencion (
     constraint archivoseguimientoatencion_idseguimientoatencion_fkey FOREIGN KEY (idseguimientoatencion) REFERENCES seguimientoatencion(id) ON DELETE NO ACTION
 );
 
-CREATE TABLE IF NOT EXISTS presuntoagresor (
+CREATE TABLE presuntoagresor (
     id bigserial NOT NULL,
     idcaso bigint NOT NULL,
     primernombre character varying(255),
@@ -739,13 +749,13 @@ CREATE TABLE IF NOT EXISTS presuntoagresor (
     CONSTRAINT presuntoagresor_idvinculoagresorvictima_fkey FOREIGN KEY (idvinculoagresorvictima) REFERENCES vinculoagresorvictima(id)
 );
 
-CREATE TABLE IF NOT EXISTS tipomedida (
+CREATE TABLE tipomedida (
     id serial NOT NULL,
     nombre character varying(255) NOT NULL,
     CONSTRAINT tipomedida_pkey PRIMARY KEY (id)
 );
 
-CREATE TABLE IF NOT EXISTS subtipomedida (
+CREATE TABLE subtipomedida (
     id serial NOT NULL,
     nombre character varying(255) NOT NULL,
     idtipomedida integer NOT NULL,
@@ -753,7 +763,7 @@ CREATE TABLE IF NOT EXISTS subtipomedida (
     CONSTRAINT subtipomedida_idtipomedida_fkey FOREIGN KEY (idtipomedida) REFERENCES tipomedida(id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS responsablemedidaproteccion (
+CREATE TABLE responsablemedidaproteccion (
     id serial NOT NULL,
     nombre character varying(255) NOT NULL,
     CONSTRAINT responsablemedidaproteccion_pkey PRIMARY KEY (id)

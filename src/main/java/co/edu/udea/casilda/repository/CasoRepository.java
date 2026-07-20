@@ -39,9 +39,14 @@ public interface CasoRepository extends JpaRepository<Caso, Long> {
     int findMaxSequentialNumberByYear(@org.springframework.data.repository.query.Param("year") int year);
 
     /**
-     * Lista los casos asociados a una solicitud.
+     * Lista los casos asociados a una solicitud (a través de la cita).
      */
-    List<Caso> findBySolicitudAtencionIdOrderByFechaCreacionDesc(Long solicitudId);
+    List<Caso> findByCitaSolicitudAtencionIdOrderByFechaCreacionDesc(Long solicitudId);
+
+    /**
+     * Lista los casos asociados a una cita.
+     */
+    List<Caso> findByCitaIdOrderByFechaCreacionDesc(Long citaId);
 
     /**
      * Busca los códigos de casos que contengan el año especificado

@@ -187,10 +187,14 @@ public class CitaService {
                 : null;
 
         String profesionalNombre = "Sin asignar";
+        String tipoAsignacionNombre = "Sin asignar";
         if (sa.getAsignaciones() != null && !sa.getAsignaciones().isEmpty()) {
             Asignacion ultimaAsignacion = sa.getAsignaciones().get(sa.getAsignaciones().size() - 1);
             if (ultimaAsignacion.getGrupoProfesional() != null) {
                 profesionalNombre = ultimaAsignacion.getGrupoProfesional().getNombre();
+            }
+            if (ultimaAsignacion.getTipoAsignacion() != null) {
+                tipoAsignacionNombre = ultimaAsignacion.getTipoAsignacion().getNombre();
             }
         }
 
@@ -209,6 +213,7 @@ public class CitaService {
                 .tipoSolicitud(sa.getTipoSolicitud() != null ? sa.getTipoSolicitud().getNombre() : null)
                 .unidadAdministrativa(unidadAdministrativaNombre)
                 .profesional(profesionalNombre)
+                .tipoAsignacion(tipoAsignacionNombre)
                 .unidadAcademica(unidadAcademicaNombre)
                 .campus(campusNombre)
                 .identidadGenero(sa.getIdentidadGenero() != null ? sa.getIdentidadGenero().getNombre() : null)

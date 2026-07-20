@@ -25,8 +25,8 @@ public class Caso {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idsolicitud", nullable = false)
-    private SolicitudAtencion solicitudAtencion;
+    @JoinColumn(name = "idcita", nullable = false)
+    private Cita cita;
 
     @Column(name = "codigo", nullable = false, unique = true, length = 50)
     private String codigo;
@@ -53,6 +53,48 @@ public class Caso {
     @JoinColumn(name = "ididentidadgenero", nullable = false)
     private IdentidadGenero identidadGenero;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idregimen", nullable = false)
+    private Regimen regimen;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "ideps", nullable = false)
+    private EPS eps;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idetnia")
+    private Etnia etnia;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idciudadresidencia")
+    private Municipio ciudadResidencia;
+
+    @Column(name = "direccionresidencia", length = 500)
+    private String direccionResidencia;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idprograma")
+    private Programa programa;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idunidadadministrativa")
+    private UnidadAdministrativa unidadAdministrativa;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idunidadacademica")
+    private UnidadAcademica unidadAcademica;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idcampus")
+    private Campus campus;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idvinculoudea")
+    private VinculoUdeA vinculoUdeA;
+
+    @Column(name = "otrovinculo", length = 255)
+    private String otroVinculo;
+
     @Column(name = "hacecuantooccurrio")
     private Integer hacecuantooccurrio;
 
@@ -63,6 +105,10 @@ public class Caso {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idformaocurrencia")
     private FormaOcurrencia formaOcurrencia;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idciudadhechos")
+    private Municipio ciudadHechos;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idlugarocurrencia")
@@ -77,6 +123,10 @@ public class Caso {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idactivadmisional")
     private ActividadMisional actividadMisional;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "idestadocaso")
+    private EstadoCaso estadoCaso;
 
     @Column(name = "tipoviolenciapsicologica")
     private Boolean tipoViolenciaPsicologica;

@@ -261,6 +261,12 @@ public class MaestroController {
         return ResponseEntity.ok(catalogoService.obtenerEstadosAtencion());
     }
 
+    @GetMapping("/estados-caso")
+    @Operation(summary = "Obtener lista de estados de caso")
+    public ResponseEntity<List<MaestroDTO>> obtenerEstadosCaso() {
+        return ResponseEntity.ok(catalogoService.obtenerEstadosCaso());
+    }
+
     @GetMapping("/tipos-correo")
     @Operation(summary = "Obtener lista de tipos de correo")
     public ResponseEntity<List<MaestroDTO>> obtenerTiposCorreo() {

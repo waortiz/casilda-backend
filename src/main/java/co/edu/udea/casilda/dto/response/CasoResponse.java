@@ -5,14 +5,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * DTO Response para Atencion
- */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AtencionResponse {
-
+public class CasoResponse {
     private Long id;
+    private String codigo;
 }

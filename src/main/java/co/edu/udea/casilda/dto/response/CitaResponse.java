@@ -34,6 +34,7 @@ public class CitaResponse {
     private String tipoSolicitud;
     private String unidadAdministrativa;
     private String profesional;
+    private String tipoAsignacion;
     private String unidadAcademica;
     private String campus;
     private String identidadGenero;

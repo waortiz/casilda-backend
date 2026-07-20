@@ -9,17 +9,18 @@ import lombok.ToString;
 
 @Entity
 @Table(name = "telefonopersona")
-@IdClass(TelefonoPersonaId.class)
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class TelefonoPersona {
     
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(name = "idpersona", nullable = false)
     private Long idpersona;
 
-    @Id
     @Column(name = "idtipo", nullable = false)
     private Integer idtipo;
 
@@ -35,6 +36,4 @@ public class TelefonoPersona {
 
     @Column(nullable = false, length = 20)
     private String telefono;
-
-
 }

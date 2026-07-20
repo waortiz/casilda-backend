@@ -55,6 +55,7 @@ public class MaestroService {
     private final RoleRepository roleRepository;
     private final ResultadoContactoTelefonicoRepository resultadoContactoRepository;
     private final EstadoAtencionRepository estadoAtencionRepository;
+    private final EstadoCasoRepository estadoCasoRepository;
     private final RegimenRepository regimenRepository;
     private final EPSRepository epsRepository;
     private final TipoCorreoRepository tipoCorreoRepository;
@@ -488,6 +489,16 @@ public class MaestroService {
     public List<MaestroDTO> obtenerEstadosAtencion() {
         log.info("Obteniendo estados de atención desde la base de datos");
         return estadoAtencionRepository.findAll().stream()
+            .map(e -> new MaestroDTO(e.getId().longValue(), null, e.getNombre()))
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Obtiene lista de estados de caso (tabla estadocaso)
+     */
+    public List<MaestroDTO> obtenerEstadosCaso() {
+        log.info("Obteniendo estados de caso desde la base de datos");
+        return estadoCasoRepository.findAll().stream()
             .map(e -> new MaestroDTO(e.getId().longValue(), null, e.getNombre()))
             .collect(Collectors.toList());
     }

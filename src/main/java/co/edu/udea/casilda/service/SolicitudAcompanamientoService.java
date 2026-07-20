@@ -713,8 +713,11 @@ public class SolicitudAcompanamientoService {
             if (remision != null) {
                 remision.setUsuarioActualizacion(usuarioAutenticado);
             }
-            solicitud.getCasos().stream().findFirst()
-                    .ifPresent(caso -> caso.setUsuarioActualizacion(usuarioAutenticado));
+            casoRepository.findByCitaSolicitudAtencionIdOrderByFechaCreacionDesc(solicitud.getId()).stream().findFirst()
+                    .ifPresent(caso -> {
+                        caso.setUsuarioActualizacion(usuarioAutenticado);
+                        casoRepository.save(caso);
+                    });
         }
 
         personaRepository.save(solicitante);
